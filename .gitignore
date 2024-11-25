@@ -1,1 +1,39 @@
-/.venv
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.swp
+*.swo
+*.bak
+*.log
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Django
+*.sqlite3
+db.sqlite3
+/media/
+/staticfiles/
+
+# Migrations
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Secrets and config
+*.env
+.env
+settings_local.py
+
+# IDE and editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-generated files
+.DS_Store
+Thumbs.db
