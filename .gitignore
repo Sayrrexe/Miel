@@ -1,4 +1,3 @@
-/.venv
 /venv
 
 # Byte-compiled / optimized / DLL files
@@ -163,3 +162,43 @@ cython_debug/
 #  and can be added to the global gitignore or merged into this file.  For a more nuclear
 #  option (not recommended) you can uncomment the following to ignore the entire idea folder.
 #.idea/
+=======
+# Python
+*.pyc
+*.pyo
+*.pyd
+__pycache__/
+*.swp
+*.swo
+*.bak
+*.log
+
+# Virtual environment
+env/
+venv/
+.venv/
+
+# Django
+*.sqlite3
+db.sqlite3
+/media/
+/staticfiles/
+
+# Migrations
+**/migrations/*.py
+!**/migrations/__init__.py
+
+# Secrets and config
+*.env
+.env
+settings_local.py
+
+# IDE and editor files
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# OS-generated files
+.DS_Store
+Thumbs.db
