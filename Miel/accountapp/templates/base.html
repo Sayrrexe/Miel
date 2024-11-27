@@ -1,0 +1,690 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title %}Mile{% endblock %}</title>
+    <link rel="stylesheet" href= "{% static 'css/index.css' %}">
+    <script type="text/javascript" src="{% static 'js/index.js' %}"></script>
+
+</head>
+
+<body>
+<main class="main">
+            {% block header %}
+            {% if request.user.is_authenticated %}
+                <header class="header header-login">
+                    <div class="logo logo-login">
+                        <a href="{% url 'dashboard' %} ">
+                            <svg width="189.000000" height="46.307617" viewBox="0 0 189 46.3076" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <desc>
+                                        Created with Pixso.
+                                </desc>
+                                <defs>
+                                    <linearGradient x1="29.264362" y1="26.797693" x2="52.474117" y2="34.870659" id="paint_linear_2_15202_0" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0.261731" stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="1.000000" stop-color="#000000"/>
+                                    </linearGradient>
+                                    <linearGradient x1="24.162750" y1="1.906202" x2="56.062141" y2="18.500612" id="paint_linear_2_15203_0" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="1.000000" stop-color="#000000"/>
+                                    </linearGradient>
+                                    <linearGradient x1="14.407987" y1="27.246185" x2="34.982807" y2="45.130028" id="paint_linear_2_15204_0" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="0.877139" stop-color="#000000"/>
+                                    </linearGradient>
+                                    <linearGradient x1="16.818666" y1="4.148601" x2="20.182379" y2="29.152348" id="paint_linear_2_15205_0" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0.511576" stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="1.000000" stop-color="#000000"/>
+                                    </linearGradient>
+                                </defs>
+                                <path id="Vector" d="M189 7.72L189 38.27L185.4 38.27L185.4 7.72L189 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M157.93 38.27L157.93 7.72L168.65 7.72C170.78 7.72 172.54 8.08 173.93 8.82C175.32 9.55 176.35 10.53 177.03 11.76C177.7 12.98 178.04 14.34 178.04 15.83C178.04 17.14 177.81 18.23 177.34 19.08C176.88 19.94 176.27 20.61 175.52 21.11C174.77 21.61 173.95 21.98 173.08 22.21L173.08 22.51C174.01 22.57 174.96 22.9 175.9 23.5C176.85 24.09 177.64 24.95 178.28 26.06C178.92 27.18 179.24 28.54 179.24 30.15C179.24 31.68 178.89 33.06 178.19 34.28C177.5 35.51 176.39 36.48 174.89 37.19C173.38 37.91 171.42 38.27 169.01 38.27L157.93 38.27ZM161.64 34.98L169.01 34.98C171.43 34.98 173.15 34.52 174.17 33.58C175.2 32.64 175.71 31.49 175.71 30.15C175.71 29.12 175.45 28.16 174.92 27.29C174.39 26.4 173.63 25.7 172.66 25.17C171.68 24.63 170.52 24.36 169.19 24.36L161.64 24.36L161.64 34.98ZM161.64 21.14L168.53 21.14C169.64 21.14 170.65 20.92 171.55 20.48C172.46 20.05 173.18 19.43 173.7 18.64C174.24 17.84 174.51 16.9 174.51 15.83C174.51 14.49 174.04 13.35 173.11 12.41C172.17 11.47 170.68 11 168.65 11L161.64 11L161.64 21.14Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M129.69 7.72L129.69 38.27L126.09 38.27L109.33 14.28L109.03 14.28L109.03 38.27L105.31 38.27L105.31 7.72L108.91 7.72L125.73 31.76L126.03 31.76L126.03 7.72L129.69 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M150.49 7.72L150.49 38.27L146.88 38.27L130.13 14.28L129.83 14.28L129.83 38.27L126.1 38.27L126.1 7.72L129.7 7.72L146.52 31.76L146.82 31.76L146.82 7.72L150.49 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M97.86 7.72L97.86 38.27L94.27 38.27L94.27 7.72L97.86 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M66.8 38.27L66.8 7.72L77.51 7.72C79.65 7.72 81.41 8.08 82.79 8.82C84.18 9.55 85.21 10.53 85.89 11.76C86.57 12.98 86.91 14.34 86.91 15.83C86.91 17.14 86.68 18.23 86.21 19.08C85.75 19.94 85.14 20.61 84.38 21.11C83.63 21.61 82.82 21.98 81.94 22.21L81.94 22.51C82.88 22.57 83.82 22.9 84.77 23.5C85.72 24.09 86.51 24.95 87.15 26.06C87.79 27.18 88.11 28.54 88.11 30.15C88.11 31.68 87.76 33.06 87.06 34.28C86.36 35.51 85.26 36.48 83.75 37.19C82.25 37.91 80.29 38.27 77.87 38.27L66.8 38.27ZM70.51 34.98L77.87 34.98C80.3 34.98 82.02 34.52 83.03 33.58C84.06 32.64 84.58 31.49 84.58 30.15C84.58 29.12 84.31 28.16 83.78 27.29C83.25 26.4 82.5 25.7 81.52 25.17C80.55 24.63 79.39 24.36 78.05 24.36L70.51 24.36L70.51 34.98ZM70.51 21.14L77.39 21.14C78.51 21.14 79.52 20.92 80.42 20.48C81.32 20.05 82.04 19.43 82.57 18.64C83.11 17.84 83.38 16.9 83.38 15.83C83.38 14.49 82.91 13.35 81.97 12.41C81.03 11.47 79.55 11 77.51 11L70.51 11L70.51 21.14Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector 103" d="M33.63 18.5L21.19 41.99L42.92 46.3L56.06 18.5L33.63 18.5Z" fill="#01A2E2" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector 103" d="M33.63 18.5L21.19 41.99L42.92 46.3L56.06 18.5L33.63 18.5Z" fill="url(#paint_linear_2_15202_0)" fill-opacity="0.200000" fill-rule="nonzero"/>
+                                <path id="Vector 104" d="M14.23 2.8L33.63 18.49L56.06 18.49L35.2 0.05L14.23 2.8Z" fill="#A4D176" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector 104" d="M14.23 2.8L33.63 18.49L56.06 18.49L35.2 0.05L14.23 2.8Z" fill="url(#paint_linear_2_15203_0)" fill-opacity="0.200000" fill-rule="nonzero"/>
+                                <path id="Vector 105" d="M0 27.3L21.3 41.99L42.99 46.3L19.45 29.2L0 27.3Z" fill="#FFD665" fill-opacity="0.700000" fill-rule="nonzero"/>
+                                <path id="Vector 105" d="M0 27.3L21.3 41.99L42.99 46.3L19.45 29.2L0 27.3Z" fill="url(#paint_linear_2_15204_0)" fill-opacity="0.200000" fill-rule="nonzero"/>
+                                <path id="Vector 102" d="M14.23 2.8L0 27.3L19.45 29.2L35.37 0L14.23 2.8Z" fill="#F70707" fill-opacity="0.700000" fill-rule="nonzero"/>
+                                <path id="Vector 102" d="M14.23 2.8L0 27.3L19.45 29.2L35.37 0L14.23 2.8Z" fill="url(#paint_linear_2_15205_0)" fill-opacity="0.100000" fill-rule="nonzero"/>
+                            </svg>
+                        </a>
+
+                    </div>
+                    <div class="nav-menu">
+                        <a href="#" class="item-menu">Главная</a>
+                        <a href="#" class="item-menu">Поиск</a>
+                        <a href="#" class="item-menu">Отчёты</a>
+                    </div>
+                    <div class="header-auth">
+                            <span class="user">
+                                Привет {{ request.user.first_name|default:request.user.username }}
+                            </span>
+                            <form action="{% url 'logout' %}" method="post">
+                                {% csrf_token %}
+                                <button class="button-exit" type="submit">
+                                    <p class="text-link-menu">выйти</p>
+                                </button>
+                            </form>
+                        </div>
+                </header>
+            {% else %}
+                <header class="header">
+                    <div class="logo">
+                        <a href="#">
+                            <svg width="189.000000" height="46.307617" viewBox="0 0 189 46.3076" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+                                <desc>
+                                        Created with Pixso.
+                                </desc>
+                                <defs>
+                                    <linearGradient x1="29.264362" y1="26.797693" x2="52.474117" y2="34.870659" id="paint_linear_2_15202_0" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0.261731" stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="1.000000" stop-color="#000000"/>
+                                    </linearGradient>
+                                    <linearGradient x1="24.162750" y1="1.906202" x2="56.062141" y2="18.500612" id="paint_linear_2_15203_0" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="1.000000" stop-color="#000000"/>
+                                    </linearGradient>
+                                    <linearGradient x1="14.407987" y1="27.246185" x2="34.982807" y2="45.130028" id="paint_linear_2_15204_0" gradientUnits="userSpaceOnUse">
+                                        <stop stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="0.877139" stop-color="#000000"/>
+                                    </linearGradient>
+                                    <linearGradient x1="16.818666" y1="4.148601" x2="20.182379" y2="29.152348" id="paint_linear_2_15205_0" gradientUnits="userSpaceOnUse">
+                                        <stop offset="0.511576" stop-color="#000000" stop-opacity="0.000000"/>
+                                        <stop offset="1.000000" stop-color="#000000"/>
+                                    </linearGradient>
+                                </defs>
+                                <path id="Vector" d="M189 7.72L189 38.27L185.4 38.27L185.4 7.72L189 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M157.93 38.27L157.93 7.72L168.65 7.72C170.78 7.72 172.54 8.08 173.93 8.82C175.32 9.55 176.35 10.53 177.03 11.76C177.7 12.98 178.04 14.34 178.04 15.83C178.04 17.14 177.81 18.23 177.34 19.08C176.88 19.94 176.27 20.61 175.52 21.11C174.77 21.61 173.95 21.98 173.08 22.21L173.08 22.51C174.01 22.57 174.96 22.9 175.9 23.5C176.85 24.09 177.64 24.95 178.28 26.06C178.92 27.18 179.24 28.54 179.24 30.15C179.24 31.68 178.89 33.06 178.19 34.28C177.5 35.51 176.39 36.48 174.89 37.19C173.38 37.91 171.42 38.27 169.01 38.27L157.93 38.27ZM161.64 34.98L169.01 34.98C171.43 34.98 173.15 34.52 174.17 33.58C175.2 32.64 175.71 31.49 175.71 30.15C175.71 29.12 175.45 28.16 174.92 27.29C174.39 26.4 173.63 25.7 172.66 25.17C171.68 24.63 170.52 24.36 169.19 24.36L161.64 24.36L161.64 34.98ZM161.64 21.14L168.53 21.14C169.64 21.14 170.65 20.92 171.55 20.48C172.46 20.05 173.18 19.43 173.7 18.64C174.24 17.84 174.51 16.9 174.51 15.83C174.51 14.49 174.04 13.35 173.11 12.41C172.17 11.47 170.68 11 168.65 11L161.64 11L161.64 21.14Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M129.69 7.72L129.69 38.27L126.09 38.27L109.33 14.28L109.03 14.28L109.03 38.27L105.31 38.27L105.31 7.72L108.91 7.72L125.73 31.76L126.03 31.76L126.03 7.72L129.69 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M150.49 7.72L150.49 38.27L146.88 38.27L130.13 14.28L129.83 14.28L129.83 38.27L126.1 38.27L126.1 7.72L129.7 7.72L146.52 31.76L146.82 31.76L146.82 7.72L150.49 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M97.86 7.72L97.86 38.27L94.27 38.27L94.27 7.72L97.86 7.72Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector" d="M66.8 38.27L66.8 7.72L77.51 7.72C79.65 7.72 81.41 8.08 82.79 8.82C84.18 9.55 85.21 10.53 85.89 11.76C86.57 12.98 86.91 14.34 86.91 15.83C86.91 17.14 86.68 18.23 86.21 19.08C85.75 19.94 85.14 20.61 84.38 21.11C83.63 21.61 82.82 21.98 81.94 22.21L81.94 22.51C82.88 22.57 83.82 22.9 84.77 23.5C85.72 24.09 86.51 24.95 87.15 26.06C87.79 27.18 88.11 28.54 88.11 30.15C88.11 31.68 87.76 33.06 87.06 34.28C86.36 35.51 85.26 36.48 83.75 37.19C82.25 37.91 80.29 38.27 77.87 38.27L66.8 38.27ZM70.51 34.98L77.87 34.98C80.3 34.98 82.02 34.52 83.03 33.58C84.06 32.64 84.58 31.49 84.58 30.15C84.58 29.12 84.31 28.16 83.78 27.29C83.25 26.4 82.5 25.7 81.52 25.17C80.55 24.63 79.39 24.36 78.05 24.36L70.51 24.36L70.51 34.98ZM70.51 21.14L77.39 21.14C78.51 21.14 79.52 20.92 80.42 20.48C81.32 20.05 82.04 19.43 82.57 18.64C83.11 17.84 83.38 16.9 83.38 15.83C83.38 14.49 82.91 13.35 81.97 12.41C81.03 11.47 79.55 11 77.51 11L70.51 11L70.51 21.14Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector 103" d="M33.63 18.5L21.19 41.99L42.92 46.3L56.06 18.5L33.63 18.5Z" fill="#01A2E2" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector 103" d="M33.63 18.5L21.19 41.99L42.92 46.3L56.06 18.5L33.63 18.5Z" fill="url(#paint_linear_2_15202_0)" fill-opacity="0.200000" fill-rule="nonzero"/>
+                                <path id="Vector 104" d="M14.23 2.8L33.63 18.49L56.06 18.49L35.2 0.05L14.23 2.8Z" fill="#A4D176" fill-opacity="1.000000" fill-rule="nonzero"/>
+                                <path id="Vector 104" d="M14.23 2.8L33.63 18.49L56.06 18.49L35.2 0.05L14.23 2.8Z" fill="url(#paint_linear_2_15203_0)" fill-opacity="0.200000" fill-rule="nonzero"/>
+                                <path id="Vector 105" d="M0 27.3L21.3 41.99L42.99 46.3L19.45 29.2L0 27.3Z" fill="#FFD665" fill-opacity="0.700000" fill-rule="nonzero"/>
+                                <path id="Vector 105" d="M0 27.3L21.3 41.99L42.99 46.3L19.45 29.2L0 27.3Z" fill="url(#paint_linear_2_15204_0)" fill-opacity="0.200000" fill-rule="nonzero"/>
+                                <path id="Vector 102" d="M14.23 2.8L0 27.3L19.45 29.2L35.37 0L14.23 2.8Z" fill="#F70707" fill-opacity="0.700000" fill-rule="nonzero"/>
+                                <path id="Vector 102" d="M14.23 2.8L0 27.3L19.45 29.2L35.37 0L14.23 2.8Z" fill="url(#paint_linear_2_15205_0)" fill-opacity="0.100000" fill-rule="nonzero"/>
+                            </svg>
+                        </a>
+
+                    </div>
+                    <div class="nav-menu">
+<!--                        <a href="{% url 'dashboard' %}" class="item-menu">Главная</a>-->
+<!--                        <a href="#" class="item-menu">Контакты</a>-->
+                    </div>
+                    <div class="personal-account">
+                        <a href="{% url 'dashboard' %}" class="item-personal-account-left open-popup">Регистрация</a>
+                        <a href="{% url 'login' %}" class="item-personal-account-right open-popup-2">Вход</a>
+                    </div>
+                </header>
+            {% endif %}
+            {% endblock %}
+<!--    {% block content %}-->
+<!--        <section class="top-content">-->
+<!--            <div class="left-content">-->
+<!--                <div class="text-content">-->
+<!--                    <h1 class="title-content">-->
+<!--                        Анализ конкурентов-->
+<!--                        и обзор рынка за считанные минуты-->
+<!--                    </h1>-->
+<!--                    <p class="description-content">-->
+<!--                        Автоматические отчеты,-->
+<!--                        которые увеличат ваш доход и помогут вам опередить конкурентов.-->
+<!--                    </p>-->
+<!--                    <div class="link-content">-->
+<!--                        {% if request.user.is_authenticated %}-->
+<!--                            <div class="link-arrow">-->
+<!--                                <a href="{% url 'start_analiz' %}" class="top-content-link-left">Начать анализ-->
+<!--                                <svg class="arrow-vector" width="14.000977" height="13.313965" viewBox="0 0 14.001 13.314" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                                    <desc>-->
+<!--                                            Created with Pixso.-->
+<!--                                    </desc>-->
+<!--                                    <defs/>-->
+<!--                                    <path id="Vector" d="M10.58 5.64L6.63 1.69C6.45 1.5 6.35 1.25 6.35 0.99C6.35 0.72 6.46 0.47 6.64 0.29C6.83 0.1 7.08 0 7.34 0C7.6 -0.01 7.86 0.09 8.04 0.28L13.7 5.93C13.8 6.03 13.87 6.14 13.92 6.26C13.97 6.38 14 6.51 14 6.64C14 6.77 13.97 6.9 13.92 7.02C13.87 7.14 13.8 7.25 13.7 7.35L8.04 13C7.95 13.1 7.84 13.18 7.72 13.23C7.6 13.28 7.47 13.31 7.33 13.31C7.2 13.31 7.07 13.29 6.95 13.23C6.82 13.18 6.71 13.11 6.62 13.02C6.52 12.92 6.45 12.81 6.4 12.69C6.35 12.56 6.32 12.43 6.33 12.3C6.33 12.17 6.35 12.04 6.41 11.91C6.46 11.79 6.54 11.68 6.63 11.59L10.58 7.64L1 7.64C0.73 7.64 0.48 7.53 0.29 7.35C0.1 7.16 0 6.91 0 6.64C0 6.37 0.1 6.12 0.29 5.93C0.48 5.75 0.73 5.64 1 5.64L10.58 5.64Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </svg>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                        {% else %}-->
+<!--                                <div class="link-arrow">-->
+<!--                                <a href="#" class="top-content-link-left">Начать анализ-->
+<!--                                <svg class="arrow-vector" width="14.000977" height="13.313965" viewBox="0 0 14.001 13.314" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                                    <desc>-->
+<!--                                            Created with Pixso.-->
+<!--                                    </desc>-->
+<!--                                    <defs/>-->
+<!--                                    <path id="Vector" d="M10.58 5.64L6.63 1.69C6.45 1.5 6.35 1.25 6.35 0.99C6.35 0.72 6.46 0.47 6.64 0.29C6.83 0.1 7.08 0 7.34 0C7.6 -0.01 7.86 0.09 8.04 0.28L13.7 5.93C13.8 6.03 13.87 6.14 13.92 6.26C13.97 6.38 14 6.51 14 6.64C14 6.77 13.97 6.9 13.92 7.02C13.87 7.14 13.8 7.25 13.7 7.35L8.04 13C7.95 13.1 7.84 13.18 7.72 13.23C7.6 13.28 7.47 13.31 7.33 13.31C7.2 13.31 7.07 13.29 6.95 13.23C6.82 13.18 6.71 13.11 6.62 13.02C6.52 12.92 6.45 12.81 6.4 12.69C6.35 12.56 6.32 12.43 6.33 12.3C6.33 12.17 6.35 12.04 6.41 11.91C6.46 11.79 6.54 11.68 6.63 11.59L10.58 7.64L1 7.64C0.73 7.64 0.48 7.53 0.29 7.35C0.1 7.16 0 6.91 0 6.64C0 6.37 0.1 6.12 0.29 5.93C0.48 5.75 0.73 5.64 1 5.64L10.58 5.64Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </svg>-->
+<!--                                </a>-->
+<!--                            </div>-->
+<!--                        {% endif %}-->
+
+<!--                        <a href="#" class="top-content-link-right open-popup">Регистрация</a>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--            <div class="right-content">-->
+<!--                <div class="image-content">-->
+<!--                </div>-->
+<!--            </div>-->
+
+<!--        </section>-->
+<!--        <section class="advantages-content">-->
+<!--            <div class="text-content-all">-->
+<!--                <p class="title-all-content">-->
+<!--                    Преимущества анализа конкурентов и обзора рынка с нами-->
+<!--                <p>-->
+<!--            </div>-->
+<!--            <div class="carts-advantages">-->
+<!--                <div class="cart-advantages">-->
+<!--                    <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                        <desc>-->
+<!--                                Created with Pixso.-->
+<!--                        </desc>-->
+<!--                        <defs>-->
+<!--                            <clipPath id="clip72_11124">-->
+<!--                                <rect id="icon / tabler-icons / adjustments-horizontal" width="48.000000" height="48.000000" fill="white" fill-opacity="0"/>-->
+<!--                            </clipPath>-->
+<!--                        </defs>-->
+<!--                        <g opacity="0.400000">-->
+<!--                            <rect id="icon / tabler-icons / adjustments-horizontal" width="48.000000" height="48.000000" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                            <g clip-path="url(#clip72_11124)">-->
+<!--                                <path id="Vector" d="M28 16C25.79 16 24 14.2 24 12C24 9.79 25.79 8 28 8C30.2 8 32 9.79 32 12C32 14.2 30.2 16 28 16Z" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round"/>-->
+<!--                                <path id="Vector" d="M8 12L24 12" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round" stroke-linecap="round"/>-->
+<!--                                <path id="Vector" d="M32 12L40 12" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round" stroke-linecap="round"/>-->
+<!--                                <path id="Vector" d="M16 28C13.79 28 12 26.2 12 24C12 21.79 13.79 20 16 20C18.2 20 20 21.79 20 24C20 26.2 18.2 28 16 28Z" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round"/>-->
+<!--                                <path id="Vector" d="M8 24L12 24" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round" stroke-linecap="round"/>-->
+<!--                                <path id="Vector" d="M20 24L40 24" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round" stroke-linecap="round"/>-->
+<!--                                <path id="Vector" d="M34 40C31.79 40 30 38.2 30 36C30 33.79 31.79 32 34 32C36.2 32 38 33.79 38 36C38 38.2 36.2 40 34 40Z" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round"/>-->
+<!--                                <path id="Vector" d="M8 36L30 36" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round" stroke-linecap="round"/>-->
+<!--                                <path id="Vector" d="M38 36L40 36" stroke="#2F80ED" stroke-opacity="1.000000" stroke-width="3.000000" stroke-linejoin="round" stroke-linecap="round"/>-->
+<!--                            </g>-->
+<!--                        </g>-->
+<!--                    </svg>-->
+<!--                    <p class="title-cart">Точность данных</p>-->
+<!--                    <p class="description-cart">Наши алгоритмы обеспечивают-->
+<!--                        высокую точность анализа конкурентов и обзора рынка-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--                <div class="cart-advantages">-->
+<!--                    <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                        <desc>-->
+<!--                                Created with Pixso.-->
+<!--                        </desc>-->
+<!--                        <defs>-->
+<!--                            <clipPath id="clip72_11136">-->
+<!--                                <rect id="icon / jam-icons / outline &amp; logos / plane" width="48.000000" height="48.000000" fill="white" fill-opacity="0"/>-->
+<!--                            </clipPath>-->
+<!--                            <clipPath id="clip72_11135">-->
+<!--                                <rect id="icon / jam-icons / outline &amp; logos / files" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="white" fill-opacity="0"/>-->
+<!--                            </clipPath>-->
+<!--                        </defs>-->
+<!--                        <g opacity="0.400000">-->
+<!--                            <rect id="icon / jam-icons / outline &amp; logos / files" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                            <g clip-path="url(#clip72_11135)">-->
+<!--                                <rect id="icon / jam-icons / outline &amp; logos / plane" width="48.000000" height="48.000000" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                                <g clip-path="url(#clip72_11136)">-->
+<!--                                    <path id="Vector" d="M24.44 21.18L13.43 32.2L9.69 30.65L9.35 30.99L14.11 34.16L17.29 38.92L17.62 38.58L16.07 34.85L27.09 23.83L35.75 36.33L36.17 35.92L30.39 20.52L39.19 11.73C39.37 11.56 39.5 11.35 39.6 11.12C39.69 10.89 39.74 10.65 39.74 10.41C39.74 10.16 39.69 9.92 39.6 9.69C39.5 9.46 39.37 9.26 39.19 9.08C39.02 8.91 38.81 8.77 38.59 8.68C38.36 8.58 38.12 8.54 37.87 8.54C37.62 8.54 37.38 8.58 37.15 8.68C36.93 8.77 36.72 8.91 36.55 9.08L27.75 17.88L12.36 12.11L11.94 12.53L24.44 21.18ZM35.23 42.15L26.56 29.64L20.48 35.72L22.04 39.46L16.71 44.79L11.42 36.86L3.48 31.57L8.81 26.23L12.55 27.79L18.63 21.71L6.12 13.05L11.42 7.76L26.81 13.53L33.9 6.44C34.42 5.91 35.04 5.48 35.72 5.19C36.41 4.9 37.14 4.75 37.88 4.75C38.63 4.74 39.36 4.88 40.05 5.17C40.74 5.45 41.36 5.86 41.88 6.39C42.41 6.91 42.83 7.54 43.11 8.23C43.39 8.91 43.53 9.65 43.53 10.39C43.52 11.13 43.37 11.87 43.08 12.55C42.79 13.24 42.37 13.85 41.84 14.37L34.74 21.47L40.52 36.86L35.22 42.15L35.23 42.15Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </g>-->
+<!--                            </g>-->
+<!--                        </g>-->
+<!--                    </svg>-->
+<!--                    <p class="title-cart">Быстрота</p>-->
+<!--                    <p class="description-cart">-->
+<!--                        Получите подробные-->
+<!--                        отчеты по анализу конкурентов и-->
+<!--                        обзору рынка всего за несколько минут-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--                <div class="cart-advantages">-->
+<!--                    <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                        <desc>-->
+<!--                                Created with Pixso.-->
+<!--                        </desc>-->
+<!--                        <defs>-->
+<!--                            <clipPath id="clip72_11148">-->
+<!--                                <rect id="icon / ionicons / outline / hand-right-outline" width="48.000000" height="48.000000" fill="white" fill-opacity="0"/>-->
+<!--                            </clipPath>-->
+<!--                            <clipPath id="clip72_11147">-->
+<!--                                <rect id="icon / jam-icons / outline &amp; logos / pizza-slice" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="white" fill-opacity="0"/>-->
+<!--                            </clipPath>-->
+<!--                        </defs>-->
+<!--                        <g opacity="0.400000">-->
+<!--                            <rect id="icon / jam-icons / outline &amp; logos / pizza-slice" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                            <g clip-path="url(#clip72_11147)">-->
+<!--                                <rect id="icon / ionicons / outline / hand-right-outline" width="48.000000" height="48.000000" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                                <g clip-path="url(#clip72_11148)">-->
+<!--                                    <path id="Vector (Stroke)" d="M34.31 10.31C35.16 9.47 36.3 9 37.5 9C38.69 9 39.83 9.47 40.68 10.31C41.52 11.16 42 12.3 42 13.5L42 30C42 30.82 41.32 31.5 40.5 31.5C39.67 31.5 39 30.82 39 30L39 13.5C39 13.1 38.84 12.72 38.56 12.43C38.27 12.15 37.89 12 37.5 12C37.1 12 36.72 12.15 36.43 12.43C36.15 12.72 36 13.1 36 13.5L36 24C36 24.82 35.32 25.5 34.5 25.5C33.67 25.5 33 24.82 33 24L33 13.5C33 12.3 33.47 11.16 34.31 10.31Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="evenodd"/>-->
+<!--                                    <path id="Vector (Stroke)" d="M28.31 4.31C29.16 3.47 30.3 3 31.5 3C32.69 3 33.83 3.47 34.68 4.31C35.52 5.16 36 6.3 36 7.5L36 24C36 24.82 35.32 25.5 34.5 25.5C33.67 25.5 33 24.82 33 24L33 7.5C33 7.1 32.84 6.72 32.56 6.43C32.27 6.15 31.89 6 31.5 6C31.1 6 30.72 6.15 30.43 6.43C30.15 6.72 30 7.1 30 7.5L30 22.5C30 23.32 29.32 24 28.5 24C27.67 24 27 23.32 27 22.5L27 7.5C27 6.3 27.47 5.16 28.31 4.31Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="evenodd"/>-->
+<!--                                    <path id="Vector (Stroke)" d="M16.31 5.81C17.16 4.97 18.3 4.5 19.5 4.5C20.69 4.5 21.83 4.97 22.68 5.81C23.52 6.66 24 7.8 24 9L24 22.59C24 23.42 23.32 24.09 22.5 24.09C21.67 24.09 21 23.42 21 22.59L21 9C21 8.6 20.84 8.22 20.56 7.93C20.27 7.65 19.89 7.5 19.5 7.5C19.1 7.5 18.72 7.65 18.43 7.93C18.15 8.22 18 8.6 18 9L18 30C18 30.82 17.32 31.5 16.5 31.5C15.67 31.5 15 30.82 15 30L15 9C15 7.8 15.47 6.66 16.31 5.81Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="evenodd"/>-->
+<!--                                    <path id="Vector (Stroke)" d="M22.31 1.31C23.16 0.47 24.3 0 25.5 0C26.69 0 27.83 0.47 28.68 1.31C29.52 2.16 30 3.3 30 4.5L30 22.5C30 23.32 29.32 24 28.5 24C27.67 24 27 23.32 27 22.5L27 4.5C27 4.1 26.84 3.72 26.56 3.43C26.27 3.15 25.89 3 25.5 3C25.1 3 24.72 3.15 24.43 3.43C24.15 3.72 24 4.1 24 4.5L24 22.5C24 23.32 23.32 24 22.5 24C21.67 24 21 23.32 21 22.5L21 4.5C21 3.3 21.47 2.16 22.31 1.31Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="evenodd"/>-->
+<!--                                    <path id="Vector (Stroke)" d="M11.72 22.4C11.36 21.79 10.46 21.51 9.66 21.96L9.66 21.96C9.28 22.18 9.11 22.44 9.04 22.74C8.96 23.07 8.97 23.58 9.21 24.23L9.22 24.23L14.14 37.7C15.03 39.8 16.19 41.58 17.98 42.85C19.78 44.12 22.35 45 26.25 45C30.03 45 33.16 43.74 35.36 41.36C37.57 38.96 39 35.23 39 30C39 29.17 39.67 28.5 40.5 28.5C41.32 28.5 42 29.17 42 30C42 35.76 40.42 40.29 37.57 43.39C34.7 46.5 30.71 48 26.25 48C21.89 48 18.67 47.01 16.25 45.29C13.83 43.58 12.38 41.25 11.36 38.82C11.35 38.8 11.34 38.78 11.34 38.76L6.4 25.26C6.4 25.26 6.4 25.26 6.4 25.26C6.02 24.22 5.86 23.09 6.13 22.02C6.4 20.9 7.1 19.97 8.18 19.35C8.18 19.35 8.18 19.35 8.18 19.35C10.27 18.16 13.17 18.71 14.4 21.05C14.42 21.09 14.44 21.14 14.46 21.18L17.88 29.42C18.2 30.18 17.84 31.06 17.07 31.38C16.31 31.7 15.43 31.33 15.11 30.57L11.72 22.4Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="evenodd"/>-->
+<!--                                </g>-->
+<!--                            </g>-->
+<!--                        </g>-->
+<!--                    </svg>-->
+<!--                    <p class="title-cart">Удобство</p>-->
+<!--                    <p class="description-cart">-->
+<!--                        Интуитивно понятный интерфейс-->
+<!--                        для простого получения анализа-->
+<!--                        конкурентов и обзора рынка-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--                <div class="cart-advantages">-->
+<!--                    <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                        <desc>-->
+<!--                                Created with Pixso.-->
+<!--                        </desc>-->
+<!--                        <defs>-->
+<!--                            <clipPath id="clip72_11159">-->
+<!--                                <rect id="icon / jam-icons / outline &amp; logos / activity" width="48.000000" height="48.000000" fill="white" fill-opacity="0"/>-->
+<!--                            </clipPath>-->
+<!--                        </defs>-->
+<!--                        <g opacity="0.400000">-->
+<!--                            <rect id="icon / jam-icons / outline &amp; logos / activity" width="48.000000" height="48.000000" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                            <g clip-path="url(#clip72_11159)">-->
+<!--                                <path id="Vector" d="M18.23 27.49L16 9.89L13.76 27.49L6 27.49C4.89 27.49 4 26.62 4 25.54C4 25.01 4.22 24.51 4.59 24.15C4.97 23.78 5.47 23.58 6 23.58L10.23 23.58L12.03 9.41C12.29 7.27 14.29 5.75 16.49 6.01C18.31 6.23 19.74 7.63 19.96 9.41L21.76 23.58L25.71 23.58L28 38.08L30.28 23.59L42 23.59C43.1 23.59 44 24.46 44 25.54C44 26.62 43.1 27.5 42 27.5L33.71 27.5L31.95 38.67C31.81 39.5 31.41 40.26 30.81 40.85C30.21 41.44 29.44 41.82 28.6 41.94C26.42 42.27 24.38 40.8 24.04 38.67L22.28 27.5L18.23 27.5L18.23 27.49Z" fill="#2F80ED" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            </g>-->
+<!--                        </g>-->
+<!--                    </svg>-->
+<!--                    <p class="title-cart">Глубокий анализ</p>-->
+<!--                    <p class="description-cart">-->
+<!--                        Подробные отчеты помогают нашим клиентам-->
+<!--                        увеличивать доходы на 20%-->
+<!--                    </p>-->
+<!--                </div>-->
+<!--            </div>-->
+<!--        </section>-->
+<!--        <section class="example-content">-->
+<!--            <div class="example-title-block">-->
+<!--                <p class="text-content-all">-->
+<!--                    Примеры отчётов по анализу конкурентов и обзору рынка-->
+<!--                </p>-->
+<!--                <p class="description-content example-description">-->
+<!--                    Посмотрите, какие данные вы получите-->
+<!--                    в отчетах по анализу конкурентов и обзору рынка.-->
+<!--                </p>-->
+<!--            </div>-->
+<!--            <div class="top-content">-->
+<!--                <div class="left-content">-->
+<!--                    <div class="text-content example-text-content">-->
+<!--                        <p class="title-content example-content-title">-->
+<!--                            Анализ конкурентов-->
+<!--                        </p>-->
+<!--                        <p class="description-content">-->
+<!--                            Получите детализированные отчеты о ваших ключевых соперниках. Узнайте об их стратегиях, сильных и слабых сторонах,-->
+<!--                            а также получите инсайты для улучшения своих собственных позиций на рынке.-->
+<!--                        </p>-->
+<!--                        <p class="description-content-second">-->
+<!--                            Наш сервис помог компании-->
+<!--                            XYZ увеличить свою долю рынка на 15% за счет-->
+<!--                            детализированного анализа конкурентов.-->
+<!--                        </p>-->
+<!--                    </div>-->
+<!--                </div>-->
+<!--                <div class="right-content example-right-content">-->
+<!--                    <div class="image-content-example">-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--            </div>-->
+<!--            <div class="market-overview">-->
+<!--                <div class="top-content">-->
+<!--                    <div class="right-content market-overview-right">-->
+<!--                    </div>-->
+<!--                    <div class="left-content">-->
+<!--                        <div class="text-content example-text-content">-->
+<!--                            <p class="title-content example-content-title">-->
+<!--                                Обзор рынка-->
+<!--                            </p>-->
+<!--                            <p class="description-content">-->
+<!--                                Наш сервис предоставляет полные данные о текущих рыночных трендах,-->
+<!--                                анализе спроса и предложения, а также прогнозы развития рынка. Эти-->
+<!--                                данные помогут вам лучше понять рыночную ситуацию и найти новые-->
+<!--                                возможности для роста.-->
+<!--                            </p>-->
+<!--                            <p class="description-content-second">-->
+<!--                                Наши клиенты, используя обзоры рынка,-->
+<!--                                открыли новые рынки и увеличили продажи на 25%.-->
+<!--                            </p>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+
+<!--                </div>-->
+
+<!--            </div>-->
+
+<!--        </section>-->
+<!--        <section class="motivation-content">-->
+<!--            <div class="example-title-block motivation-title-block">-->
+<!--                <p class="text-content-all text-motivation">-->
+<!--                    Готовы к точному анализу конкурентов и обзору рынка?-->
+<!--                </p>-->
+<!--                <p class="description-content example-description motivation-description">-->
+<!--                    Начните использовать наш-->
+<!--                    сервис для роста вашего бизнеса прямо сейчас!-->
+<!--                </p>-->
+<!--            </div>-->
+<!--            <div class="link-content link-arrow-motivation">-->
+<!--                {% if request.user.is_authenticated %}-->
+<!--                    <div class="link-arrow ">-->
+<!--                        <a href="{% url 'start_analiz' %}" class="top-content-link-left">Начать анализ-->
+<!--                        <svg class="arrow-vector" width="14.000977" height="13.313965" viewBox="0 0 14.001 13.314" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                            <desc>-->
+<!--                                    Created with Pixso.-->
+<!--                            </desc>-->
+<!--                            <defs/>-->
+<!--                            <path id="Vector" d="M10.58 5.64L6.63 1.69C6.45 1.5 6.35 1.25 6.35 0.99C6.35 0.72 6.46 0.47 6.64 0.29C6.83 0.1 7.08 0 7.34 0C7.6 -0.01 7.86 0.09 8.04 0.28L13.7 5.93C13.8 6.03 13.87 6.14 13.92 6.26C13.97 6.38 14 6.51 14 6.64C14 6.77 13.97 6.9 13.92 7.02C13.87 7.14 13.8 7.25 13.7 7.35L8.04 13C7.95 13.1 7.84 13.18 7.72 13.23C7.6 13.28 7.47 13.31 7.33 13.31C7.2 13.31 7.07 13.29 6.95 13.23C6.82 13.18 6.71 13.11 6.62 13.02C6.52 12.92 6.45 12.81 6.4 12.69C6.35 12.56 6.32 12.43 6.33 12.3C6.33 12.17 6.35 12.04 6.41 11.91C6.46 11.79 6.54 11.68 6.63 11.59L10.58 7.64L1 7.64C0.73 7.64 0.48 7.53 0.29 7.35C0.1 7.16 0 6.91 0 6.64C0 6.37 0.1 6.12 0.29 5.93C0.48 5.75 0.73 5.64 1 5.64L10.58 5.64Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                        </svg>-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                {% else %}-->
+<!--                    <div class="link-arrow ">-->
+<!--                        <a href="#" class="top-content-link-left">Начать анализ-->
+<!--                        <svg class="arrow-vector" width="14.000977" height="13.313965" viewBox="0 0 14.001 13.314" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                            <desc>-->
+<!--                                    Created with Pixso.-->
+<!--                            </desc>-->
+<!--                            <defs/>-->
+<!--                            <path id="Vector" d="M10.58 5.64L6.63 1.69C6.45 1.5 6.35 1.25 6.35 0.99C6.35 0.72 6.46 0.47 6.64 0.29C6.83 0.1 7.08 0 7.34 0C7.6 -0.01 7.86 0.09 8.04 0.28L13.7 5.93C13.8 6.03 13.87 6.14 13.92 6.26C13.97 6.38 14 6.51 14 6.64C14 6.77 13.97 6.9 13.92 7.02C13.87 7.14 13.8 7.25 13.7 7.35L8.04 13C7.95 13.1 7.84 13.18 7.72 13.23C7.6 13.28 7.47 13.31 7.33 13.31C7.2 13.31 7.07 13.29 6.95 13.23C6.82 13.18 6.71 13.11 6.62 13.02C6.52 12.92 6.45 12.81 6.4 12.69C6.35 12.56 6.32 12.43 6.33 12.3C6.33 12.17 6.35 12.04 6.41 11.91C6.46 11.79 6.54 11.68 6.63 11.59L10.58 7.64L1 7.64C0.73 7.64 0.48 7.53 0.29 7.35C0.1 7.16 0 6.91 0 6.64C0 6.37 0.1 6.12 0.29 5.93C0.48 5.75 0.73 5.64 1 5.64L10.58 5.64Z" fill="#FFFFFF" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                        </svg>-->
+<!--                        </a>-->
+<!--                    </div>-->
+<!--                {% endif %}-->
+
+<!--                <a href="#" class="top-content-link-right open-popup">Регистрация</a>-->
+<!--            </div>-->
+<!--            <div class="market-overview">-->
+<!--                <div class="top-content motivation">-->
+<!--                    <div class="right-content motivation-right">-->
+<!--                    </div>-->
+<!--                    <div class="left-content carts-advantages motivation-carts">-->
+<!--                        <div class="cart-advantages motivation-cart ">-->
+<!--                            <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                                <desc>-->
+<!--                                        Created with Pixso.-->
+<!--                                </desc>-->
+<!--                                <defs>-->
+<!--                                    <clipPath id="clip72_11256">-->
+<!--                                        <rect id="icon / jam-icons / outline &amp; logos / smiley" width="24.000000" height="24.000000" transform="translate(12.000000 12.000000)" fill="white" fill-opacity="0"/>-->
+<!--                                    </clipPath>-->
+<!--                                </defs>-->
+<!--                                <rect id="Icon Container" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="#DDE1E6" fill-opacity="1.000000"/>-->
+<!--                                <g clip-path="url(#clip72_11256)">-->
+<!--                                    <path id="Vector" d="M24 34C18.47 34 14 29.52 14 24C14 18.47 18.47 14 24 14C29.52 14 34 18.47 34 24C34 29.52 29.52 34 24 34ZM24 32C26.12 32 28.15 31.15 29.65 29.65C31.15 28.15 32 26.12 32 24C32 21.87 31.15 19.84 29.65 18.34C28.15 16.84 26.12 16 24 16C21.87 16 19.84 16.84 18.34 18.34C16.84 19.84 16 21.87 16 24C16 26.12 16.84 28.15 18.34 29.65C19.84 31.15 21.87 32 24 32ZM20.08 27.39C20.02 27.27 20 27.14 19.99 27.01C19.99 26.88 20.02 26.75 20.07 26.62C20.11 26.5 20.19 26.39 20.28 26.3C20.37 26.2 20.48 26.13 20.6 26.08C20.72 26.02 20.85 26 20.98 25.99C21.11 25.99 21.25 26.02 21.37 26.07C21.49 26.11 21.6 26.19 21.69 26.28C21.79 26.37 21.86 26.48 21.91 26.6C22.09 27.01 22.38 27.35 22.75 27.6C23.12 27.84 23.55 27.97 24 27.97C24.44 27.97 24.87 27.84 25.24 27.6C25.61 27.35 25.9 27.01 26.08 26.6C26.13 26.48 26.2 26.37 26.3 26.28C26.39 26.19 26.5 26.11 26.62 26.07C26.75 26.02 26.88 25.99 27.01 25.99C27.14 26 27.27 26.02 27.39 26.08C27.51 26.13 27.62 26.2 27.71 26.3C27.8 26.39 27.88 26.5 27.92 26.62C27.97 26.75 28 26.88 28 27.01C27.99 27.14 27.97 27.27 27.91 27.39C27.59 28.16 27.04 28.81 26.34 29.27C25.65 29.73 24.83 29.98 24 29.98C23.16 29.98 22.34 29.73 21.65 29.27C20.95 28.81 20.4 28.16 20.08 27.39ZM21 20C21.26 20 21.51 20.1 21.7 20.29C21.89 20.48 22 20.73 22 21L22 23C22 23.26 21.89 23.51 21.7 23.7C21.51 23.89 21.26 24 21 24C20.73 24 20.48 23.89 20.29 23.7C20.1 23.51 20 23.26 20 23L20 21C20 20.73 20.1 20.48 20.29 20.29C20.48 20.1 20.73 20 21 20ZM27 20C27.26 20 27.51 20.1 27.7 20.29C27.89 20.48 28 20.73 28 21L28 23C28 23.26 27.89 23.51 27.7 23.7C27.51 23.89 27.26 24 27 24C26.73 24 26.48 23.89 26.29 23.7C26.1 23.51 26 23.26 26 23L26 21C26 20.73 26.1 20.48 26.29 20.29C26.48 20.1 26.73 20 27 20Z" fill="#697077" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </g>-->
+<!--                            </svg>-->
+<!--                            <div class="text-content-cart text-content-cart-motivation">-->
+<!--                                <p class="title-cart">-->
+<!--                                    Тренды-->
+<!--                                </p>-->
+<!--                                <p class="description-cart description-cart-motivation ">-->
+<!--                                    Текущие рыночные тренды и прогнозы-->
+<!--                                </p>-->
+<!--                            </div>-->
+
+<!--                        </div>-->
+<!--                        <div class="cart-advantages motivation-cart ">-->
+<!--                            <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                                <desc>-->
+<!--                                        Created with Pixso.-->
+<!--                                </desc>-->
+<!--                                <defs>-->
+<!--                                    <clipPath id="clip72_11279">-->
+<!--                                        <rect id="icon / jam-icons / outline &amp; logos / pizza-slice" width="24.000000" height="24.000000" transform="translate(12.000000 12.000000)" fill="white" fill-opacity="0"/>-->
+<!--                                    </clipPath>-->
+<!--                                </defs>-->
+<!--                                <rect id="Icon Container" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="#DDE1E6" fill-opacity="1.000000"/>-->
+<!--                                <g clip-path="url(#clip72_11279)">-->
+<!--                                    <path id="Vector" d="M18.25 20.88L23.97 30.97L29.58 21.14C28.25 21.04 26.87 20.69 25.34 20.15C24.95 20.01 24.74 19.98 24.56 20C24.41 20.02 22.84 20.57 21.92 20.8C20.76 21.1 19.53 21.12 18.25 20.88ZM16.84 18.39C18.55 19.06 20.07 19.21 21.43 18.87C22.16 18.68 23.91 18.07 24.31 18.02C24.84 17.95 25.34 18.03 26.01 18.26C27.78 18.89 29.3 19.22 30.71 19.17L31.6 17.62C29.2 16.54 26.59 15.99 23.96 16C21.35 15.99 18.77 16.53 16.39 17.59L16.84 18.39L16.84 18.39ZM14.54 16.26C17.45 14.77 20.68 13.99 23.96 14C27.32 14 30.57 14.8 33.46 16.3C33.58 16.36 33.68 16.45 33.77 16.55C33.85 16.66 33.92 16.78 33.95 16.91C33.99 17.04 34 17.17 33.99 17.3C33.97 17.44 33.93 17.57 33.86 17.68L24.83 33.49C24.74 33.64 24.61 33.77 24.46 33.86C24.31 33.95 24.14 33.99 23.96 33.99C23.78 33.99 23.61 33.95 23.46 33.86C23.3 33.77 23.18 33.64 23.09 33.49L14.12 17.64C14.06 17.53 14.02 17.4 14 17.27C13.99 17.13 14 17 14.04 16.87C14.08 16.74 14.14 16.62 14.23 16.52C14.31 16.41 14.42 16.33 14.54 16.27L14.54 16.26ZM22 24C21.73 24 21.48 23.89 21.29 23.7C21.1 23.51 21 23.26 21 23C21 22.73 21.1 22.48 21.29 22.29C21.48 22.1 21.73 22 22 22C22.26 22 22.51 22.1 22.7 22.29C22.89 22.48 23 22.73 23 23C23 23.26 22.89 23.51 22.7 23.7C22.51 23.89 22.26 24 22 24ZM25 27C24.73 27 24.48 26.89 24.29 26.7C24.1 26.51 24 26.26 24 26C24 25.73 24.1 25.48 24.29 25.29C24.48 25.1 24.73 25 25 25C25.26 25 25.51 25.1 25.7 25.29C25.89 25.48 26 25.73 26 26C26 26.26 25.89 26.51 25.7 26.7C25.51 26.89 25.26 27 25 27Z" fill="#697077" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </g>-->
+<!--                            </svg>-->
+
+<!--                            <div class="text-content-cart text-content-cart-motivation">-->
+<!--                                <p class="title-cart">-->
+<!--                                    Возможности-->
+<!--                                </p>-->
+<!--                                <p class="description-cart description-cart-motivation ">-->
+<!--                                    Выявление рыночных-->
+<!--                                возможностей для-->
+<!--                                расширения бизнеса-->
+<!--                                </p>-->
+<!--                            </div>-->
+
+<!--                        </div>-->
+<!--                        <div class="cart-advantages motivation-cart ">-->
+<!--                            <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                                <desc>-->
+<!--                                        Created with Pixso.-->
+<!--                                </desc>-->
+<!--                                <defs>-->
+<!--                                    <clipPath id="clip72_11267">-->
+<!--                                        <rect id="icon / jam-icons / outline &amp; logos / files" width="24.000000" height="24.000000" transform="translate(12.000000 12.000000)" fill="white" fill-opacity="0"/>-->
+<!--                                    </clipPath>-->
+<!--                                </defs>-->
+<!--                                <rect id="Icon Container" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="#DDE1E6" fill-opacity="1.000000"/>-->
+<!--                                <g clip-path="url(#clip72_11267)">-->
+<!--                                    <path id="Vector" d="M21 29L17 29C16.46 29 15.96 28.78 15.58 28.41C15.21 28.03 15 27.53 15 27L15 16C15 15.46 15.21 14.96 15.58 14.58C15.96 14.21 16.46 14 17 14L25 14C25.53 14 26.03 14.21 26.41 14.58C26.78 14.96 27 15.46 27 16L27 19L30 19L33 22L33 32C33 32.53 32.78 33.03 32.41 33.41C32.03 33.78 31.53 34 31 34L23 34C22.46 34 21.96 33.78 21.58 33.41C21.21 33.03 21 32.53 21 32L21 29ZM21 27L21 21C21 20.46 21.21 19.96 21.58 19.58C21.96 19.21 22.46 19 23 19L25 19L25 16L17 16L17 27L21 27ZM29.17 21L23 21L23 32L31 32L31 22.82L29.17 21Z" fill="#697077" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </g>-->
+<!--                            </svg>-->
+
+<!--                            <div class="text-content-cart text-content-cart-motivation">-->
+<!--                                <p class="title-cart">-->
+<!--                                    Анализ-->
+<!--                                </p>-->
+<!--                                <p class="description-cart description-cart-motivation ">-->
+<!--                                    Анализ спроса и предложения в вашей нише-->
+<!--                                </p>-->
+<!--                            </div>-->
+<!--                        </div>-->
+<!--                        <div class="cart-advantages motivation-cart ">-->
+<!--                            <svg width="48.000000" height="48.000000" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                                <desc>-->
+<!--                                        Created with Pixso.-->
+<!--                                </desc>-->
+<!--                                <defs>-->
+<!--                                    <clipPath id="clip72_11290">-->
+<!--                                        <rect id="icon / jam-icons / outline &amp; logos / users" width="24.000000" height="24.000000" transform="translate(12.000000 12.000000)" fill="white" fill-opacity="0"/>-->
+<!--                                    </clipPath>-->
+<!--                                </defs>-->
+<!--                                <rect id="Icon Container" rx="-0.500000" width="47.000000" height="47.000000" transform="translate(0.500000 0.500000)" fill="#DDE1E6" fill-opacity="1.000000"/>-->
+<!--                                <g clip-path="url(#clip72_11290)">-->
+<!--                                    <path id="Vector" d="M17.53 24.56C17.65 24.51 17.78 24.49 17.92 24.48C18.05 24.48 18.18 24.51 18.31 24.56C18.43 24.61 18.54 24.69 18.64 24.79C18.73 24.88 18.8 24.99 18.85 25.12C18.9 25.24 18.92 25.38 18.92 25.51C18.92 25.64 18.89 25.77 18.83 25.9C18.78 26.02 18.7 26.13 18.6 26.22C18.5 26.31 18.39 26.38 18.26 26.43C17.59 26.69 17.02 27.15 16.62 27.74C16.21 28.33 16 29.04 16 29.75L16 31.5C16 31.76 16.1 32.01 16.29 32.2C16.48 32.39 16.73 32.5 17 32.5L25 32.5C25.26 32.5 25.51 32.39 25.7 32.2C25.89 32.01 26 31.76 26 31.5L26 29.85C26 29.11 25.77 28.38 25.35 27.77C24.93 27.16 24.33 26.69 23.64 26.43C23.51 26.39 23.4 26.32 23.3 26.23C23.2 26.14 23.12 26.03 23.06 25.91C23 25.79 22.97 25.65 22.97 25.52C22.96 25.39 22.98 25.25 23.03 25.13C23.08 25 23.15 24.89 23.25 24.79C23.34 24.7 23.45 24.62 23.57 24.57C23.69 24.51 23.83 24.49 23.96 24.48C24.09 24.48 24.23 24.51 24.35 24.56C25.42 24.97 26.35 25.69 27 26.64C27.65 27.58 28 28.7 28 29.85L28 31.5C28 32.29 27.68 33.05 27.12 33.62C26.55 34.18 25.79 34.5 25 34.5L17 34.5C16.2 34.5 15.44 34.18 14.87 33.62C14.31 33.05 14 32.29 14 31.5L14 29.75C14 28.64 14.33 27.54 14.96 26.62C15.59 25.69 16.49 24.98 17.53 24.56ZM21 14.5C22.06 14.5 23.07 14.92 23.82 15.67C24.57 16.42 25 17.43 25 18.5L25 20.5C25 21.56 24.57 22.57 23.82 23.32C23.07 24.07 22.06 24.5 21 24.5C19.93 24.5 18.92 24.07 18.17 23.32C17.42 22.57 17 21.56 17 20.5L17 18.5C17 17.43 17.42 16.42 18.17 15.67C18.92 14.92 19.93 14.5 21 14.5ZM21 16.5C20.46 16.5 19.96 16.71 19.58 17.08C19.21 17.46 19 17.96 19 18.5L19 20.5C19 21.03 19.21 21.53 19.58 21.91C19.96 22.28 20.46 22.5 21 22.5C21.53 22.5 22.03 22.28 22.41 21.91C22.78 21.53 23 21.03 23 20.5L23 18.5C23 17.96 22.78 17.46 22.41 17.08C22.03 16.71 21.53 16.5 21 16.5ZM30 33.5C29.73 33.5 29.48 33.39 29.29 33.2C29.1 33.01 29 32.76 29 32.5C29 32.23 29.1 31.98 29.29 31.79C29.48 31.6 29.73 31.5 30 31.5L31 31.5C31.26 31.5 31.51 31.39 31.7 31.2C31.89 31.01 32 30.76 32 30.5L32 28.66C32 27.95 31.77 27.25 31.36 26.68C30.94 26.1 30.35 25.67 29.68 25.44C29.55 25.4 29.44 25.34 29.34 25.25C29.24 25.16 29.16 25.06 29.1 24.94C29.04 24.83 29.01 24.7 29 24.57C28.99 24.44 29 24.3 29.05 24.18C29.09 24.05 29.15 23.94 29.24 23.84C29.33 23.74 29.43 23.66 29.55 23.6C29.66 23.54 29.79 23.51 29.92 23.5C30.05 23.49 30.19 23.5 30.31 23.55C31.38 23.9 32.32 24.59 32.98 25.51C33.64 26.42 34 27.53 34 28.66L34 30.5C34 31.29 33.68 32.05 33.12 32.62C32.55 33.18 31.79 33.5 31 33.5L30 33.5ZM27 15.5C26.73 15.5 26.48 15.39 26.29 15.2C26.1 15.01 26 14.76 26 14.5C26 14.23 26.1 13.98 26.29 13.79C26.48 13.6 26.73 13.5 27 13.5C28.06 13.5 29.07 13.92 29.82 14.67C30.57 15.42 31 16.43 31 17.5L31 19.5C31 20.56 30.57 21.57 29.82 22.32C29.07 23.07 28.06 23.5 27 23.5C26.73 23.5 26.48 23.39 26.29 23.2C26.1 23.01 26 22.76 26 22.5C26 22.23 26.1 21.98 26.29 21.79C26.48 21.6 26.73 21.5 27 21.5C27.53 21.5 28.03 21.28 28.41 20.91C28.78 20.53 29 20.03 29 19.5L29 17.5C29 16.96 28.78 16.46 28.41 16.08C28.03 15.71 27.53 15.5 27 15.5Z" fill="#697077" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                                </g>-->
+<!--                            </svg>-->
+<!--                            <div class="text-content-cart text-content-cart-motivation">-->
+<!--                                <p class="title-cart">-->
+<!--                                    Инсайты-->
+<!--                                </p>-->
+<!--                                <p class="description-cart description-cart-motivation ">-->
+<!--                                    Глубокий анализ,-->
+<!--                                    помогающий в стратегическом-->
+<!--                                    планировании-->
+<!--                                </p>-->
+<!--                            </div>-->
+
+<!--                        </div>-->
+<!--                    </div>-->
+<!--                </div>-->
+
+<!--            </div>-->
+
+<!--        </section>-->
+<!--        <div class="popup__bg">-->
+<!--                <form class="form popup" method="post">-->
+<!--                    <div class="close-vector ">-->
+<!--                        <svg class="close-popup" width="96.000000" height="96.000000" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                            <desc>-->
+<!--                                    Created with Pixso.-->
+<!--                            </desc>-->
+<!--                            <defs>-->
+<!--                                <clipPath id="clip72_11104">-->
+<!--                                    <rect id="icon / jam-icons / outline &amp; logos / close" width="48.000000" height="48.000000" transform="translate(24.000000 24.000000)" fill="white" fill-opacity="0"/>-->
+<!--                                </clipPath>-->
+<!--                            </defs>-->
+<!--                            <rect id="icon / jam-icons / outline &amp; logos / close" width="48.000000" height="48.000000" transform="translate(24.000000 24.000000)" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                            <g clip-path="url(#clip72_11104)">-->
+<!--                                <path id="Vector" d="M50.62 47.8L57.69 40.72C57.88 40.54 58.04 40.32 58.14 40.07C58.25 39.83 58.3 39.57 58.3 39.3C58.31 39.04 58.25 38.77 58.15 38.53C58.05 38.28 57.91 38.06 57.72 37.87C57.53 37.68 57.31 37.53 57.06 37.43C56.81 37.33 56.55 37.28 56.29 37.28C56.02 37.29 55.76 37.34 55.51 37.45C55.27 37.55 55.05 37.7 54.86 37.89L47.79 44.97L40.72 37.89C40.54 37.7 40.32 37.55 40.07 37.45C39.83 37.34 39.57 37.29 39.3 37.28C39.04 37.28 38.77 37.33 38.53 37.43C38.28 37.53 38.06 37.68 37.87 37.87C37.68 38.06 37.53 38.28 37.43 38.53C37.33 38.77 37.28 39.04 37.28 39.3C37.29 39.57 37.34 39.83 37.45 40.07C37.55 40.32 37.7 40.54 37.89 40.72L44.96 47.79L37.89 54.87C37.7 55.05 37.55 55.27 37.45 55.51C37.34 55.76 37.29 56.02 37.28 56.29C37.28 56.55 37.33 56.82 37.43 57.06C37.53 57.31 37.68 57.53 37.87 57.72C38.06 57.91 38.28 58.05 38.53 58.15C38.77 58.26 39.04 58.31 39.3 58.3C39.57 58.3 39.83 58.25 40.07 58.14C40.32 58.04 40.54 57.88 40.72 57.69L47.79 50.62L54.86 57.69C55.05 57.88 55.27 58.04 55.51 58.14C55.76 58.25 56.02 58.3 56.29 58.3C56.55 58.31 56.81 58.26 57.06 58.15C57.31 58.05 57.53 57.91 57.72 57.72C57.91 57.53 58.05 57.31 58.15 57.06C58.25 56.82 58.31 56.55 58.3 56.29C58.3 56.02 58.25 55.76 58.14 55.51C58.04 55.27 57.88 55.05 57.69 54.87L50.62 47.79L50.62 47.8Z" fill="#21272A" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            </g>-->
+<!--                        </svg>-->
+<!--                    </div>-->
+<!--                    <div class="logo-popup">-->
+<!--                        <svg width="330.596191" height="81.000000" viewBox="0 0 330.596 81" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                            <desc>-->
+<!--                                    Created with Pixso.-->
+<!--                            </desc>-->
+<!--                            <defs>-->
+<!--                                <linearGradient x1="51.189430" y1="46.874149" x2="91.787483" y2="60.995220" id="paint_linear_50_10448_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop offset="0.261731" stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="1.000000" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                                <linearGradient x1="42.265831" y1="3.334225" x2="98.063629" y2="32.360882" id="paint_linear_50_10449_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="1.000000" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                                <linearGradient x1="25.202188" y1="47.658764" x2="61.191292" y2="78.940842" id="paint_linear_50_10450_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="0.877139" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                                <linearGradient x1="29.418892" y1="7.256670" x2="35.302635" y2="50.992744" id="paint_linear_50_10451_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop offset="0.511576" stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="1.000000" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                            </defs>-->
+<!--                            <path id="Vector" d="M330.59 13.5L330.59 66.94L324.31 66.94L324.31 13.5L330.59 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M276.26 66.94L276.26 13.5L295 13.5C298.73 13.5 301.81 14.14 304.24 15.43C306.66 16.7 308.47 18.41 309.65 20.57C310.84 22.71 311.43 25.08 311.43 27.69C311.43 29.99 311.02 31.89 310.2 33.38C309.4 34.88 308.34 36.06 307.01 36.93C305.7 37.8 304.28 38.44 302.74 38.86L302.74 39.38C304.38 39.49 306.03 40.06 307.69 41.11C309.35 42.15 310.74 43.64 311.85 45.59C312.97 47.54 313.53 49.92 313.53 52.74C313.53 55.42 312.92 57.83 311.7 59.97C310.47 62.11 308.54 63.81 305.91 65.06C303.28 66.31 299.85 66.94 295.62 66.94L276.26 66.94ZM282.75 61.2L295.62 61.2C299.87 61.2 302.87 60.38 304.65 58.74C306.45 57.09 307.35 55.09 307.35 52.74C307.35 50.93 306.89 49.26 305.96 47.73C305.04 46.18 303.72 44.95 302.01 44.03C300.3 43.09 298.28 42.62 295.94 42.62L282.75 42.62L282.75 61.2ZM282.75 36.98L294.79 36.98C296.74 36.98 298.5 36.6 300.07 35.83C301.66 35.07 302.92 33.99 303.84 32.6C304.79 31.21 305.26 29.57 305.26 27.69C305.26 25.35 304.44 23.35 302.8 21.72C301.16 20.07 298.56 19.24 295 19.24L282.75 19.24L282.75 36.98Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M226.86 13.5L226.86 66.94L220.56 66.94L191.24 24.98L190.72 24.98L190.72 66.94L184.2 66.94L184.2 13.5L190.51 13.5L219.93 55.56L220.45 55.56L220.45 13.5L226.86 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M263.24 13.5L263.24 66.94L256.93 66.94L227.62 24.98L227.09 24.98L227.09 66.94L220.58 66.94L220.58 13.5L226.88 13.5L256.3 55.56L256.83 55.56L256.83 13.5L263.24 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M171.18 13.5L171.18 66.94L164.9 66.94L164.9 13.5L171.18 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M116.85 66.94L116.85 13.5L135.59 13.5C139.32 13.5 142.4 14.14 144.83 15.43C147.25 16.7 149.06 18.41 150.25 20.57C151.43 22.71 152.03 25.08 152.03 27.69C152.03 29.99 151.62 31.89 150.8 33.38C149.99 34.88 148.93 36.06 147.6 36.93C146.29 37.8 144.87 38.44 143.34 38.86L143.34 39.38C144.98 39.49 146.63 40.06 148.28 41.11C149.94 42.15 151.33 43.64 152.44 45.59C153.56 47.54 154.12 49.92 154.12 52.74C154.12 55.42 153.51 57.83 152.29 59.97C151.07 62.11 149.14 63.81 146.5 65.06C143.87 66.31 140.44 66.94 136.22 66.94L116.85 66.94ZM123.34 61.2L136.22 61.2C140.46 61.2 143.47 60.38 145.25 58.74C147.04 57.09 147.94 55.09 147.94 52.74C147.94 50.93 147.48 49.26 146.56 47.73C145.63 46.18 144.31 44.95 142.6 44.03C140.89 43.09 138.87 42.62 136.53 42.62L123.34 42.62L123.34 61.2ZM123.34 36.98L135.38 36.98C137.33 36.98 139.1 36.6 140.67 35.83C142.25 35.07 143.51 33.99 144.44 32.6C145.38 31.21 145.85 29.57 145.85 27.69C145.85 25.35 145.03 23.35 143.39 21.72C141.75 20.07 139.15 19.24 135.59 19.24L123.34 19.24L123.34 36.98Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 103" d="M58.83 32.36L37.06 73.45L75.09 81L98.06 32.36L58.83 32.36Z" fill="#01A2E2" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 103" d="M58.83 32.36L37.06 73.45L75.09 81L98.06 32.36L58.83 32.36Z" fill="url(#paint_linear_50_10448_0)" fill-opacity="0.200000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 104" d="M24.9 4.9L58.83 32.35L98.06 32.35L61.58 0.09L24.9 4.9Z" fill="#A4D176" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 104" d="M24.9 4.9L58.83 32.35L98.06 32.35L61.58 0.09L24.9 4.9Z" fill="url(#paint_linear_50_10449_0)" fill-opacity="0.200000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 105" d="M0 47.75L37.26 73.44L75.21 81L34.02 51.09L0 47.75Z" fill="#FFD665" fill-opacity="0.700000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 105" d="M0 47.75L37.26 73.44L75.21 81L34.02 51.09L0 47.75Z" fill="url(#paint_linear_50_10450_0)" fill-opacity="0.200000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 102" d="M24.9 4.9L0 47.75L34.02 51.09L61.87 0L24.9 4.9Z" fill="#F70707" fill-opacity="0.700000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 102" d="M24.9 4.9L0 47.75L34.02 51.09L61.87 0L24.9 4.9Z" fill="url(#paint_linear_50_10451_0)" fill-opacity="0.100000" fill-rule="nonzero"/>-->
+<!--                        </svg>-->
+<!--                    </div>-->
+<!--                    <div class="content-popup">-->
+<!--                        <div class="text-popup">-->
+<!--                            <p class="title-text-popup">-->
+<!--                                Регистрация-->
+<!--                            </p>-->
+<!--                        </div>-->
+<!--                        <div class="field-content">-->
+<!--                            {{ user_form.as_p }}-->
+<!--                            {% csrf_token %}-->
+<!--                            <input class="button-field" type="submit" value="Регистрация">-->
+<!--                        </div>-->
+<!--                        <div class="line line-registration"></div>-->
+
+<!--                        <div class="link-popup-bottom">-->
+<!--                            <a class="text-link" href="{% url 'login' %}">У вас есть аккаунт? Вход</a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                </form>-->
+<!--            </div>-->
+<!--        <div class="popup__bg-2">-->
+<!--                <form class=" form popup-2" action="{% url 'login' %}" method="post" >-->
+<!--                    <div class="close-vector">-->
+<!--                        <svg class="close-popup-2" width="96.000000" height="96.000000" viewBox="0 0 96 96" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                            <desc>-->
+<!--                                    Created with Pixso.-->
+<!--                            </desc>-->
+<!--                            <defs>-->
+<!--                                <clipPath id="clip72_11104">-->
+<!--                                    <rect id="icon / jam-icons / outline &amp; logos / close" width="48.000000" height="48.000000" transform="translate(24.000000 24.000000)" fill="white" fill-opacity="0"/>-->
+<!--                                </clipPath>-->
+<!--                            </defs>-->
+<!--                            <rect id="icon / jam-icons / outline &amp; logos / close" width="48.000000" height="48.000000" transform="translate(24.000000 24.000000)" fill="#FFFFFF" fill-opacity="0"/>-->
+<!--                            <g clip-path="url(#clip72_11104)">-->
+<!--                                <path id="Vector" d="M50.62 47.8L57.69 40.72C57.88 40.54 58.04 40.32 58.14 40.07C58.25 39.83 58.3 39.57 58.3 39.3C58.31 39.04 58.25 38.77 58.15 38.53C58.05 38.28 57.91 38.06 57.72 37.87C57.53 37.68 57.31 37.53 57.06 37.43C56.81 37.33 56.55 37.28 56.29 37.28C56.02 37.29 55.76 37.34 55.51 37.45C55.27 37.55 55.05 37.7 54.86 37.89L47.79 44.97L40.72 37.89C40.54 37.7 40.32 37.55 40.07 37.45C39.83 37.34 39.57 37.29 39.3 37.28C39.04 37.28 38.77 37.33 38.53 37.43C38.28 37.53 38.06 37.68 37.87 37.87C37.68 38.06 37.53 38.28 37.43 38.53C37.33 38.77 37.28 39.04 37.28 39.3C37.29 39.57 37.34 39.83 37.45 40.07C37.55 40.32 37.7 40.54 37.89 40.72L44.96 47.79L37.89 54.87C37.7 55.05 37.55 55.27 37.45 55.51C37.34 55.76 37.29 56.02 37.28 56.29C37.28 56.55 37.33 56.82 37.43 57.06C37.53 57.31 37.68 57.53 37.87 57.72C38.06 57.91 38.28 58.05 38.53 58.15C38.77 58.26 39.04 58.31 39.3 58.3C39.57 58.3 39.83 58.25 40.07 58.14C40.32 58.04 40.54 57.88 40.72 57.69L47.79 50.62L54.86 57.69C55.05 57.88 55.27 58.04 55.51 58.14C55.76 58.25 56.02 58.3 56.29 58.3C56.55 58.31 56.81 58.26 57.06 58.15C57.31 58.05 57.53 57.91 57.72 57.72C57.91 57.53 58.05 57.31 58.15 57.06C58.25 56.82 58.31 56.55 58.3 56.29C58.3 56.02 58.25 55.76 58.14 55.51C58.04 55.27 57.88 55.05 57.69 54.87L50.62 47.79L50.62 47.8Z" fill="#21272A" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            </g>-->
+<!--                        </svg>-->
+<!--                    </div>-->
+<!--                    <div class="logo-popup">-->
+<!--                        <svg width="330.596191" height="81.000000" viewBox="0 0 330.596 81" fill="none" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">-->
+<!--                            <desc>-->
+<!--                                    Created with Pixso.-->
+<!--                            </desc>-->
+<!--                            <defs>-->
+<!--                                <linearGradient x1="51.189430" y1="46.874149" x2="91.787483" y2="60.995220" id="paint_linear_50_10448_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop offset="0.261731" stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="1.000000" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                                <linearGradient x1="42.265831" y1="3.334225" x2="98.063629" y2="32.360882" id="paint_linear_50_10449_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="1.000000" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                                <linearGradient x1="25.202188" y1="47.658764" x2="61.191292" y2="78.940842" id="paint_linear_50_10450_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="0.877139" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                                <linearGradient x1="29.418892" y1="7.256670" x2="35.302635" y2="50.992744" id="paint_linear_50_10451_0" gradientUnits="userSpaceOnUse">-->
+<!--                                    <stop offset="0.511576" stop-color="#000000" stop-opacity="0.000000"/>-->
+<!--                                    <stop offset="1.000000" stop-color="#000000"/>-->
+<!--                                </linearGradient>-->
+<!--                            </defs>-->
+<!--                            <path id="Vector" d="M330.59 13.5L330.59 66.94L324.31 66.94L324.31 13.5L330.59 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M276.26 66.94L276.26 13.5L295 13.5C298.73 13.5 301.81 14.14 304.24 15.43C306.66 16.7 308.47 18.41 309.65 20.57C310.84 22.71 311.43 25.08 311.43 27.69C311.43 29.99 311.02 31.89 310.2 33.38C309.4 34.88 308.34 36.06 307.01 36.93C305.7 37.8 304.28 38.44 302.74 38.86L302.74 39.38C304.38 39.49 306.03 40.06 307.69 41.11C309.35 42.15 310.74 43.64 311.85 45.59C312.97 47.54 313.53 49.92 313.53 52.74C313.53 55.42 312.92 57.83 311.7 59.97C310.47 62.11 308.54 63.81 305.91 65.06C303.28 66.31 299.85 66.94 295.62 66.94L276.26 66.94ZM282.75 61.2L295.62 61.2C299.87 61.2 302.87 60.38 304.65 58.74C306.45 57.09 307.35 55.09 307.35 52.74C307.35 50.93 306.89 49.26 305.96 47.73C305.04 46.18 303.72 44.95 302.01 44.03C300.3 43.09 298.28 42.62 295.94 42.62L282.75 42.62L282.75 61.2ZM282.75 36.98L294.79 36.98C296.74 36.98 298.5 36.6 300.07 35.83C301.66 35.07 302.92 33.99 303.84 32.6C304.79 31.21 305.26 29.57 305.26 27.69C305.26 25.35 304.44 23.35 302.8 21.72C301.16 20.07 298.56 19.24 295 19.24L282.75 19.24L282.75 36.98Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M226.86 13.5L226.86 66.94L220.56 66.94L191.24 24.98L190.72 24.98L190.72 66.94L184.2 66.94L184.2 13.5L190.51 13.5L219.93 55.56L220.45 55.56L220.45 13.5L226.86 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M263.24 13.5L263.24 66.94L256.93 66.94L227.62 24.98L227.09 24.98L227.09 66.94L220.58 66.94L220.58 13.5L226.88 13.5L256.3 55.56L256.83 55.56L256.83 13.5L263.24 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M171.18 13.5L171.18 66.94L164.9 66.94L164.9 13.5L171.18 13.5Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector" d="M116.85 66.94L116.85 13.5L135.59 13.5C139.32 13.5 142.4 14.14 144.83 15.43C147.25 16.7 149.06 18.41 150.25 20.57C151.43 22.71 152.03 25.08 152.03 27.69C152.03 29.99 151.62 31.89 150.8 33.38C149.99 34.88 148.93 36.06 147.6 36.93C146.29 37.8 144.87 38.44 143.34 38.86L143.34 39.38C144.98 39.49 146.63 40.06 148.28 41.11C149.94 42.15 151.33 43.64 152.44 45.59C153.56 47.54 154.12 49.92 154.12 52.74C154.12 55.42 153.51 57.83 152.29 59.97C151.07 62.11 149.14 63.81 146.5 65.06C143.87 66.31 140.44 66.94 136.22 66.94L116.85 66.94ZM123.34 61.2L136.22 61.2C140.46 61.2 143.47 60.38 145.25 58.74C147.04 57.09 147.94 55.09 147.94 52.74C147.94 50.93 147.48 49.26 146.56 47.73C145.63 46.18 144.31 44.95 142.6 44.03C140.89 43.09 138.87 42.62 136.53 42.62L123.34 42.62L123.34 61.2ZM123.34 36.98L135.38 36.98C137.33 36.98 139.1 36.6 140.67 35.83C142.25 35.07 143.51 33.99 144.44 32.6C145.38 31.21 145.85 29.57 145.85 27.69C145.85 25.35 145.03 23.35 143.39 21.72C141.75 20.07 139.15 19.24 135.59 19.24L123.34 19.24L123.34 36.98Z" fill="#000000" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 103" d="M58.83 32.36L37.06 73.45L75.09 81L98.06 32.36L58.83 32.36Z" fill="#01A2E2" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 103" d="M58.83 32.36L37.06 73.45L75.09 81L98.06 32.36L58.83 32.36Z" fill="url(#paint_linear_50_10448_0)" fill-opacity="0.200000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 104" d="M24.9 4.9L58.83 32.35L98.06 32.35L61.58 0.09L24.9 4.9Z" fill="#A4D176" fill-opacity="1.000000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 104" d="M24.9 4.9L58.83 32.35L98.06 32.35L61.58 0.09L24.9 4.9Z" fill="url(#paint_linear_50_10449_0)" fill-opacity="0.200000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 105" d="M0 47.75L37.26 73.44L75.21 81L34.02 51.09L0 47.75Z" fill="#FFD665" fill-opacity="0.700000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 105" d="M0 47.75L37.26 73.44L75.21 81L34.02 51.09L0 47.75Z" fill="url(#paint_linear_50_10450_0)" fill-opacity="0.200000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 102" d="M24.9 4.9L0 47.75L34.02 51.09L61.87 0L24.9 4.9Z" fill="#F70707" fill-opacity="0.700000" fill-rule="nonzero"/>-->
+<!--                            <path id="Vector 102" d="M24.9 4.9L0 47.75L34.02 51.09L61.87 0L24.9 4.9Z" fill="url(#paint_linear_50_10451_0)" fill-opacity="0.100000" fill-rule="nonzero"/>-->
+<!--                        </svg>-->
+<!--                    </div>-->
+<!--                    <div class="content-popup">-->
+<!--                        <div class="text-popup">-->
+<!--                            <p class="title-text-popup">-->
+<!--                                Войти-->
+<!--                            </p>-->
+<!--                        </div>-->
+<!--                        <div class="field-content">-->
+<!--                            {% csrf_token %}-->
+<!--                            <div class="link-popup">-->
+<!--                                <a class="text-link" href="{% url 'password_reset' %}">Забыли пароль?</a>-->
+<!--                            </div>-->
+
+<!--                            <input class="button-field" type="submit" value="Войти">-->
+<!--                        </div>-->
+<!--                        <div class="line"></div>-->
+<!--                        <div class="link-popup-bottom">-->
+<!--                            <a class="text-link" href="{% url 'dashboard' %}">У вас еще нет аккаунта? Регистрация</a>-->
+<!--                        </div>-->
+<!--                    </div>-->
+
+<!--                </form>-->
+<!--    </div>-->
+<!--    {% endblock %}-->
+    <footer class="footer">
+            <div class="logo">
+                <a href="#">
+                </a>
+            </div>
+            <div class="social-logo">
+            </div>
+        </footer>
+</main>
+</body>
+</html>
