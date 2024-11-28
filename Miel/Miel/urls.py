@@ -22,8 +22,8 @@ from django.conf.urls.static import static  # импортируем метод 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accountapp.urls')),  # start page
+    path('', include('hr.urls')),
 ]
-
 
 if settings.DEBUG:
     urlpatterns += static(
