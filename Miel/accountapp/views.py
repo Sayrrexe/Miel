@@ -6,6 +6,7 @@ from django.contrib import messages
 from . import forms
 
 
+
 def LoginView(request):
     if request.method == "POST":
         username = request.POST.get("username")
@@ -20,3 +21,7 @@ def LoginView(request):
     else:
         form = forms.UserLogin()
         return render(request, "account/login.html", context={"form": form})
+
+
+
+

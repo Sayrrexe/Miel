@@ -3,7 +3,9 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from . import models
 
-
+from rest_framework import generics
+from models import Supervisor
+from serializers import SupervisorSerializer
 # Create your views here.
 @login_required
 def index(request):
@@ -130,3 +132,9 @@ def moderator_quotes(request):
 def supervisor_lk(request):
     user = request.user
     return render(request, 'hr/supervisor/lk.html', )
+
+
+
+class SupervisorView(generics.CreateAPIView, generics.ListAPIView):
+    queryset = Supervisor.objects.all()
+    serializer_class = SupervisorSerializer

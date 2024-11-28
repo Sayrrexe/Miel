@@ -1,6 +1,7 @@
 from django.urls import path, include
 
 from . import views
+from views import SupervisorView
 
 urlpatterns = [
     path('', views.index, name='dashboard'),
@@ -27,5 +28,6 @@ urlpatterns = [
     path('moderator/lk', views.moderator_lk, name='moderator_lk'),
     path('moderator/statistics', views.moderator_statistics, name='moderator_statistics'),
     path('moderator/quotes', views.moderator_quotes, name='moderator_quotes'),
+    path("api/supervisor",SupervisorView.as_view(), name='api')
 
 ]
