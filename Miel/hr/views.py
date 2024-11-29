@@ -3,9 +3,10 @@ from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
 from . import models
 
-from rest_framework import generics
-from models import Supervisor
-from serializers import SupervisorSerializer
+from rest_framework.views import APIView
+from  .models import Supervisor
+from .serializers import SupervisorSerializer
+from rest_framework.response import Response
 # Create your views here.
 @login_required
 def index(request):
@@ -135,6 +136,12 @@ def supervisor_lk(request):
 
 
 
-class SupervisorView(generics.CreateAPIView, generics.ListAPIView):
-    queryset = Supervisor.objects.all()
-    serializer_class = SupervisorSerializer
+class GetSupervisorInfoView(APIView):
+    def get(self, request):
+        queryset = Supervisor.objects.all()
+
+        serializer_for_queryset = SupervisorSerializer(
+            instance=queryset,
+            many=True
+        )
+        return Response(serializer_for_queryset.data)

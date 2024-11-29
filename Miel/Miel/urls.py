@@ -17,12 +17,14 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings  # импортируем настройки
-from django.conf.urls.static import static  # импортируем метод static
+from django.conf.urls.static import static
+from drf_spectacular.views import SpectacularAPIView, SpectacularRedocView, SpectacularSwaggerView# импортируем метод static
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('accountapp.urls')),  # start page
     path('', include('hr.urls')),
+
 ]
 
 if settings.DEBUG:
