@@ -1,6 +1,7 @@
 from django.contrib import admin
 from . import models
 
+admin.site.register(models.CustomUser)
 admin.site.register(models.Supervisor)
 admin.site.register(models.Moderator)
 admin.site.register(models.Candidate)

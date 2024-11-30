@@ -1,6 +1,10 @@
 from django.db import models
-from django.contrib.auth.models import User
+from django.contrib.auth.models import AbstractUser
 from datetime import date
+
+
+class CustomUser(AbstractUser):
+    phone = models.CharField(max_length=15, verbose_name="Номер телефона", blank=True, null=True)
 
 
 class Moderator(models.Model):
@@ -8,7 +12,7 @@ class Moderator(models.Model):
     Расширение стандартной модели User для администраторов:
     - Содержит дополнительные поля, такие как права доступа.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Admin: {self.user.username}'
@@ -251,7 +255,7 @@ class Supervisor(models.Model):
     """
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
     )
@@ -285,7 +289,7 @@ class Todo(models.Model):
     """
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
     )
@@ -311,7 +315,7 @@ class Favorite(models.Model):
     """
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
     )

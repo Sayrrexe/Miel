@@ -138,10 +138,7 @@ def supervisor_lk(request):
 
 class GetSupervisorInfoView(APIView):
     def get(self, request):
-        queryset = Supervisor.objects.all()
+        queryset = Supervisor.objects.filter(user=request.user)
 
-        serializer_for_queryset = SupervisorSerializer(
-            instance=queryset,
-            many=True
-        )
-        return Response(serializer_for_queryset.data)
+        serializer = SupervisorSerializer(queryset, many=True)
+        return Response(serializer.data)
