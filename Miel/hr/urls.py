@@ -1,8 +1,12 @@
 from django.urls import path, include
 
 from . import views
-from django.urls import path, include
 
+from rest_framework.routers import DefaultRouter
+from .views import TodoViewSet
+
+router = DefaultRouter()
+router.register(r'todos', TodoViewSet, basename='todo')
 
 urlpatterns = [
     # Главная страница
@@ -44,5 +48,6 @@ urlpatterns = [
 
 
     # api
-    path('api/v1/supervisors/', views.GetSupervisorInfoView.as_view())
+    path('api/v1/supervisors/', views.GetSupervisorInfoView.as_view()),
+    path('api/v1/', include(router.urls)), # для Api
 ]

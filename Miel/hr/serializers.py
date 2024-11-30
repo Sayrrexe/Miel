@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Supervisor
+from .models import Supervisor, Todo
 
 class SupervisorSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
@@ -21,3 +21,12 @@ class SupervisorSerializer(serializers.ModelSerializer):
 
     def get_full_name(self, obj):
         return obj.user.get_full_name()
+
+
+class TodoSerializer(serializers.ModelSerializer):
+    user = serializers.StringRelatedField(read_only=True)  # Отображение имени пользователя вместо ID
+
+    class Meta:
+        model = Todo
+        fields = ['id', 'user', 'task', 'due_date']
+        read_only_fields = ['user']
