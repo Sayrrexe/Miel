@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
-
+from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
@@ -165,9 +165,7 @@ class TodoViewSet(ModelViewSet):
 
 
 
-class GetCandidateInfoView(APIView):
-    def get(self, request):
-        queryset = models.Candidate.objects.all()
+class CandidateInfoView(ListAPIView):
+    model = models.Candidate
+    serializer_class = CandidateSerializer
 
-        serializer = SupervisorSerializer(queryset, many=True)
-        return Response(serializer.data)

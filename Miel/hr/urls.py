@@ -3,8 +3,7 @@ from django.urls import path, include
 from . import views
 
 from rest_framework.routers import DefaultRouter
-from .views import TodoViewSet,GetCandidateInfoView
-
+from .views import TodoViewSet
 router = DefaultRouter()
 router.register(r'todos', TodoViewSet, basename='todo')
 
@@ -49,6 +48,6 @@ urlpatterns = [
 
     # api
     path('api/v1/supervisors/', views.GetSupervisorInfoView.as_view()),
-    path('api/v1/candidate/', views.GetCandidateInfoView.as_view()),
+    path('api/v1/candidate/', views.CandidateInfoView.as_view()),
     path('api/v1/', include(router.urls)), # для Api
 ]

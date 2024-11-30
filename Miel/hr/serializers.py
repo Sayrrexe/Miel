@@ -34,12 +34,12 @@ class TodoSerializer(serializers.ModelSerializer):
 
 
 class CandidateSerializer(serializers.ModelSerializer):
+
     class Meta:
         model = Candidate
         fields = [
             'is_active',
             'name',
-            'surname',
             'birth',
             'email',
             'phone',
@@ -47,5 +47,5 @@ class CandidateSerializer(serializers.ModelSerializer):
             'is_staff',
             'office'
             'created_at',
-            'udated_at',
+            'updated_at',
         ]
