@@ -1,12 +1,15 @@
 from django.contrib.auth.decorators import login_required
-from django.contrib.auth.models import User
 from django.shortcuts import render, redirect
-from . import models
 
 from rest_framework.views import APIView
-from  .models import Supervisor
-from .serializers import SupervisorSerializer
+from rest_framework.viewsets import ModelViewSet
+from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+
+from .serializers import TodoSerializer, SupervisorSerializer,CandidateSerializer
+from . import models
+
+
 # Create your views here.
 @login_required
 def index(request):
@@ -138,10 +141,33 @@ def supervisor_lk(request):
 
 class GetSupervisorInfoView(APIView):
     def get(self, request):
-        queryset = Supervisor.objects.all()
+        queryset = models.Supervisor.objects.filter(user=request.user)
 
-        serializer_for_queryset = SupervisorSerializer(
-            instance=queryset,
-            many=True
-        )
-        return Response(serializer_for_queryset.data)
+        serializer = SupervisorSerializer(queryset, many=True)
+        return Response(serializer.data)
+
+class TodoViewSet(ModelViewSet):
+    queryset = models.Todo.objects.all()
+    serializer_class = TodoSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        """
+        Переопределяем метод для фильтрации задач по текущему пользователю.
+        """
+        return models.Todo.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        """
+        Устанавливаем текущего пользователя как владельца задачи.
+        """
+        serializer.save(user=self.request.user)
+
+
+
+class GetCandidateInfoView(APIView):
+    def get(self, request):
+        queryset = models.Candidate.objects.all()
+
+        serializer = SupervisorSerializer(queryset, many=True)
+        return Response(serializer.data)
