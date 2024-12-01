@@ -44,8 +44,7 @@ class CandidateSerializer(serializers.ModelSerializer):
             'email',
             'phone',
             'resume',
-            'is_staff',
-            'office'
+            'office',
             'created_at',
             'updated_at',
         ]

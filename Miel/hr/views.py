@@ -166,6 +166,7 @@ class TodoViewSet(ModelViewSet):
 
 
 class CandidateInfoView(ListAPIView):
+    queryset = models.Candidate.objects.all()
     model = models.Candidate
     serializer_class = CandidateSerializer
 
