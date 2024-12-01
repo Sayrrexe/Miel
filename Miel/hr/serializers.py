@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Supervisor, Todo, Candidate
+from .models import Supervisor, Todo, Candidate,Invitation,Office
 
 class SupervisorSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
@@ -47,4 +47,15 @@ class CandidateSerializer(serializers.ModelSerializer):
             'office',
             'created_at',
             'updated_at',
+        ]
+
+
+
+class InvitationSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Invitation
+        fields = [
+            'candidate',
+            'office',
         ]
