@@ -48,7 +48,7 @@ urlpatterns = [
 
     # api
     path('api/v1/supervisors/', views.GetSupervisorInfoView.as_view()),
-    path('api/v1/candidate/', views.CandidateInfoView.as_view()),
-    path("api/v1/invitation", views.InvitationAPIView.as_view()),
+    path('api/v1/candidates/', views.CandidateInfoView.as_view()),
+    path("api/v1/invitations", views.InvitationAPIView.as_view()),
     path('api/v1/', include(router.urls)), # для Api
 ]

@@ -38,17 +38,23 @@ class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = [
-            'is_active',
             'name',
+            'surname',
+            'patronymic',
             'birth',
-            'email',
-            'phone',
+            'education',
+            'photo',
+            'country',
+            'city',
             'resume',
-            'office',
-            'created_at',
+            'course_rieltor_join',
+            'basic_legal_course',
+            'course_mortgage',
+            'course_taxation',
+            'completed_objects',
+            'clients',
             'updated_at',
         ]
-
 
 
 class InvitationSerializer(serializers.ModelSerializer):

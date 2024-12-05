@@ -8,6 +8,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import TodoSerializer, SupervisorSerializer,CandidateSerializer, InvitationSerializer
 from . import models
+from rest_framework.permissions import IsAuthenticated
 
 
 # Create your views here.
@@ -140,6 +141,7 @@ def supervisor_lk(request):
 
 
 class GetSupervisorInfoView(APIView):
+    permission_classes = [IsAuthenticated]
     def get(self, request):
         queryset = models.Supervisor.objects.filter(user=request.user)
 
@@ -166,13 +168,15 @@ class TodoViewSet(ModelViewSet):
 
 
 class CandidateInfoView(ListAPIView):
-    queryset = models.Candidate.objects.all()
+    permission_classes = [IsAuthenticated]
+    queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
     model = models.Candidate
     serializer_class = CandidateSerializer
 
 
 
 class InvitationAPIView(APIView):
+    permission_classes = [IsAuthenticated]
     serializer_class = InvitationSerializer
     model = models.Invitation
 
