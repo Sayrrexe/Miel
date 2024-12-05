@@ -258,6 +258,8 @@ class Transaction(models.Model):
         choices=OPERATION_CHOICES,
         verbose_name="Операция"
     )
+    cause = models.CharField(max_length=128)
+    
     office = models.ForeignKey(
         "Office",
         verbose_name="Офис",

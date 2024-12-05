@@ -38,6 +38,7 @@ class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = [
+            'id',
             'name',
             'surname',
             'patronymic',
@@ -63,5 +64,4 @@ class InvitationSerializer(serializers.ModelSerializer):
         model = Invitation
         fields = [
             'candidate',
-            'office',
         ]
