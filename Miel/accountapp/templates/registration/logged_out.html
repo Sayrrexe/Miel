@@ -1,0 +1,14 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Досвидание{% endblock %}
+
+{% block content %}
+ <section class="forms-registration">
+        <h1 class="title">До свидания</h1>
+        <p class="text text-action">
+            Вы успешно вышли из системы
+            Можите <a href="{% url 'login' %}">войти заново</a>.
+        </p>
+   </section>
+{% endblock %}
