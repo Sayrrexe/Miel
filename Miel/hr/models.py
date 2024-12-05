@@ -1,6 +1,13 @@
 from django.db import models
-from django.contrib.auth.models import User
-from datetime import date
+from django.utils.timezone import now
+from django.contrib.auth.models import AbstractUser
+from django.core.exceptions import ValidationError
+
+from datetime import date, timedelta
+
+
+class CustomUser(AbstractUser):
+    phone = models.CharField(max_length=15, verbose_name="Номер телефона", blank=True, null=True)
 
 
 class Moderator(models.Model):
@@ -8,7 +15,7 @@ class Moderator(models.Model):
     Расширение стандартной модели User для администраторов:
     - Содержит дополнительные поля, такие как права доступа.
     """
-    user = models.OneToOneField(User, on_delete=models.CASCADE)
+    user = models.OneToOneField(CustomUser, on_delete=models.CASCADE)
 
     def __str__(self):
         return f'Admin: {self.user.username}'
@@ -21,6 +28,8 @@ class Moderator(models.Model):
 
 class Candidate(models.Model):
     """
+    Кандидат, который может быть привязан к офису, иметь различные курсы и выполнять проекты.
+    
     Поля:
         is_active (bool): Указывает, активен ли кандидат (по умолчанию True).
         name (str): Имя кандидата (максимальная длина: 16 символов).
@@ -38,7 +47,10 @@ class Candidate(models.Model):
         office (ForeignKey, optional): Офис, к которому привязан кандидат.
             * Если `is_free` = False, это поле обязательно.
             * Если `is_free` = True, это поле должно быть пустым.
-        legal_course_status (str): Статус юридического курса (в процессе, сдан, не сдан).
+        course_rieltor_join (str): Статус курса "Введение в профессию риэлтор".
+        basic_legal_course (str): Статус "Базовый юридический курс".
+        course_mortgage (str): Статус курса "Ипотека".
+        course_taxation (str): Статус курса "Налогообложение".
         completed_objects (int): Количество выполненных проектов.
         clients (int): Количество обслуженных клиентов.
         created_at (datetime): Дата и время создания записи (устанавливается автоматически).
@@ -50,43 +62,68 @@ class Candidate(models.Model):
     surname = models.CharField(max_length=64)
     patronymic = models.CharField(max_length=32, null=True, blank=True)
     birth = models.DateField(null=True, blank=True)
-    education = models.CharField(max_length=128, verbose_name="Образование", null=True, blank=True)
+    education = models.CharField(max_length=128, null=True, blank=True)
     photo = models.CharField(max_length=128, null=True, blank=True)
 
-    # ---
     country = models.CharField(max_length=32, default="Россия")
     city = models.CharField(max_length=32)
 
-    # ---
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=16)
     resume = models.CharField(max_length=128)
 
-    # ---
     is_free = models.BooleanField(default=True)
     office = models.ForeignKey(
         "hr.Office",
-        verbose_name="Офис",
         on_delete=models.CASCADE,
         null=True,
         blank=True
     )
 
-    # ---
-    legal_course_status = models.CharField(
+    course_rieltor_join = models.CharField(
         max_length=16,
         choices=[
             ("in_progress", "В процессе"),
             ("completed", "Сдан"),
-            ("failed", "Не сдан"),
+            ("not_started", "Не сдан"),
         ],
-        default="in_progress",
-        verbose_name="Статус юридического курса"
+        default="completed",
+        verbose_name="Введение в профессию риэлтор"
     )
+    basic_legal_course = models.CharField(
+        max_length=16,
+        choices=[
+            ("in_progress", "В процессе"),
+            ("completed", "Сдан"),
+            ("not_started", "Не начат"),
+        ],
+        default="not_started",
+        verbose_name="Базовый юридический курс"
+    )
+    course_mortgage = models.CharField(
+        max_length=16,
+        choices=[
+            ("in_progress", "В процессе"),
+            ("completed", "Сдан"),
+            ("not_started", "Не начат"),
+        ],
+        default="not_started",
+        verbose_name='Курс "ипотека"'
+    )
+    course_taxation = models.CharField(
+        max_length=16,
+        choices=[
+            ("in_progress", "В процессе"),
+            ("completed", "Сдан"),
+            ("not_started", "Не начат"),
+        ],
+        default="not_started",
+        verbose_name='Курс "налогообложение"'
+    )
+
     completed_objects = models.PositiveIntegerField(default=0, verbose_name="Объекты")
     clients = models.PositiveIntegerField(default=0, verbose_name="клиенты")
 
-    # ---
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
@@ -94,13 +131,21 @@ class Candidate(models.Model):
         return f"{self.name} {self.surname}"
 
     def calculate_age(self):
-        """
-        Функция для расчёта возраста кандидата на основе даты рождения.
-        """
+        """Расчёт возраста кандидата на основе даты рождения."""
         if self.birth:
             today = date.today()
             return today.year - self.birth.year - ((today.month, today.day) < (self.birth.month, self.birth.day))
         return None  # Возраст неизвестен, если нет даты рождения
+
+    def save(self, *args, **kwargs):
+
+        if self.is_free:
+            self.office = None
+
+        elif not self.is_free and self.office is None:
+            raise ValidationError("Если кандидат не свободен, поле 'офис' должно быть заполнено.")
+        
+        super(Candidate, self).save(*args, **kwargs)
 
     class Meta:
         verbose_name = "Кандидат"
@@ -213,6 +258,8 @@ class Transaction(models.Model):
         choices=OPERATION_CHOICES,
         verbose_name="Операция"
     )
+    cause = models.CharField(max_length=128)
+    
     office = models.ForeignKey(
         "Office",
         verbose_name="Офис",
@@ -251,7 +298,7 @@ class Supervisor(models.Model):
     """
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
     )
@@ -282,18 +329,41 @@ class Todo(models.Model):
         user (ForeignKey): Ссылка на пользователя, которому принадлежит задача.
         task (TextField): Описание задачи.
         due_date (DateTimeField): Дата и время выполнения задачи.
+        is_complete (BooleanField): Выполнена ли задача.
+        is_visible (BooleanField): Видима ли задача (по умолчанию True).
+        date_update (DateTimeField): Дата и время последнего обновления записи.
+    Методы:
+        check_visibility(): Проверяет, прошло ли 12 часов с момента выполнения задачи.
+                            Если прошло, скрывает задачу (is_visible=False).
     """
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
     )
     task = models.TextField(verbose_name="Задача")
     due_date = models.DateTimeField(verbose_name="Дата выполнения")
+    is_complete = models.BooleanField(default=False, verbose_name="Выполнено")
+    is_visible = models.BooleanField(default=True, verbose_name="Видимость")
+
+    date_update = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+
+    def check_visibility(self):
+        """
+        Проверяет и обновляет видимость задачи:
+        - Если задача выполнена (`is_complete=True`) и видима (`is_visible=True`),
+        - Проверяет, прошло ли 12 часов с момента обновления записи (`date_update`).
+        - Если прошло, устанавливает `is_visible=False` и сохраняет запись.
+        """
+        if self.is_complete and self.is_visible:
+            elapsed_time = now() - self.date_update
+            if elapsed_time >= timedelta(hours=12):
+                self.is_visible = False
+                self.save()
 
     def __str__(self):
-        return f"{self.task} для {self.user.username} (до {self.date})"
+        return f"{self.task} для {self.user.username} (до {self.due_date})"
 
     class Meta:
         verbose_name = "Задача"
@@ -311,7 +381,7 @@ class Favorite(models.Model):
     """
 
     user = models.ForeignKey(
-        User,
+        CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
     )

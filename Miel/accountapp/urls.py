@@ -1,10 +1,12 @@
-from django.urls import path, include
+from django.urls import path
 
 from . import views
 
 urlpatterns = [
-    path('login/', views.LoginView, name='login'),
-    # url стартовой страницы
-    path('', include('django.contrib.auth.urls')),
+    path('login/', views.login_view, name='login'),
+    path('logout/', views.logout_view, name='logout'),
 
+    path('api/v1/login/', views.LoginAPIView.as_view(), name='api_login'),
+    path('api/v1/logout/', views.LogoutAPIView.as_view(), name='api_logout'),
+    path('api/v1/protected/', views.ProtectedAPIView.as_view(), name='protected'),
 ]
