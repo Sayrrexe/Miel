@@ -1,5 +1,5 @@
 from rest_framework import serializers
-from .models import Supervisor, Todo, Candidate,Invitation,Office
+from .models import Favorite, Supervisor, Todo, Candidate, Invitation
 
 class SupervisorSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
@@ -65,3 +65,13 @@ class InvitationSerializer(serializers.ModelSerializer):
         fields = [
             'candidate',
         ]
+        
+        
+class FavoriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Favorite
+        fields = [
+                    'candidate', 
+                    'created_at'
+                  ]  
+        read_only_fields = ['created_at']

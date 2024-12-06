@@ -7,7 +7,7 @@ from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework import status
-from .serializers import TodoSerializer, SupervisorSerializer,CandidateSerializer, InvitationSerializer
+from .serializers import FavoriteSerializer, TodoSerializer, SupervisorSerializer,CandidateSerializer, InvitationSerializer
 from . import models
 from .utils import Transaction, write_off_the_quota
 from rest_framework.permissions import IsAuthenticated
@@ -168,7 +168,6 @@ class TodoViewSet(ModelViewSet):
         serializer.save(user=self.request.user)
 
 
-
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsAuthenticated]
     queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
@@ -218,3 +217,15 @@ class InvitationAPIView(APIView):
                 return Response({'error': error}, status=status.HTTP_400_BAD_REQUEST)
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+    
+    
+class FavoriteViewSet(ModelViewSet):
+    serializer_class = FavoriteSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get_queryset(self):
+        return models.Favorite.objects.filter(user=self.request.user)
+
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)
+
