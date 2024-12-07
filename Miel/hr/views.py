@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from rest_framework import status
 from .serializers import FavoriteSerializer, TodoSerializer, SupervisorSerializer,CandidateSerializer, InvitationSerializer
 from . import models
-from .utils import Transaction, write_off_the_quota
+from .utils import Office, Transaction, write_off_the_quota
 from rest_framework.permissions import IsAuthenticated
 
 
@@ -179,6 +179,18 @@ class InvitationAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = InvitationSerializer
     model = models.Invitation
+    
+    def get(self, request):
+        supervisor = models.Supervisor.objects.filter(user=request.user).first()
+        if not supervisor:
+            return Response({'error': 'Supervisor not found'}, status=status.HTTP_400_BAD_REQUEST)
+    
+        office = supervisor.office
+        queryset = models.Invitation.objects.filter(office=office).all()
+    
+        serializer = InvitationSerializer(queryset, many=True)
+        return Response(serializer.data)
+
     
     def post(self, request):
         supervisor = models.Supervisor.objects.filter(user=self.request.user).first()

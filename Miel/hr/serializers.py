@@ -1,3 +1,4 @@
+from os import read
 from rest_framework import serializers
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation
 
@@ -59,13 +60,43 @@ class CandidateSerializer(serializers.ModelSerializer):
 
 
 class InvitationSerializer(serializers.ModelSerializer):
+    name = serializers.SerializerMethodField()
+    surname = serializers.SerializerMethodField()
+    patronymic = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    status = serializers.CharField(read_only=True) 
+    updated_at = serializers.CharField(read_only=True)
 
     class Meta:
         model = Invitation
         fields = [
-            'candidate',
+            'candidate',  
+            'name',
+            'surname',
+            'patronymic',
+            'city',
+            'age',
+            'status',
+            'updated_at',
         ]
-        
+
+    def get_name(self, obj):
+        return obj.candidate.name
+
+    def get_surname(self, obj):
+        return obj.candidate.surname
+
+    def get_patronymic(self, obj):
+        return obj.candidate.patronymic
+
+    def get_city(self, obj):
+        return obj.candidate.city
+
+    def get_age(self, obj):
+        return obj.candidate.calculate_age()
+    
+    
         
 class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
