@@ -348,8 +348,10 @@ class Todo(models.Model):
     due_date = models.DateTimeField(verbose_name="Дата выполнения")
     is_complete = models.BooleanField(default=False, verbose_name="Выполнено")
     is_visible = models.BooleanField(default=True, verbose_name="Видимость")
-
+    
     date_update = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    # TODO добавить дату создания
+    # TODO finish date
 
     def check_visibility(self):
         """
