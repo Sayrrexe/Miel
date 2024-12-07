@@ -1,12 +1,36 @@
 from django.contrib import admin
-from . import models
+from django.contrib.auth.hashers import make_password
+from .models import (
+    CustomUser,
+    Supervisor,
+    Moderator,
+    Candidate,
+    Office,
+    Favorite,
+    Todo,
+    Invitation,
+    Transaction,
+)
 
-admin.site.register(models.CustomUser)
-admin.site.register(models.Supervisor)
-admin.site.register(models.Moderator)
-admin.site.register(models.Candidate)
-admin.site.register(models.Office)
-admin.site.register(models.Favorite)
-admin.site.register(models.Todo)
-admin.site.register(models.Invitation)
-admin.site.register(models.Transaction)
+class CustomUserAdmin(admin.ModelAdmin):
+    def save_model(self, request, obj, form, change):
+        if 'password' in form.changed_data:
+            obj.password = make_password(obj.password)  
+        
+        if not obj.is_active:
+            obj.is_active = True  
+        
+        super().save_model(request, obj, form, change)
+
+# Регистрируем CustomUser с кастомным классом админки
+admin.site.register(CustomUser, CustomUserAdmin)
+
+# Регистрируем остальные модели
+admin.site.register(Supervisor)
+admin.site.register(Moderator)
+admin.site.register(Candidate)
+admin.site.register(Office)
+admin.site.register(Favorite)
+admin.site.register(Todo)
+admin.site.register(Invitation)
+admin.site.register(Transaction)
