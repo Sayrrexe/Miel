@@ -21,8 +21,36 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
+          echo "Navigating to project directory..."
           cd /home/api/api
           git pull origin dev
+          
+          # Выполняем миграции
+          cd Miel
+          echo "Running migrations..."
+          python /app/manage.py migrate || {
+
+            # Если миграции не прошли, выполняем flush (с подтверждением)
+            echo "Migration failed, running flush..."
+            python /app/manage.py flush --no-input
+
+            # Повторяем миграции после flush
+            echo "Re-running migrations after flush..."
+            python /app/manage.py migrate
+
+            # Создание суперпользователя, если требуется
+            echo "Creating superuser..."
+            echo "from hr.models import CustomUser as User; User.objects.create_superuser('admin', 'admin@example.com', 'admin')" | python /app/manage.py shell
+
+          }
+
+          # Если миграции прошли успешно
+          echo "Migrations successful!"
+          cd ..
+
+          # Продолжаем запуск контейнеров
+          echo "Stopping old containers..."
           sudo docker-compose down
+          echo "Rebuilding and starting containers..."
           sudo docker-compose up -d --build
           EOF

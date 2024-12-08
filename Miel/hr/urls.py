@@ -18,8 +18,8 @@ urlpatterns = [
     path("api/v1/invitations/", views.InvitationAPIView.as_view()), # приглашен боссом кандидатов
     
     # Модераторы
-
-    #.
+    path('api/v1/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
+    
 
     # index
     path('', views.index, name='index'),    

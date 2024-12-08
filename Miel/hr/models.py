@@ -331,12 +331,19 @@ class Todo(models.Model):
         user (ForeignKey): Ссылка на пользователя, которому принадлежит задача.
         task (TextField): Описание задачи.
         due_date (DateTimeField): Дата и время выполнения задачи.
-        is_complete (BooleanField): Выполнена ли задача.
+        is_complete (BooleanField): Выполнена ли задача. Если изменяется на True, 
+                                    автоматически заполняется дата завершения.
         is_visible (BooleanField): Видима ли задача (по умолчанию True).
+        is_deleted (BooleanField): Логическое удаление задачи (по умолчанию False).
         date_update (DateTimeField): Дата и время последнего обновления записи.
+        date_creation (DateTimeField): Дата создания задачи.
+        date_complete (DateField): Дата завершения задачи (если задача выполнена).
+
     Методы:
         check_visibility(): Проверяет, прошло ли 12 часов с момента выполнения задачи.
                             Если прошло, скрывает задачу (is_visible=False).
+        save(): Переопределённый метод сохранения для автоматического заполнения
+               поля `date_complete`, если задача была помечена как выполненная.
     """
 
     user = models.ForeignKey(
@@ -346,12 +353,14 @@ class Todo(models.Model):
     )
     task = models.TextField(verbose_name="Задача")
     due_date = models.DateTimeField(verbose_name="Дата выполнения")
+    
     is_complete = models.BooleanField(default=False, verbose_name="Выполнено")
     is_visible = models.BooleanField(default=True, verbose_name="Видимость")
+    is_deleted = models.BooleanField(default=False, verbose_name="Удалена")
     
     date_update = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
-    # TODO добавить дату создания
-    # TODO finish date
+    date_creation = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    date_complete = models.DateField(null = True, blank=True)
 
     def check_visibility(self):
         """
@@ -365,6 +374,18 @@ class Todo(models.Model):
             if elapsed_time >= timedelta(hours=12):
                 self.is_visible = False
                 self.save()
+                
+    def save(self, *args, **kwargs):
+        if self.is_complete and not self.date_complete:
+            # Если задача выполнена и дата завершения еще не установлена
+            self.date_complete = now().date()
+
+        elif not self.is_complete and self.date_complete:
+            # Если задача не завершена, и дата завершения уже была установлена,
+            # мы не должны её изменять
+            pass
+
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.task} для {self.user.username} (до {self.due_date})"

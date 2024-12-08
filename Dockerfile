@@ -22,4 +22,5 @@ RUN python /app/manage.py collectstatic --noinput
 EXPOSE 8080
 
 # Команда для запуска приложения
-CMD ["sh", "-c", "python /app/manage.py migrate && python /app/manage.py runserver 0.0.0.0:8080"]
+CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+
