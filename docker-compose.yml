@@ -9,9 +9,9 @@ services:
     ports:
       - "8080:8080"
     volumes:
-      - ./media:/app/media
-      - ./static:/app/static
-      - ./data/db.sqlite3:/app/db.sqlite3
+      - ./Miel/db.sqlite3:/app/db.sqlite3   
+      - ./Miel/static:/app/static           
+      - ./Miel/media:/app/media 
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=${DJANGO_DEBUG}

@@ -18,11 +18,8 @@ RUN mkdir -p /app/logs
 # Собираем статические файлы
 RUN python /app/manage.py collectstatic --noinput
 
-# Выполняем миграции базы данных
-RUN python /app/manage.py migrate
-
 # Открываем порт
 EXPOSE 8080
 
 # Команда для запуска приложения
-CMD ["python", "/app/manage.py", "runserver", "0.0.0.0:8080"]
+CMD ["sh", "-c", "python /app/manage.py migrate && python /app/manage.py runserver 0.0.0.0:8080"]
