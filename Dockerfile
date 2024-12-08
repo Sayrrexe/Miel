@@ -1,26 +1,25 @@
-# Используем официальный образ Python
 FROM python:3.12
 
 # Устанавливаем рабочую директорию
 WORKDIR /app
 
-# Устанавливаем зависимости системы
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev gcc && \
-    apt-get clean && rm -rf /var/lib/apt/lists/*
+# Копируем файл зависимостей (requirements.txt) в контейнер
+COPY requirements.txt /app/
 
-# Копируем файлы проекта
-COPY . /app
-
-# Устанавливаем зависимости Python
+# Устанавливаем зависимости
 RUN pip install --no-cache-dir -r requirements.txt
 
+# Копируем весь код проекта в контейнер
+COPY Miel/ /app/
+
 # Собираем статические файлы
-RUN python manage.py collectstatic --noinput
-RUN python manage.py migrate
+RUN python /app/manage.py collectstatic --noinput
+
+# Выполняем миграции базы данных
+RUN python /app/manage.py migrate
 
 # Открываем порт
 EXPOSE 8080
 
-# Команда запуска приложения
-CMD ["python", "manage.py", "runserver", "0.0.0.0:8080"]
+# Команда для запуска приложения
+CMD ["python", "/app/manage.py", "runserver", "0.0.0.0:8080"]
