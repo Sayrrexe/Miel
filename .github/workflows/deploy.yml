@@ -21,8 +21,8 @@ jobs:
       - name: Deploy to VPS
         run: |
           ssh -o StrictHostKeyChecking=no ${{ secrets.VPS_USER }}@${{ secrets.VPS_HOST }} << 'EOF'
-          cd /path/to/your/project
-          git pull origin main
+          cd /home/api/api
+          git pull origin dev
           docker-compose down
           docker-compose up -d --build
           EOF
