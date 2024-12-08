@@ -19,7 +19,7 @@ urlpatterns = [
     
     # Модераторы
 
-
+    #.
 
     # index
     path('', views.index, name='index'),    
