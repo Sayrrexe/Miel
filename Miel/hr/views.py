@@ -12,6 +12,8 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
+from datetime import datetime
+
 from . import models
 from .utils import Office, Transaction, write_off_the_quota
 from .serializers import (FavoriteSerializer, 
@@ -150,6 +152,54 @@ class TodoStatsView(APIView):
 
         # 5. День недели с максимальными завершениями
         completed_by_day = models.Todo.objects.filter(is_complete=True, user=user).annotate(day=TruncDay('date_complete')).values('day').annotate(count=Count('id')).order_by('-count')
+        max_completed_day = completed_by_day.first()
+
+        # Статистика
+        stats = {
+            'total_created': total_created,
+            'total_completed': total_completed,
+            'total_deleted': total_deleted,
+            'max_created_day': max_created_day['day'].strftime('%A') if max_created_day else 'No data',
+            'max_completed_day': max_completed_day['day'].strftime('%A') if max_completed_day else 'No data',
+        }
+
+        return Response(stats, status=status.HTTP_200_OK)
+    def post(self, request, format=None):
+        user = request.user
+        
+        # Получаем start_date и end_date из POST-запроса
+        start_date = request.data.get('start_date')
+        end_date = request.data.get('end_date')
+
+        # Проверка, что даты присутствуют и корректные
+        if start_date:
+            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+        if end_date:
+            end_date = datetime.strptime(end_date, '%Y-%m-%d')
+        
+        # Фильтруем задачи по датам
+        todos_filter = models.Todo.objects.filter(user=user)
+        
+        if start_date:
+            todos_filter = todos_filter.filter(date_creation__gte=start_date)
+        
+        if end_date:
+            todos_filter = todos_filter.filter(date_creation__lte=end_date)
+
+        # 1. Всего создано
+        total_created = todos_filter.count()
+
+        # 2. Завершено
+        total_completed = todos_filter.filter(is_complete=True).count()
+
+        # 3. Удалено
+        total_deleted = todos_filter.filter(is_deleted=True).count()
+
+        # 4. День недели с максимальными созданиями
+        max_created_day = todos_filter.annotate(day=TruncDay('date_creation')).values('day').annotate(count=Count('id')).order_by('-count').first()
+
+        # 5. День недели с максимальными завершениями
+        completed_by_day = todos_filter.filter(is_complete=True).annotate(day=TruncDay('date_complete')).values('day').annotate(count=Count('id')).order_by('-count')
         max_completed_day = completed_by_day.first()
 
         # Статистика
