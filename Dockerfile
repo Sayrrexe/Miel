@@ -22,7 +22,7 @@ RUN python /app/manage.py collectstatic --noinput
 RUN python /app/manage.py migrate
 
 # Открываем порт
-EXPOSE 8000
+EXPOSE 8080
 
 # Команда для запуска приложения
-CMD ["python", "/app/manage.py", "runserver", "0.0.0.0:8000"]
+CMD ["python", "/app/manage.py", "runserver", "0.0.0.0:8080"]
