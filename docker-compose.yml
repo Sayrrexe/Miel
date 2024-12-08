@@ -11,6 +11,7 @@ services:
     volumes:
       - ./media:/app/media
       - ./static:/app/static
+      - ./data/db.sqlite3:/app/db.sqlite3
     environment:
       - DJANGO_SECRET_KEY=${DJANGO_SECRET_KEY}
       - DJANGO_DEBUG=${DJANGO_DEBUG}
