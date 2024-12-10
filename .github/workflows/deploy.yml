@@ -39,4 +39,5 @@ jobs:
             
           # Поднимаем контейнеры после успешной миграции
           sudo docker-compose up -d
+          sudo docker-compose logs app
           EOF
