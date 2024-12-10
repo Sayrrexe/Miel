@@ -9,7 +9,6 @@ from rest_framework.authtoken.models import Token
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 
-from . import forms
 
 User = get_user_model()
 
@@ -26,8 +25,7 @@ def login_view(request):
             return redirect('index')  # Перенаправление после успешного входа
         else:
             messages.error(request, "Неправильное имя пользователя или пароль.")
-    form = forms.UserLogin()
-    return render(request, "account/login.html", context={"form": form})
+    return render(request, "account/login.html")
 
 
 # Функциональное представление для выхода

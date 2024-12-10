@@ -9,18 +9,20 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.filters import SearchFilter
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 
 from datetime import datetime
 
 from . import models
-from .utils import Office, Transaction, write_off_the_quota
+from .utils import write_off_the_quota
 from .serializers import (FavoriteSerializer, 
                           TodoSerializer,  
-                          SupervisorSerializer,             
+                          InfoAboutSupervisor,             
                           CandidateSerializer, 
-                          InvitationSerializer)
+                          InvitationSerializer,
+                          SupervisorSerializer)
 
 
 # Create your views here.
@@ -35,7 +37,7 @@ class GetSupervisorInfoView(APIView):
     def get(self, request):
         queryset = models.Supervisor.objects.filter(user=request.user)
 
-        serializer = SupervisorSerializer(queryset, many=True)
+        serializer = InfoAboutSupervisor(queryset, many=True)
         return Response(serializer.data)
 
 class TodoViewSet(ModelViewSet):
@@ -131,58 +133,26 @@ class FavoriteViewSet(ModelViewSet):
         
 class TodoStatsView(APIView):
     permission_classes = [IsAuthenticated]
-    
+
     def get(self, request, format=None):
         now = timezone.now()
-        user = self.request.user
-
-        # 1. Всего создано
-        total_created = models.Todo.objects.filter(user=user).count()
-        print(total_created)
-        
-        # 2. Завершено
-        total_completed = models.Todo.objects.filter(is_complete=True, user=user).count()
-
-        # 3. Удалено
-        total_deleted = models.Todo.objects.filter(is_deleted=True, user=user).count()
-
-        # 4. День недели с максимальными созданиями
-        max_created_day = models.Todo.objects.filter(user=user).annotate(day=TruncDay('date_creation')).values('day').annotate(count=Count('id')).order_by('-count').first()
-
-
-        # 5. День недели с максимальными завершениями
-        completed_by_day = models.Todo.objects.filter(is_complete=True, user=user).annotate(day=TruncDay('date_complete')).values('day').annotate(count=Count('id')).order_by('-count')
-        max_completed_day = completed_by_day.first()
-
-        # Статистика
-        stats = {
-            'total_created': total_created,
-            'total_completed': total_completed,
-            'total_deleted': total_deleted,
-            'max_created_day': max_created_day['day'].strftime('%A') if max_created_day else 'No data',
-            'max_completed_day': max_completed_day['day'].strftime('%A') if max_completed_day else 'No data',
-        }
-
-        return Response(stats, status=status.HTTP_200_OK)
-    def post(self, request, format=None):
         user = request.user
-        
-        # Получаем start_date и end_date из POST-запроса
-        start_date = request.data.get('start_date')
-        end_date = request.data.get('end_date')
 
-        # Проверка, что даты присутствуют и корректные
+        # Получаем параметры start_date и end_date из GET-запроса
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+
+        # Преобразуем параметры в datetime
         if start_date:
-            start_date = datetime.strptime(start_date, '%Y-%m-%d')
+            start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
         if end_date:
-            end_date = datetime.strptime(end_date, '%Y-%m-%d')
-        
-        # Фильтруем задачи по датам
+            end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+
+        # Фильтруем задачи пользователя
         todos_filter = models.Todo.objects.filter(user=user)
-        
+
         if start_date:
             todos_filter = todos_filter.filter(date_creation__gte=start_date)
-        
         if end_date:
             todos_filter = todos_filter.filter(date_creation__lte=end_date)
 
@@ -196,10 +166,22 @@ class TodoStatsView(APIView):
         total_deleted = todos_filter.filter(is_deleted=True).count()
 
         # 4. День недели с максимальными созданиями
-        max_created_day = todos_filter.annotate(day=TruncDay('date_creation')).values('day').annotate(count=Count('id')).order_by('-count').first()
+        max_created_day = (
+            todos_filter.annotate(day=TruncDay('date_creation'))
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+            .first()
+        )
 
         # 5. День недели с максимальными завершениями
-        completed_by_day = todos_filter.filter(is_complete=True).annotate(day=TruncDay('date_complete')).values('day').annotate(count=Count('id')).order_by('-count')
+        completed_by_day = (
+            todos_filter.filter(is_complete=True)
+            .annotate(day=TruncDay('date_complete'))
+            .values('day')
+            .annotate(count=Count('id'))
+            .order_by('-count')
+        )
         max_completed_day = completed_by_day.first()
 
         # Статистика
@@ -212,4 +194,10 @@ class TodoStatsView(APIView):
         }
 
         return Response(stats, status=status.HTTP_200_OK)
+    
+class SupervisorViewSet(ModelViewSet):
+    queryset = models.Supervisor.objects.select_related('user', 'office').all()
+    serializer_class = SupervisorSerializer
+    filter_backends = [SearchFilter]
+    search_fields = ['user__first_name', 'user__last_name',]
 

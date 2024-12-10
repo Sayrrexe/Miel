@@ -307,7 +307,9 @@ class Supervisor(models.Model):
     office = models.ForeignKey(
         "Office",
         verbose_name="Офис",
-        on_delete=models.CASCADE
+        on_delete=models.CASCADE,
+        null=True,
+        blank=True
     )
     department = models.CharField(
         max_length=128,
