@@ -2,7 +2,7 @@ from os import read
 from rest_framework import serializers
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation
 
-class SupervisorSerializer(serializers.ModelSerializer):
+class InfoAboutSupervisor(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
     phone = serializers.CharField(source='user.profile.phone', read_only=True)  # Если у пользователя есть поле телефона
@@ -106,3 +106,10 @@ class FavoriteSerializer(serializers.ModelSerializer):
                     'created_at'
                   ]  
         read_only_fields = ['created_at']
+        
+class SupervisorSerializer(serializers.ModelSerializer):
+    full_name = serializers.CharField(source='user.get_full_name', read_only=True)
+
+    class Meta:
+        model = Supervisor
+        fields = ['id', 'user', 'office', 'department', 'full_name']

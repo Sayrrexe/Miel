@@ -1,13 +1,14 @@
 from django.urls import path, include
 
+from rest_framework.routers import DefaultRouter
+
 from . import views
 
-from rest_framework.routers import DefaultRouter
-from .views import FavoriteViewSet, TodoViewSet
 
 router = DefaultRouter()
-router.register(r'todos', TodoViewSet, basename='todo') # CRUD для todo
-router.register(r'favorites', FavoriteViewSet, basename='favorite') # CRUD для добавление кандидатов в избранное
+router.register(r'todos', views.TodoViewSet, basename='todo') # CRUD для todo
+router.register(r'favorites', views.FavoriteViewSet, basename='favorite') # CRUD для добавление кандидатов в избранное
+router.register(r'supervisors', views.SupervisorViewSet)  # CRUD для рук-лей ( от лица админа )
 
 urlpatterns = [
     # подключение CRUD
