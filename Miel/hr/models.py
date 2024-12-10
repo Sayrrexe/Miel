@@ -177,7 +177,6 @@ class Invitation(models.Model):
         verbose_name="Офис",
         on_delete=models.CASCADE,
     )
-    created_at = models.DateField(auto_now_add=True)
     status = models.CharField(
         max_length=50,
         choices=[
@@ -187,6 +186,7 @@ class Invitation(models.Model):
         ],
         default="invited",
     )
+    
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
