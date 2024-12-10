@@ -17,7 +17,7 @@ RUN mkdir -p /app/logs
 
 # Собираем статические файлы
 RUN python /app/manage.py collectstatic --noinput
-
+RUN python /app/manage.py migrate --noinput
 # Открываем порт
 EXPOSE 8080
 

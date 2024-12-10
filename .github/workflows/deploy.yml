@@ -27,17 +27,6 @@ jobs:
           
           # Останавливаем старые контейнеры
           sudo docker-compose down
-            
-          # Собираем новые образы
-          sudo docker-compose build
-            
-          # Запускаем миграции
-          sudo docker-compose run --rm app python manage.py migrate || {
-            echo "Migrations failed!"
-            exit 1
-          }
-            
-          # Поднимаем контейнеры после успешной миграции
-          sudo docker-compose up -d
-          sudo docker-compose logs app
+          # Обновляем контейнеры
+          sudo docker-compose up -d --build
           EOF
