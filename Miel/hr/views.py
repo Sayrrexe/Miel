@@ -201,3 +201,24 @@ class SupervisorViewSet(ModelViewSet):
     filter_backends = [SearchFilter]
     search_fields = ['user__first_name', 'user__last_name',]
 
+class CandidateViewSet(ModelViewSet):
+    queryset = models.Candidate.objects.all()
+    serializer_class = CandidateSerializer
+
+    def get_queryset(self):
+        """
+        Переопределение метода для ручной обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+        is_free = self.request.query_params.get('is_free')
+        name = self.request.query_params.get('search')
+
+        if is_free is not None:
+            # Фильтрация по "свободен?"
+            queryset = queryset.filter(is_free=is_free.lower() == 'true')
+
+        if name:
+            # Поиск по имени (регистронезависимый)
+            queryset = queryset.filter(name__icontains=name)
+
+        return queryset

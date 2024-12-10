@@ -113,3 +113,19 @@ class SupervisorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Supervisor
         fields = ['id', 'user', 'office', 'department', 'full_name']
+        
+        
+class CandidateSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candidate
+        fields = '__all__'
+
+    def validate(self, data):
+        """Обработка логики в save методе"""
+        is_free = data.get('is_free', None)
+        office = data.get('office', None)
+
+        if not is_free and office is None:
+            raise serializers.ValidationError("Если кандидат не свободен, поле 'офис' обязательно.")
+        
+        return data
