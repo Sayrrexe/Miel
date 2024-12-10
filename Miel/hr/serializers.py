@@ -33,32 +33,6 @@ class TodoSerializer(serializers.ModelSerializer):
         read_only_fields = ['user']
 
 
-
-class CandidateSerializer(serializers.ModelSerializer):
-
-    class Meta:
-        model = Candidate
-        fields = [
-            'id',
-            'name',
-            'surname',
-            'patronymic',
-            'birth',
-            'education',
-            'photo',
-            'country',
-            'city',
-            'resume',
-            'course_rieltor_join',
-            'basic_legal_course',
-            'course_mortgage',
-            'course_taxation',
-            'completed_objects',
-            'clients',
-            'updated_at',
-        ]
-
-
 class InvitationSerializer(serializers.ModelSerializer):
     name = serializers.SerializerMethodField()
     surname = serializers.SerializerMethodField()

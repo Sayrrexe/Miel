@@ -15,7 +15,6 @@ urlpatterns = [
     path('api/v1/', include(router.urls)),# для Api
     # Рук-ли
     path('api/v1/supervisors/', views.GetSupervisorInfoView.as_view()), # выдаёт всю информацию по рук-лю
-    path('api/v1/candidates/', views.CandidateInfoView.as_view()), # выдаёт кандидатов от лица босса, только просмотр
     path("api/v1/invitations/", views.InvitationAPIView.as_view()), # приглашен боссом кандидатов
     
     # Модераторы

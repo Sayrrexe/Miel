@@ -57,14 +57,6 @@ class TodoViewSet(ModelViewSet):
         """
         serializer.save(user=self.request.user)
 
-
-class CandidateInfoView(ListAPIView):
-    permission_classes = [IsAuthenticated]
-    queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
-    model = models.Candidate
-    serializer_class = CandidateSerializer
-
-
 class InvitationAPIView(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = InvitationSerializer
