@@ -317,7 +317,8 @@ class Supervisor(models.Model):
     )
 
     def __str__(self):
-        return f"{self.user.get_full_name()} - {self.department} ({self.office.name})"
+        office_name = self.office.name if self.office else "No office"
+        return f"{self.user.get_full_name()} - {self.department} ({office_name})"
 
     class Meta:
         verbose_name = "Руководитель"
