@@ -266,3 +266,53 @@ class CandidateInfoView(ListAPIView):
                 queryset = queryset.order_by('created_at')  
 
         return queryset
+
+
+class MonthlyStatisticView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self,request,*args,**kwargs):
+        user =request.user
+        supervisor = models.Supervisor.objects.get(user=user)
+        try:
+            office = supervisor.profile.office
+        except:
+            return Response({
+                "detail": "Пользователь не отнсится к этому офису!"
+            }, status= status.HTTP_400_BAD_REQUEST)
+
+        year = request.query_params.get('year', datetime.now().year)
+        months = [f"{month:02d}" for month in range(1,13)]
+
+        statistics  = []
+
+        for month in months:
+            trasactions = models.Transaction.objects.filter(
+                office= office,
+                created_at__year = year,
+                created_at__month = month,
+            )
+
+            invitations = models.Invitation.objects.filter(
+                office=office,
+                created_at__year =year,
+                created_at__month =month,
+        )
+
+            issued = invitations.count()
+            invited = invitations.filter(status='invited').count()
+            employed = invitations.filter(status='accepted').count()
+            rejected = invited - employed
+            substracted  = trasactions.filter(opertaion = 'substract').count()
+            removed =  issued - substracted
+
+            statistics.append({
+                'month': month,
+                'issued':issued,
+                'invited': invited,
+                "employed": employed,
+                'rejected': rejected,
+                "removed" : removed,
+
+            })
+        return Response(statistics,status= status.HTTP_200_OK)
