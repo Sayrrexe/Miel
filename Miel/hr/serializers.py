@@ -5,9 +5,11 @@ from .models import Favorite, Supervisor, Todo, Candidate, Invitation
 class InfoAboutSupervisor(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
-    phone = serializers.CharField(source='user.profile.phone', read_only=True)  # Если у пользователя есть поле телефона
+    phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
     office_name = serializers.CharField(source='office.name', read_only=True)
     office_location = serializers.CharField(source='office.location', read_only=True)
+    office_quota = serializers.CharField(source='office.quota', read_only=True)
+    office_used_quota = serializers.CharField(source='office.used_quota', read_only=True)
 
     class Meta:
         model = Supervisor
@@ -17,7 +19,9 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
             'phone',        # Номер телефона пользователя
             'office_name',  # Название офиса
             'office_location',  # Локация офиса
-            'department'    # Подразделение
+            'department',   # Подразделение
+            'office_quota',
+            'office_used_quota',# 
         ]
 
     def get_full_name(self, obj):

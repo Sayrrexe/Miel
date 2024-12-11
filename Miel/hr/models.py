@@ -7,8 +7,11 @@ from datetime import date, timedelta
 
 
 class CustomUser(AbstractUser):
-    Patronymic = models.CharField(max_length=32, verbose_name='Отчество', null=True, blank=True)
+    patronymic = models.CharField(max_length=32, verbose_name='Отчество', null=True, blank=True)
     phone = models.CharField(max_length=15, verbose_name="Номер телефона", blank=True, null=True)
+    
+    def get_full_name(self):
+        return f'{self.last_name} {self.first_name} {self.patronymic}'
 
 
 class Moderator(models.Model):
