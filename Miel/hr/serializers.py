@@ -103,3 +103,26 @@ class CandidateSerializer(serializers.ModelSerializer):
             raise serializers.ValidationError("Если кандидат не свободен, поле 'офис' обязательно.")
         
         return data
+    
+class CandidateInfoSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Candidate
+        fields = [
+            'id',
+            'name',
+            'surname',
+            'patronymic',
+            'birth',
+            'education',
+            'photo',
+            'country',
+            'city',
+            'resume',
+            'course_rieltor_join',
+            'basic_legal_course',
+            'course_mortgage',
+            'course_taxation',
+            'completed_objects',
+            'clients',
+            'updated_at',
+        ]

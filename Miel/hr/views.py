@@ -11,10 +11,10 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.filters import SearchFilter
 from rest_framework import status
-from rest_framework.permissions import IsAuthenticated
 
 from datetime import datetime
 
+from .permissions import IsModerator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
 from .serializers import (FavoriteSerializer, 
@@ -33,7 +33,7 @@ def index(request):
 
 
 class GetSupervisorInfoView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsSupervisor]
     def get(self, request):
         queryset = models.Supervisor.objects.filter(user=request.user)
 
@@ -58,7 +58,7 @@ class TodoViewSet(ModelViewSet):
         serializer.save(user=self.request.user)
 
 class InvitationAPIView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsSupervisor]
     serializer_class = InvitationSerializer
     model = models.Invitation
     
@@ -115,7 +115,7 @@ class InvitationAPIView(APIView):
     
 class FavoriteViewSet(ModelViewSet):
     serializer_class = FavoriteSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsSupervisor]
 
     def get_queryset(self):
         return models.Favorite.objects.filter(user=self.request.user)
@@ -188,12 +188,14 @@ class TodoStatsView(APIView):
         return Response(stats, status=status.HTTP_200_OK)
     
 class SupervisorViewSet(ModelViewSet):
+    permission_classes = [IsModerator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all()
     serializer_class = SupervisorSerializer
     filter_backends = [SearchFilter]
     search_fields = ['user__first_name', 'user__last_name',]
 
 class CandidateViewSet(ModelViewSet):
+    permission_classes = [IsModerator]
     queryset = models.Candidate.objects.all()
     serializer_class = CandidateSerializer
 
@@ -212,5 +214,55 @@ class CandidateViewSet(ModelViewSet):
         if name:
             # Поиск по имени (регистронезависимый)
             queryset = queryset.filter(name__icontains=name)
+
+        return queryset
+    
+class CandidateInfoView(ListAPIView):
+    permission_classes = [IsSupervisor]
+    queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
+    model = models.Candidate
+    serializer_class = CandidateSerializer
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+
+        # Получение параметров запроса
+        by_new = self.request.query_params.get('by_new')
+        age = self.request.query_params.get('age')
+        age_min = self.request.query_params.get('age_min')
+        age_max = self.request.query_params.get('age_max')
+        courses = self.request.query_params.get('courses')
+
+
+
+        if age:
+            queryset = queryset.filter(age=age)
+            
+        if age_min and age_max:
+            queryset = queryset.filter(age__gte=age_min, age__lte=age_max)
+            
+
+
+        if courses:
+            course_list = courses.split(',')
+            for course in course_list:
+                if course == "course_rieltor_join":
+                    queryset = queryset.filter(course_rieltor_join="completed")
+                elif course == "basic_legal_course":
+                    queryset = queryset.filter(basic_legal_course="completed")
+                elif course == "course_mortgage":
+                    queryset = queryset.filter(course_mortgage="completed")
+                elif course == "course_taxation":
+                    queryset = queryset.filter(course_taxation="completed")
+
+        # Сортировка по дате создания
+        if by_new:
+            if by_new.lower() == 'true':
+                queryset = queryset.order_by('-created_at')  
+            elif by_new.lower() == 'false':
+                queryset = queryset.order_by('created_at')  
 
         return queryset
