@@ -270,7 +270,7 @@ class CandidateInfoView(ListAPIView):
 
 
 class MonthlyStatisticView(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [IsSupervisor]
 
     def get(self,request,*args,**kwargs):
         user =request.user
