@@ -1,3 +1,4 @@
+from re import sub
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import render, redirect
 from django.db.models.functions import TruncDay
@@ -266,3 +267,51 @@ class CandidateInfoView(ListAPIView):
                 queryset = queryset.order_by('created_at')  
 
         return queryset
+
+
+class MonthlyStatisticView(APIView):
+    permission_classes = [IsSupervisor]
+
+    def get(self,request,*args,**kwargs):
+        user =request.user
+        supervisor = models.Supervisor.objects.get(user=user)
+        try:
+            office = supervisor.office
+        except Exception as e:
+            return Response({
+                "detail": "Пользователь не отнсится к офису!"
+            }, status= status.HTTP_400_BAD_REQUEST)
+
+        year = request.query_params.get('year', datetime.now().year)
+
+        statistics  = []
+
+        for month in range(1, 13):  
+            transactions = models.Transaction.objects.filter(
+                office=office,
+                created_at__year=year,
+                created_at__month=month,  
+        )
+
+            invitations = models.Invitation.objects.filter(
+                office=office,
+                created_at__year =year,
+                created_at__month =month,
+        )
+
+            issued = transactions.filter(operation='add').count()
+            invited = invitations.filter(status='invited').count()
+            employed = invitations.filter(status='accepted').count()
+            rejected = invitations.filter(status='rejected').count()
+            subtracted  = transactions.filter(operation = 'subtract').count()
+
+            statistics.append({
+                'month': month,
+                'issued':issued,
+                'invited': invited,
+                "employed": employed,
+                'rejected': rejected,
+                "subtracted": subtracted,
+
+            })
+        return Response(statistics,status= status.HTTP_200_OK)
