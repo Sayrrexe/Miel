@@ -14,11 +14,12 @@ from rest_framework.filters import SearchFilter
 from rest_framework import status
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
 from .permissions import IsModerator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
-from .serializers import (FavoriteSerializer, 
+from .serializers import (FavoriteSerializer, InfoAboutAdmin, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
@@ -33,13 +34,37 @@ def index(request):
     return redirect('/admin/')
 
 
-class GetSupervisorInfoView(APIView):
-    permission_classes = [IsSupervisor]
+class GetUserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        queryset = models.Supervisor.objects.filter(user=request.user)
+        try:
+            # Проверяем, является ли пользователь Moderator
+            queryset = models.Moderator.objects.filter(user=request.user)
+            if queryset.exists():
+                serializer = InfoAboutAdmin(queryset, many=True)
+                return Response(serializer.data)
+        except models.Moderator.DoesNotExist:
+            pass  
+        
+        
+        try:
+            # Проверяем, является ли пользователь Supervisor
+            queryset = models.Supervisor.objects.filter(user=request.user)
+            if queryset.exists():
+                serializer = InfoAboutSupervisor(queryset, many=True)
+                return Response(serializer.data)
+        except models.Supervisor.DoesNotExist:
+            pass  
 
-        serializer = InfoAboutSupervisor(queryset, many=True)
-        return Response(serializer.data)
+
+        return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                
+                
+                
+
+        
 
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all()
@@ -272,46 +297,49 @@ class CandidateInfoView(ListAPIView):
 class MonthlyStatisticView(APIView):
     permission_classes = [IsSupervisor]
 
-    def get(self,request,*args,**kwargs):
-        user =request.user
+    def get(self, request, *args, **kwargs):
+        user = request.user
         supervisor = models.Supervisor.objects.get(user=user)
         try:
             office = supervisor.office
         except Exception as e:
             return Response({
-                "detail": "Пользователь не отнсится к офису!"
-            }, status= status.HTTP_400_BAD_REQUEST)
+                "detail": "Пользователь не относится к офису!"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        year = request.query_params.get('year', datetime.now().year)
+        # Определяем дату начала и конца
+        end_date = datetime.now()
+        start_date = end_date - relativedelta(months=9)  # Последние 10 месяцев (включая текущий)
 
-        statistics  = []
+        statistics = []
 
-        for month in range(1, 13):  
+        for i in range(10):  # Генерация статистики за 10 месяцев
+            month_date = start_date + relativedelta(months=i)
             transactions = models.Transaction.objects.filter(
                 office=office,
-                created_at__year=year,
-                created_at__month=month,  
-        )
+                created_at__year=month_date.year,
+                created_at__month=month_date.month,
+            )
 
             invitations = models.Invitation.objects.filter(
                 office=office,
-                created_at__year =year,
-                created_at__month =month,
-        )
+                created_at__year=month_date.year,
+                created_at__month=month_date.month,
+            )
 
             issued = transactions.filter(operation='add').count()
             invited = invitations.filter(status='invited').count()
             employed = invitations.filter(status='accepted').count()
             rejected = invitations.filter(status='rejected').count()
-            subtracted  = transactions.filter(operation = 'subtract').count()
+            subtracted = transactions.filter(operation='subtract').count()
 
             statistics.append({
-                'month': month,
-                'issued':issued,
+                'month': month_date.strftime('%B %Y'),  # Форматируем месяц и год для удобства
+                'issued': issued,
                 'invited': invited,
                 "employed": employed,
                 'rejected': rejected,
                 "subtracted": subtracted,
-
             })
-        return Response(statistics,status= status.HTTP_200_OK)
+
+        return Response(statistics, status=status.HTTP_200_OK)

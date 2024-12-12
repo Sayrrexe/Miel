@@ -3,6 +3,7 @@ from rest_framework import serializers
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
+    role = serializers.CharField(default="Supervisor", read_only=True)
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
     phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
@@ -14,6 +15,7 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
     class Meta:
         model = Supervisor
         fields = [
+            'role',
             'full_name',    # Полное имя пользователя
             'email',        # Email пользователя
             'phone',        # Номер телефона пользователя
@@ -22,6 +24,24 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
             'department',   # Подразделение
             'office_quota',
             'office_used_quota',# 
+        ]
+
+    def get_full_name(self, obj):
+        return obj.user.get_full_name()
+    
+class InfoAboutAdmin(serializers.ModelSerializer):
+    role = serializers.CharField(default="Administrator", read_only=True)
+    full_name = serializers.SerializerMethodField()
+    email = serializers.EmailField(source='user.email', read_only=True)
+    phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
+
+    class Meta:
+        model = Supervisor
+        fields = [
+            'role',
+            'full_name',    # Полное имя пользователя
+            'email',        # Email пользователя
+            'phone',        # Номер телефона пользователя
         ]
 
     def get_full_name(self, obj):
