@@ -19,7 +19,7 @@ urlpatterns = [
     path('api/v1/supervisor/candidates/', views.CandidateInfoView.as_view()), # список всех кандидатов
     path('api/v1/supervisor/info', views.GetSupervisorInfoView.as_view()), # выдаёт всю информацию по рук-лю
     path("api/v1/supervisor/invitations/", views.InvitationAPIView.as_view()), # приглашен боссом кандидатов
-    path('api/v1/supervisor/quota', views.MonthlyStatisticView.as_view()),
+    path('api/v1/supervisor/info/quota', views.MonthlyStatisticView.as_view()),
     
     # Модераторы
     path('api/v1/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
