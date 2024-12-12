@@ -18,7 +18,7 @@ from datetime import datetime
 from .permissions import IsModerator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
-from .serializers import (FavoriteSerializer, 
+from .serializers import (FavoriteSerializer, InfoAboutAdmin, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
@@ -33,13 +33,37 @@ def index(request):
     return redirect('/admin/')
 
 
-class GetSupervisorInfoView(APIView):
-    permission_classes = [IsSupervisor]
+class GetUserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        queryset = models.Supervisor.objects.filter(user=request.user)
+        try:
+            # Проверяем, является ли пользователь Moderator
+            queryset = models.Moderator.objects.filter(user=request.user)
+            if queryset.exists():
+                serializer = InfoAboutAdmin(queryset, many=True)
+                return Response(serializer.data)
+        except models.Moderator.DoesNotExist:
+            pass  
+        
+        
+        try:
+            # Проверяем, является ли пользователь Supervisor
+            queryset = models.Supervisor.objects.filter(user=request.user)
+            if queryset.exists():
+                serializer = InfoAboutSupervisor(queryset, many=True)
+                return Response(serializer.data)
+        except models.Supervisor.DoesNotExist:
+            pass  
 
-        serializer = InfoAboutSupervisor(queryset, many=True)
-        return Response(serializer.data)
+
+        return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
+
+                
+                
+                
+
+        
 
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all()

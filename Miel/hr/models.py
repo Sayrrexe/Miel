@@ -304,7 +304,7 @@ class Supervisor(models.Model):
         department (CharField): Название подразделения, которым управляет руководитель.
     """
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
