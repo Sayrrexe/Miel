@@ -23,7 +23,8 @@ from .serializers import (FavoriteSerializer,
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
                           InvitationSerializer,
-                          SupervisorSerializer)
+                          SupervisorSerializer,
+                          OfficeSerializer)
 
 
 # Create your views here.
@@ -315,3 +316,14 @@ class MonthlyStatisticView(APIView):
 
             })
         return Response(statistics,status= status.HTTP_200_OK)
+
+
+
+
+class OfficeViewSet(ModelViewSet):
+    permission_classes = [IsSupervisor]
+    queryset = models.Office.objects.select_related('user', 'supervisor').all()
+    model = models.Office
+    serializer_class = OfficeSerializer
+
+

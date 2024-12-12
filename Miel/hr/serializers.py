@@ -1,6 +1,6 @@
 from os import read
 from rest_framework import serializers
-from .models import Favorite, Supervisor, Todo, Candidate, Invitation
+from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
@@ -130,3 +130,12 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'clients',
             'updated_at',
         ]
+
+
+class OfficeSerializer(serializers.ModelSerializer):
+    class Meta :
+        model = Office
+        fields = ['name',
+                   'location',
+                   'quota',
+                   'used_quota']

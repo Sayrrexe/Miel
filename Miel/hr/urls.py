@@ -9,7 +9,8 @@ router = DefaultRouter()
 router.register(r'todos', views.TodoViewSet, basename='todo') # CRUD для todo
 router.register(r'supervisor/favorites', views.FavoriteViewSet, basename='favorite') # CRUD для добавление кандидатов в избранное
 router.register(r'admin/supervisors', views.SupervisorViewSet)  # CRUD для рук-лей ( от лица админа )
-router.register(r'admin/candidates', views.CandidateViewSet, basename='candidate') #CRUD для кандидатов ( От лица админа )
+router.register(r'admin/candidates', views.CandidateViewSet, basename='candidate')
+router.register(r'admin/office', views.OfficeViewSet, basename='office')#CRUD для офисов ( От лица админа )
 
 urlpatterns = [
     # подключение CRUD
