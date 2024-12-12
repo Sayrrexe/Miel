@@ -272,7 +272,8 @@ class Transaction(models.Model):
         on_delete=models.CASCADE
     )
     amount = models.PositiveIntegerField(verbose_name="Количество")
-
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
     
     def apply_transaction(self):
         """
