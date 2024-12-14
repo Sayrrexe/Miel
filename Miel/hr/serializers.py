@@ -3,7 +3,7 @@ from rest_framework import serializers
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
-    role = serializers.CharField(default="Supervisor", read_only=True)
+    role = serializers.CharField(default="2", read_only=True)
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
     phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
@@ -30,7 +30,7 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
         return obj.user.get_full_name()
     
 class InfoAboutAdmin(serializers.ModelSerializer):
-    role = serializers.CharField(default="Administrator", read_only=True)
+    role = serializers.CharField(default="1", read_only=True)
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
     phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
