@@ -155,11 +155,22 @@ SPECTACULAR_SETTINGS = {
 }
 
 # -- CORS --
-CORS_ALLOW_ALL_ORIGINS = True
-CORS_ALLOW_CREDENTIALS = True
+CORS_ALLOW_ALL_ORIGINS = True  # Разрешить все домены
+CORS_ALLOW_CREDENTIALS = True  # Если нужны cookies
 CORS_ALLOW_HEADERS = [
     "authorization",
+    "content-type",
+    "x-csrftoken",
+    "x-requested-with",
 ]
+CORS_ALLOW_METHODS = [
+    "GET",
+    "POST",
+    "PUT",
+    "DELETE",
+    "OPTIONS",
+]
+
 
 
 
