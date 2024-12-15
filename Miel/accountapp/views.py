@@ -13,27 +13,6 @@ from rest_framework.status import HTTP_200_OK, HTTP_400_BAD_REQUEST
 User = get_user_model()
 
 
-# Функциональное представление для входа
-def login_view(request):
-    if request.method == "POST":
-        username = request.POST.get("username")
-        password = request.POST.get("password")
-        user = authenticate(request, username=username, password=password)
-
-        if user is not None:
-            login(request, user)
-            return redirect('index')  # Перенаправление после успешного входа
-        else:
-            messages.error(request, "Неправильное имя пользователя или пароль.")
-    return render(request, "account/login.html")
-
-
-# Функциональное представление для выхода
-def logout_view(request):
-    logout(request)
-    return redirect('login')
-
-
 # APIView для входа
 class LoginAPIView(APIView):
     def post(self, request):

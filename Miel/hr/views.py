@@ -1,16 +1,14 @@
-from re import sub
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.db.models.functions import TruncDay
 from django.utils import timezone
 from django.db.models import Count
+from django.db.models import Q
 
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
 from rest_framework import status
 
 from datetime import datetime
@@ -19,7 +17,8 @@ from dateutil.relativedelta import relativedelta
 from .permissions import IsModerator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
-from .serializers import (FavoriteSerializer, InfoAboutAdmin, 
+from .serializers import (FavoriteSerializer,
+                          InfoAboutAdmin, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
@@ -28,9 +27,7 @@ from .serializers import (FavoriteSerializer, InfoAboutAdmin,
 
 
 # Create your views here.
-@login_required
 def index(request):
-    user = request.user
     return redirect('/admin/')
 
 
@@ -59,12 +56,6 @@ class GetUserInfoView(APIView):
 
 
         return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                
-                
-                
-
-        
 
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all()
@@ -217,8 +208,48 @@ class SupervisorViewSet(ModelViewSet):
     permission_classes = [IsModerator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all()
     serializer_class = SupervisorSerializer
-    filter_backends = [SearchFilter]
-    search_fields = ['user__first_name', 'user__last_name',]
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для ручной обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+        search = self.request.query_params.get('search').lower()
+
+        if search:
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(user__patronymic__icontains=search)
+            )
+
+        return queryset
+
+    def perform_create(self, serializer):
+        """
+        Переопределение для обработки вложенных данных пользователя.
+        """
+        serializer.save()
+
+    def perform_update(self, serializer):
+        """
+        Обновление данных Supervisor, включая вложенные данные пользователя.
+        """
+        supervisor = self.get_object()
+        user_data = self.request.data.get('user', None)
+
+        if user_data:
+            # Обновляем данные пользователя
+            for key, value in user_data.items():
+                setattr(supervisor.user, key, value)
+            supervisor.user.save()
+
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        instance.user.is_active = False  
+        instance.user.save()
+        instance.delete()
 
 class CandidateViewSet(ModelViewSet):
     permission_classes = [IsModerator]
