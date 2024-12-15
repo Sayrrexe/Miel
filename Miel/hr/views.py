@@ -2,6 +2,7 @@ from django.shortcuts import redirect
 from django.db.models.functions import TruncDay
 from django.utils import timezone
 from django.db.models import Count
+from django.db.models import Q
 
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
@@ -55,12 +56,6 @@ class GetUserInfoView(APIView):
 
 
         return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
-
-                
-                
-                
-
-        
 
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all()
@@ -213,6 +208,22 @@ class SupervisorViewSet(ModelViewSet):
     permission_classes = [IsModerator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all()
     serializer_class = SupervisorSerializer
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для ручной обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+        search = self.request.query_params.get('search').lower()
+
+        if search:
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(user__patronymic__icontains=search)
+            )
+
+        return queryset
 
     def perform_create(self, serializer):
         """
