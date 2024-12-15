@@ -1,6 +1,4 @@
-from re import sub
-from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.db.models.functions import TruncDay
 from django.utils import timezone
 from django.db.models import Count
@@ -28,9 +26,7 @@ from .serializers import (FavoriteSerializer,
 
 
 # Create your views here.
-@login_required
 def index(request):
-    user = request.user
     return redirect('/admin/')
 
 
