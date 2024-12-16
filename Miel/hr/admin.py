@@ -3,7 +3,7 @@ from django.contrib.auth.hashers import make_password
 from .models import (
     CustomUser,
     Supervisor,
-    Moderator,
+    Administrator,
     Candidate,
     Office,
     Favorite,
@@ -27,7 +27,7 @@ admin.site.register(CustomUser, CustomUserAdmin)
 
 # Регистрируем остальные модели
 admin.site.register(Supervisor)
-admin.site.register(Moderator)
+admin.site.register(Administrator)
 admin.site.register(Candidate)
 admin.site.register(Office)
 admin.site.register(Favorite)

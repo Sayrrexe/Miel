@@ -14,7 +14,7 @@ from rest_framework import status
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from .permissions import IsModerator, IsSupervisor
+from .permissions import IsAdministrator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
 from .serializers import (FavoriteSerializer,
@@ -36,12 +36,12 @@ class GetUserInfoView(APIView):
     
     def get(self, request):
         try:
-            # Проверяем, является ли пользователь Moderator
-            queryset = models.Moderator.objects.filter(user=request.user)
+            # Проверяем, является ли пользователь админа
+            queryset = models.Administrator.objects.filter(user=request.user)
             if queryset.exists():
                 serializer = InfoAboutAdmin(queryset, many=True)
                 return Response(serializer.data)
-        except models.Moderator.DoesNotExist:
+        except models.Administrator.DoesNotExist:
             pass  
         
         
@@ -205,7 +205,7 @@ class TodoStatsView(APIView):
         return Response(stats, status=status.HTTP_200_OK)
     
 class SupervisorViewSet(ModelViewSet):
-    permission_classes = [IsModerator]
+    permission_classes = [IsAdministrator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all()
     serializer_class = SupervisorSerializer
     
@@ -214,9 +214,10 @@ class SupervisorViewSet(ModelViewSet):
         Переопределение метода для ручной обработки параметров фильтрации.
         """
         queryset = super().get_queryset()
-        search = self.request.query_params.get('search').lower()
+        search = self.request.query_params.get('search')
 
         if search:
+            search = search.lower()
             queryset = queryset.filter(
                 Q(user__first_name__icontains=search) |
                 Q(user__last_name__icontains=search) |
@@ -252,7 +253,7 @@ class SupervisorViewSet(ModelViewSet):
         instance.delete()
 
 class CandidateViewSet(ModelViewSet):
-    permission_classes = [IsModerator]
+    permission_classes = [IsAdministrator]
     queryset = models.Candidate.objects.all()
     serializer_class = CandidateSerializer
 
