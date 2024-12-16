@@ -325,5 +325,6 @@ class OfficeViewSet(ModelViewSet):
     queryset = models.Office.objects.select_related('user', 'supervisor').all()
     model = models.Office
     serializer_class = OfficeSerializer
-
+    filter_backends = [SearchFilter]
+    search_fields = ['name']
 
