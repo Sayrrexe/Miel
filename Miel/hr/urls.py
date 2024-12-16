@@ -14,16 +14,18 @@ router.register(r'admin/offices', views.OfficeViewSet, basename='office')#CRUD �
 
 urlpatterns = [
     # подключение CRUD
-    path('api/v1/', include(router.urls)),# для CRUD Api
+    path('api/', include(router.urls)),# для CRUD Api
+    path('api/info/', views.GetUserInfoView.as_view()), # выдаёт всю информацию о пользователе
+    
     
     # Рук-ли
-    path('api/v1/supervisor/candidates/', views.CandidateInfoView.as_view()), # список всех кандидатов
-    path('api/v1/supervisor/info', views.GetSupervisorInfoView.as_view()), # выдаёт всю информацию по рук-лю
-    path("api/v1/supervisor/invitations/", views.InvitationAPIView.as_view()), # приглашен боссом кандидатов
-    path('api/v1/supervisor/info/quota', views.MonthlyStatisticView.as_view()),
+    path('api/supervisor/candidates/', views.CandidateInfoView.as_view()), # список всех кандидатов
+    path("api/supervisor/invitations/", views.InvitationAPIView.as_view()), # приглашен боссом кандидатов
+    path('api/supervisor/info/quota/', views.MonthlyStatisticView.as_view()),
     
-    # Модераторы
-    path('api/v1/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
+    
+    # Администратор
+    path('api/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
     
 
     # index

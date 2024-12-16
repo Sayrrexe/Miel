@@ -14,7 +14,7 @@ class CustomUser(AbstractUser):
         return f'{self.last_name} {self.first_name} {self.patronymic}'
 
 
-class Moderator(models.Model):
+class Administrator(models.Model):
     """
     Расширение стандартной модели User для администраторов:
     - Содержит дополнительные поля, такие как права доступа.
@@ -25,8 +25,8 @@ class Moderator(models.Model):
         return f'Admin: {self.user.username}'
     
     class Meta:
-        verbose_name = "Модератор"
-        verbose_name_plural = "Модераторы"
+        verbose_name = "Администратор"
+        verbose_name_plural = "Администраторы"
         unique_together = (('user'),)
 
 
@@ -304,7 +304,7 @@ class Supervisor(models.Model):
         department (CharField): Название подразделения, которым управляет руководитель.
     """
 
-    user = models.ForeignKey(
+    user = models.OneToOneField(
         CustomUser,
         verbose_name="Пользователь",
         on_delete=models.CASCADE
@@ -318,7 +318,9 @@ class Supervisor(models.Model):
     )
     department = models.CharField(
         max_length=128,
-        verbose_name="Подразделение"
+        verbose_name="Подразделение",
+        null = True,
+        blank = True
     )
 
     def __str__(self):

@@ -1,23 +1,24 @@
-from django.contrib.auth.decorators import login_required
 from django.shortcuts import redirect
 from django.db.models.functions import TruncDay
 from django.utils import timezone
 from django.db.models import Count
+from django.db.models import Q
 
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework.filters import SearchFilter
 from rest_framework import status
 
 from datetime import datetime
+from dateutil.relativedelta import relativedelta
 
-from .permissions import IsModerator, IsSupervisor
+from .permissions import IsAdministrator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
-from .serializers import (FavoriteSerializer, 
+from .serializers import (FavoriteSerializer,
+                          InfoAboutAdmin, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
@@ -27,19 +28,35 @@ from .serializers import (FavoriteSerializer,
 
 
 # Create your views here.
-@login_required
 def index(request):
-    user = request.user
     return redirect('/admin/')
 
 
-class GetSupervisorInfoView(APIView):
-    permission_classes = [IsSupervisor]
+class GetUserInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+    
     def get(self, request):
-        queryset = models.Supervisor.objects.filter(user=request.user)
+        try:
+            # Проверяем, является ли пользователь админа
+            queryset = models.Administrator.objects.filter(user=request.user)
+            if queryset.exists():
+                serializer = InfoAboutAdmin(queryset, many=True)
+                return Response(serializer.data)
+        except models.Administrator.DoesNotExist:
+            pass  
+        
+        
+        try:
+            # Проверяем, является ли пользователь Supervisor
+            queryset = models.Supervisor.objects.filter(user=request.user)
+            if queryset.exists():
+                serializer = InfoAboutSupervisor(queryset, many=True)
+                return Response(serializer.data)
+        except models.Supervisor.DoesNotExist:
+            pass  
 
-        serializer = InfoAboutSupervisor(queryset, many=True)
-        return Response(serializer.data)
+
+        return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all()
@@ -70,6 +87,23 @@ class InvitationAPIView(APIView):
     
         office = supervisor.office
         queryset = models.Invitation.objects.filter(office=office).all()
+        
+        # Фильтрация
+        status = request.query_params.get('status')
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        
+        if status:
+            queryset = queryset.filter(status=status)
+        if start_date and end_date:
+            queryset = queryset.filter(updated_at__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(updated_at__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(updated_at__lte=end_date)
+        
+        
+        
     
         serializer = InvitationSerializer(queryset, many=True)
         return Response(serializer.data)
@@ -189,14 +223,55 @@ class TodoStatsView(APIView):
         return Response(stats, status=status.HTTP_200_OK)
     
 class SupervisorViewSet(ModelViewSet):
-    permission_classes = [IsModerator]
+    permission_classes = [IsAdministrator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all()
     serializer_class = SupervisorSerializer
-    filter_backends = [SearchFilter]
-    search_fields = ['user__first_name', 'user__last_name',]
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для ручной обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+        search = self.request.query_params.get('search')
+
+        if search:
+            search = search.lower()
+            queryset = queryset.filter(
+                Q(user__first_name__icontains=search) |
+                Q(user__last_name__icontains=search) |
+                Q(user__patronymic__icontains=search)
+            )
+
+        return queryset
+
+    def perform_create(self, serializer):
+        """
+        Переопределение для обработки вложенных данных пользователя.
+        """
+        serializer.save()
+
+    def perform_update(self, serializer):
+        """
+        Обновление данных Supervisor, включая вложенные данные пользователя.
+        """
+        supervisor = self.get_object()
+        user_data = self.request.data.get('user', None)
+
+        if user_data:
+            # Обновляем данные пользователя
+            for key, value in user_data.items():
+                setattr(supervisor.user, key, value)
+            supervisor.user.save()
+
+        serializer.save()
+
+    def perform_destroy(self, instance):
+        instance.user.is_active = False  
+        instance.user.save()
+        instance.delete()
 
 class CandidateViewSet(ModelViewSet):
-    permission_classes = [IsModerator]
+    permission_classes = [IsAdministrator]
     queryset = models.Candidate.objects.all()
     serializer_class = CandidateSerializer
 
@@ -272,47 +347,49 @@ class CandidateInfoView(ListAPIView):
 class MonthlyStatisticView(APIView):
     permission_classes = [IsSupervisor]
 
-    def get(self,request,*args,**kwargs):
-        user =request.user
+    def get(self, request, *args, **kwargs):
+        user = request.user
         supervisor = models.Supervisor.objects.get(user=user)
         try:
             office = supervisor.office
         except Exception as e:
             return Response({
-                "detail": "Пользователь не отнсится к офису!"
-            }, status= status.HTTP_400_BAD_REQUEST)
+                "detail": "Пользователь не относится к офису!"
+            }, status=status.HTTP_400_BAD_REQUEST)
 
-        year = request.query_params.get('year', datetime.now().year)
+        # Определяем дату начала и конца
+        end_date = datetime.now()
+        start_date = end_date - relativedelta(months=9)  # Последние 10 месяцев (включая текущий)
 
-        statistics  = []
+        statistics = []
 
-        for month in range(1, 13):  
+        for i in range(10):  # Генерация статистики за 10 месяцев
+            month_date = start_date + relativedelta(months=i)
             transactions = models.Transaction.objects.filter(
                 office=office,
-                created_at__year=year,
-                created_at__month=month,  
-        )
+                created_at__year=month_date.year,
+                created_at__month=month_date.month,
+            )
 
             invitations = models.Invitation.objects.filter(
                 office=office,
-                created_at__year =year,
-                created_at__month =month,
-        )
+                created_at__year=month_date.year,
+                created_at__month=month_date.month,
+            )
 
             issued = transactions.filter(operation='add').count()
             invited = invitations.filter(status='invited').count()
             employed = invitations.filter(status='accepted').count()
             rejected = invitations.filter(status='rejected').count()
-            subtracted  = transactions.filter(operation = 'subtract').count()
+            subtracted = transactions.filter(operation='subtract').count()
 
             statistics.append({
-                'month': month,
-                'issued':issued,
+                'month': month_date.strftime('%B %Y'),  # Форматируем месяц и год для удобства
+                'issued': issued,
                 'invited': invited,
                 "employed": employed,
                 'rejected': rejected,
                 "subtracted": subtracted,
-
             })
         return Response(statistics,status= status.HTTP_200_OK)
 
@@ -335,3 +412,4 @@ class OfficeViewSet(ModelViewSet):
             queryset = queryset.filter(name__icontains=name)
 
         return queryset
+

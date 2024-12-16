@@ -1,8 +1,9 @@
 from os import read
 from rest_framework import serializers
-from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office
+from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
+    role = serializers.CharField(default="2", read_only=True)
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
     phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
@@ -14,6 +15,7 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
     class Meta:
         model = Supervisor
         fields = [
+            'role',
             'full_name',    # Полное имя пользователя
             'email',        # Email пользователя
             'phone',        # Номер телефона пользователя
@@ -22,6 +24,24 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
             'department',   # Подразделение
             'office_quota',
             'office_used_quota',# 
+        ]
+
+    def get_full_name(self, obj):
+        return obj.user.get_full_name()
+    
+class InfoAboutAdmin(serializers.ModelSerializer):
+    role = serializers.CharField(default="1", read_only=True)
+    full_name = serializers.SerializerMethodField()
+    email = serializers.EmailField(source='user.email', read_only=True)
+    phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
+
+    class Meta:
+        model = Supervisor
+        fields = [
+            'role',
+            'full_name',    # Полное имя пользователя
+            'email',        # Email пользователя
+            'phone',        # Номер телефона пользователя
         ]
 
     def get_full_name(self, obj):
@@ -74,23 +94,47 @@ class InvitationSerializer(serializers.ModelSerializer):
     def get_age(self, obj):
         return obj.candidate.calculate_age()
     
-    
         
-class FavoriteSerializer(serializers.ModelSerializer):
+class UserSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=False)  # Оставляем для возможности смены пароля
+
     class Meta:
-        model = Favorite
-        fields = [
-                    'candidate', 
-                    'created_at'
-                  ]  
-        read_only_fields = ['created_at']
-        
+        model = CustomUser
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
+
 class SupervisorSerializer(serializers.ModelSerializer):
-    full_name = serializers.CharField(source='user.get_full_name', read_only=True)
+    user = UserSerializer()
 
     class Meta:
         model = Supervisor
-        fields = ['id', 'user', 'office', 'department', 'full_name']
+        fields = ['id', 'user', 'office', 'department']
+
+    def create(self, validated_data):
+        user_data = validated_data.pop('user')
+        user = CustomUser.objects.create_user(**user_data)
+        supervisor = Supervisor.objects.create(user=user, **validated_data)
+        return supervisor
+
+    def update(self, instance, validated_data):
+        # Извлекаем вложенные данные для пользователя
+        user_data = validated_data.pop('user', None)
+
+        # Обновляем данные Supervisor
+        instance.office = validated_data.get('office', instance.office)
+        instance.department = validated_data.get('department', instance.department)
+        instance.save()
+
+        # Если переданы данные пользователя, обновляем их
+        if user_data:
+            user = instance.user
+            for attr, value in user_data.items():
+                if attr == 'password':  # Особая обработка для пароля
+                    user.set_password(value)
+                else:
+                    setattr(user, attr, value)
+            user.save()
+
+        return instance
         
         
 class CandidateSerializer(serializers.ModelSerializer):
@@ -132,6 +176,7 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
         ]
 
 
+
 class OfficeSerializer(serializers.ModelSerializer):
 
     class Meta :
@@ -139,3 +184,15 @@ class OfficeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
+        
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    candidate = CandidateInfoSerializer()
+    class Meta:
+        model = Favorite
+        fields = [
+                    'id',
+                    'candidate', 
+                    'created_at',
+                  ]  
+        read_only_fields = ['created_at']
