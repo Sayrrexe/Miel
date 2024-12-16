@@ -23,7 +23,8 @@ from .serializers import (FavoriteSerializer,
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
                           InvitationSerializer,
-                          SupervisorSerializer)
+                          SupervisorSerializer,
+                          OfficeSerializer)
 
 
 # Create your views here.
@@ -390,5 +391,25 @@ class MonthlyStatisticView(APIView):
                 'rejected': rejected,
                 "subtracted": subtracted,
             })
+        return Response(statistics,status= status.HTTP_200_OK)
 
-        return Response(statistics, status=status.HTTP_200_OK)
+
+
+
+class OfficeViewSet(ModelViewSet):
+    # permission_classes = [IsSupervisor]
+    queryset = models.Office.objects.all()
+    serializer_class = OfficeSerializer
+
+    def get_queryset(self):
+        """
+        Переопределение метода для ручной обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+        name = self.request.query_params.get('search')
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+
+        return queryset
+

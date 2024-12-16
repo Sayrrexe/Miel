@@ -1,6 +1,6 @@
 from os import read
 from rest_framework import serializers
-from .models import Favorite, Supervisor, Todo, Candidate, Invitation, CustomUser
+from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
     role = serializers.CharField(default="2", read_only=True)
@@ -174,6 +174,16 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'clients',
             'updated_at',
         ]
+
+
+
+class OfficeSerializer(serializers.ModelSerializer):
+
+    class Meta :
+        model = Office
+        fields = "__all__"
+
+
         
 
 class FavoriteSerializer(serializers.ModelSerializer):
