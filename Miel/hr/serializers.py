@@ -94,17 +94,6 @@ class InvitationSerializer(serializers.ModelSerializer):
     def get_age(self, obj):
         return obj.candidate.calculate_age()
     
-    
-        
-class FavoriteSerializer(serializers.ModelSerializer):
-    class Meta:
-        model = Favorite
-        fields = [
-                    'id',
-                    'candidate', 
-                    'created_at'
-                  ]  
-        read_only_fields = ['created_at']
         
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)  # Оставляем для возможности смены пароля
@@ -185,3 +174,15 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'clients',
             'updated_at',
         ]
+        
+
+class FavoriteSerializer(serializers.ModelSerializer):
+    candidate = CandidateInfoSerializer()
+    class Meta:
+        model = Favorite
+        fields = [
+                    'id',
+                    'candidate', 
+                    'created_at',
+                  ]  
+        read_only_fields = ['created_at']
