@@ -318,7 +318,9 @@ class Supervisor(models.Model):
     )
     department = models.CharField(
         max_length=128,
-        verbose_name="Подразделение"
+        verbose_name="Подразделение",
+        null = True,
+        blank = True
     )
 
     def __str__(self):

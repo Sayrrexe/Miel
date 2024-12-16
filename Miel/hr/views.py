@@ -86,6 +86,23 @@ class InvitationAPIView(APIView):
     
         office = supervisor.office
         queryset = models.Invitation.objects.filter(office=office).all()
+        
+        # Фильтрация
+        status = request.query_params.get('status')
+        start_date = request.query_params.get('start_date')
+        end_date = request.query_params.get('end_date')
+        
+        if status:
+            queryset = queryset.filter(status=status)
+        if start_date and end_date:
+            queryset = queryset.filter(updated_at__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(updated_at__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(updated_at__lte=end_date)
+        
+        
+        
     
         serializer = InvitationSerializer(queryset, many=True)
         return Response(serializer.data)
