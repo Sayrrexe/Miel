@@ -23,7 +23,7 @@ urlpatterns = [
     path('api/supervisor/info/quota/', views.MonthlyStatisticView.as_view()),
     
     
-    # Модераторы
+    # Администратор
     path('api/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
     
 
