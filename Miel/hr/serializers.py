@@ -100,6 +100,7 @@ class FavoriteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Favorite
         fields = [
+                    'id',
                     'candidate', 
                     'created_at'
                   ]  
