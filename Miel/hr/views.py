@@ -321,10 +321,21 @@ class MonthlyStatisticView(APIView):
 
 
 class OfficeViewSet(ModelViewSet):
-    permission_classes = [IsSupervisor]
-    queryset = models.Office.objects.select_related('user', 'supervisor').all()
+    # permission_classes = [IsSupervisor]
     model = models.Office
+    queryset = models.Office.objects.all()
     serializer_class = OfficeSerializer
     filter_backends = [SearchFilter]
     search_fields = ['name']
 
+    def get_queryset(self):
+        """
+        Переопределение метода для ручной обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+        name = self.request.query_params.get('search')
+
+        if name:
+            queryset = queryset.filter(name__icontains=name)
+
+        return queryset

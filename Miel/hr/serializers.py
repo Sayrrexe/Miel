@@ -133,6 +133,9 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
 
 
 class OfficeSerializer(serializers.ModelSerializer):
+
     class Meta :
         model = Office
-        fields = ['name']
+        fields = "__all__"
+
+
