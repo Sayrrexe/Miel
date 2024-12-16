@@ -1,6 +1,5 @@
-from re import sub
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render, redirect
+from django.shortcuts import redirect
 from django.db.models.functions import TruncDay
 from django.utils import timezone
 from django.db.models import Count
@@ -322,11 +321,8 @@ class MonthlyStatisticView(APIView):
 
 class OfficeViewSet(ModelViewSet):
     # permission_classes = [IsSupervisor]
-    model = models.Office
     queryset = models.Office.objects.all()
     serializer_class = OfficeSerializer
-    filter_backends = [SearchFilter]
-    search_fields = ['name']
 
     def get_queryset(self):
         """
