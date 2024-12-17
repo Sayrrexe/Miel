@@ -149,6 +149,9 @@ class Candidate(models.Model):
         elif not self.is_free and self.office is None:
             raise ValidationError("Если кандидат не свободен, поле 'офис' должно быть заполнено.")
         
+        if self.birth and self.birth > date.today():
+            raise ValidationError("Дата рождения не может быть в будущем.")
+        
         super(Candidate, self).save(*args, **kwargs)
 
     class Meta:
