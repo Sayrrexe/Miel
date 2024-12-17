@@ -17,7 +17,7 @@ from dateutil.relativedelta import relativedelta
 from .permissions import IsAdministrator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
-from .serializers import (FavoriteSerializer,
+from .serializers import (CandidateInfoSerializer, FavoriteSerializer,
                           InfoAboutAdmin, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
@@ -297,7 +297,7 @@ class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
     queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
     model = models.Candidate
-    serializer_class = CandidateSerializer
+    serializer_class = CandidateInfoSerializer
     
     def get_queryset(self):
         """
@@ -342,7 +342,14 @@ class CandidateInfoView(ListAPIView):
                 queryset = queryset.order_by('created_at')  
 
         return queryset
-
+    
+    def get_serializer_context(self):
+        """
+        Передаём текущий запрос в контекст сериализатора.
+        """
+        context = super().get_serializer_context()
+        context.update({'request': self.request})
+        return context
 
 class MonthlyStatisticView(APIView):
     permission_classes = [IsSupervisor]

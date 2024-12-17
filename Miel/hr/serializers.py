@@ -1,5 +1,7 @@
-from os import read
+from datetime import date
+
 from rest_framework import serializers
+
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
@@ -138,10 +140,17 @@ class SupervisorSerializer(serializers.ModelSerializer):
         
         
 class CandidateSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+    
     class Meta:
         model = Candidate
         fields = '__all__'
-
+        
+    def get_age(self, obj):
+        """Вычисление возраста кандидата на основе его даты рождения."""
+        if obj.birth:
+            return obj.calculate_age()
+    
     def validate(self, data):
         """Обработка логики в save методе"""
         is_free = data.get('is_free', None)
@@ -152,7 +161,13 @@ class CandidateSerializer(serializers.ModelSerializer):
         
         return data
     
+    
 class CandidateInfoSerializer(serializers.ModelSerializer):
+    age = serializers.SerializerMethodField()
+    is_favorite = serializers.SerializerMethodField()
+    favorite_id = serializers.SerializerMethodField()
+    is_invited = serializers.SerializerMethodField()
+    
     class Meta:
         model = Candidate
         fields = [
@@ -161,6 +176,7 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'surname',
             'patronymic',
             'birth',
+            'age',
             'education',
             'photo',
             'country',
@@ -173,8 +189,30 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'completed_objects',
             'clients',
             'updated_at',
+            'is_favorite',
+            'favorite_id',
+            'is_invited',
         ]
+    def get_age(self, obj):
+        """Вычисление возраста кандидата на основе его даты рождения."""
+        if obj.birth:
+            return obj.calculate_age()
+        
+    def get_is_favorite(self, obj):
+        user = self.context['request'].user
+        return Favorite.objects.filter(user=user, candidate=obj).exists()
 
+    def get_favorite_id(self, obj):
+        """
+        Возвращает ID записи избранного, если кандидат находится в избранном.
+        """
+        user = self.context['request'].user
+        favorite = Favorite.objects.filter(user=user, candidate=obj).first()
+        return favorite.id if favorite else None
+    
+    def get_is_invited(self, obj):
+        user = self.context['request'].user
+        return Invitation.objects.filter(candidate=obj, office__supervisor__user=user, status='invited').exists()
 
 
 class OfficeSerializer(serializers.ModelSerializer):
