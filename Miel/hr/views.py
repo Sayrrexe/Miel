@@ -16,9 +16,9 @@ from dateutil.relativedelta import relativedelta
 
 from .permissions import IsAdministrator, IsSupervisor
 from . import models
-from .utils import write_off_the_quota
-from .serializers import (CandidateInfoSerializer, FavoriteSerializer,
-                          InfoAboutAdmin, 
+from .utils import restore_archived_candidates, update_all_candidate_statuses, update_one_status, write_off_the_quota
+from .serializers import (AdminInvitationSerializer, ArchiveCandidateSerializer, CandidateInfoSerializer, FavoriteSerializer,
+                          InfoAboutAdmin, InvitationStatisticsSerializer, MonthlyStatisticSerializer, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
@@ -295,7 +295,7 @@ class CandidateViewSet(ModelViewSet):
     
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
-    queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
+    queryset = models.Candidate.objects.filter(is_archive=True, is_free = True)
     model = models.Candidate
     serializer_class = CandidateInfoSerializer
     
@@ -357,54 +357,61 @@ class MonthlyStatisticView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         supervisor = models.Supervisor.objects.get(user=user)
+
         try:
             office = supervisor.office
-        except Exception as e:
-            return Response({
-                "detail": "Пользователь не относится к офису!"
-            }, status=status.HTTP_400_BAD_REQUEST)
+        except models.Supervisor.DoesNotExist:
+            return Response({"detail": "Пользователь не относится к офису!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Определяем дату начала и конца
-        end_date = datetime.now()
-        start_date = end_date - relativedelta(months=9)  # Последние 10 месяцев (включая текущий)
+        # Фильтрация по году или последние 10 месяцев по умолчанию
+        year = request.query_params.get('year')
+        
+        if year:
+            try:
+                start_date = datetime.strptime(f"{year}-01-01", "%Y-%m-%d")
+                end_date = datetime.strptime(f"{year}-12-31", "%Y-%m-%d")
+            except ValueError:
+                return Response({"detail": "Некорректный формат года!"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            end_date = datetime.now()
+            start_date = end_date - relativedelta(months=9)
 
         statistics = []
 
-        for i in range(10):  # Генерация статистики за 10 месяцев
-            month_date = start_date + relativedelta(months=i)
+        # Генерация статистики по месяцам
+        current_date = start_date
+        while current_date <= end_date:
             transactions = models.Transaction.objects.filter(
                 office=office,
-                created_at__year=month_date.year,
-                created_at__month=month_date.month,
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
             )
 
             invitations = models.Invitation.objects.filter(
                 office=office,
-                created_at__year=month_date.year,
-                created_at__month=month_date.month,
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
             )
 
-            issued = transactions.filter(operation='add').count()
-            invited = invitations.filter(status='invited').count()
-            employed = invitations.filter(status='accepted').count()
-            rejected = invitations.filter(status='rejected').count()
-            subtracted = transactions.filter(operation='subtract').count()
-
             statistics.append({
-                'month': month_date.strftime('%B %Y'),  # Форматируем месяц и год для удобства
-                'issued': issued,
-                'invited': invited,
-                "employed": employed,
-                'rejected': rejected,
-                "subtracted": subtracted,
+                'month': current_date.strftime('%B %Y'),
+                'issued': transactions.filter(operation='add').count(),
+                'invited': invitations.filter(status='invited').count(),
+                "accepted": invitations.filter(status='accepted').count(),
+                'rejected': invitations.filter(status='rejected').count(),
+                "subtracted": transactions.filter(operation='subtract').count(),
             })
-        return Response(statistics,status= status.HTTP_200_OK)
+
+            current_date += relativedelta(months=1)
+
+        serializer = MonthlyStatisticSerializer(statistics, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
 
 class OfficeViewSet(ModelViewSet):
-    # permission_classes = [IsSupervisor]
+    permission_classes = [IsAdministrator]
     queryset = models.Office.objects.all()
     serializer_class = OfficeSerializer
 
@@ -419,4 +426,195 @@ class OfficeViewSet(ModelViewSet):
             queryset = queryset.filter(name__icontains=name)
 
         return queryset
+    
+class InvitationStatisticsViewSet(ListAPIView):
+    permission_classes = [IsAdministrator]
+    queryset = models.Invitation.objects.filter()
+    model = models.Invitation
+    serializer_class = InvitationStatisticsSerializer
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
 
+        # Получение параметров запроса
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        
+        if start_date and end_date:
+            queryset = queryset.filter(updated_at__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(updated_at__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(updated_at__lte=end_date)  
+
+        return queryset
+    
+class CandidateInvitationsView(APIView):
+    permission_classes = [IsAdministrator]  # Только администратор может запрашивать данные
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            candidate = models.Candidate.objects.get(id=id)
+        except models.Candidate.DoesNotExist:
+            return Response({"detail": "Кандидат не найден!"}, status=status.HTTP_404_NOT_FOUND)
+
+        invitations = models.Invitation.objects.filter(candidate=candidate)
+        serializer = AdminInvitationSerializer(invitations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+class CandidateInvitationUpdateView(APIView):
+    permission_classes = [IsAdministrator]  
+
+    def patch(self, request, candidate_id, invitation_id, *args, **kwargs):
+        try:
+            invitation = models.Invitation.objects.get(id=invitation_id, candidate_id=candidate_id)
+        except models.Invitation.DoesNotExist:
+            return Response({"detail": "Приглашение не найдено!"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Проверяем наличие статуса в теле запроса
+        status_value = request.data.get('status')
+        if not status_value:
+            return Response({"detail": "Поле 'status' обязательно!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Обновляем статус приглашения
+        if status_value == 'accepted':
+            change_status, message = update_all_candidate_statuses(candidate_id=candidate_id,   invitation_id=invitation_id)
+
+            if change_status:
+                return Response({"detail": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+        elif status_value == 'invited' or status_value == 'rejected':
+            change_status, message = update_one_status(invitation_id=invitation_id, status=status_value)
+            if change_status:
+                return Response({"detail": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+            
+            
+class AdminMonthlyStatisticView(APIView):
+    permission_classes = [IsAdministrator]
+
+    def get(self, request, *args, **kwargs):
+        year = request.query_params.get('year')
+        
+        if year:
+            try:
+                start_date = datetime.strptime(f"{year}-01-01", "%Y-%m-%d")
+                end_date = datetime.strptime(f"{year}-12-31", "%Y-%m-%d")
+            except ValueError:
+                return Response({"detail": "Некорректный формат года!"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            end_date = datetime.now()
+            start_date = end_date - relativedelta(months=9)
+
+        statistics = []
+
+        # Генерация статистики по месяцам
+        current_date = start_date
+        while current_date <= end_date:
+            transactions = models.Transaction.objects.filter(
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
+            )
+
+            invitations = models.Invitation.objects.filter(
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
+            )
+
+            statistics.append({
+                'month': current_date.strftime('%B %Y'),
+                'issued': transactions.filter(operation='add').count(),
+                "subtracted": transactions.filter(operation='subtract').count(),
+                'invited': invitations.filter(status='invited').count(),
+                "accepted": invitations.filter(status='accepted').count(),
+                'rejected': invitations.filter(status='rejected').count(),
+            })
+
+            current_date += relativedelta(months=1)
+
+        serializer = MonthlyStatisticSerializer(statistics, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+        
+        
+class ArchiveCandidateInfoView(ListAPIView):
+    permission_classes = [IsAdministrator]
+    queryset = models.Candidate.objects.filter(is_archive=False)
+    model = models.Candidate
+    serializer_class = ArchiveCandidateSerializer
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+
+        # Получение параметров запроса
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        
+        if start_date and end_date:
+            queryset = queryset.filter(updated_at__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(updated_at__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(updated_at__lte=end_date)
+
+        return queryset
+    
+class ArchiveBatchRestoreView(APIView):
+    permission_classes = [IsAdministrator]  # Доступ только для администраторов
+
+    def post(self, request, *args, **kwargs):
+        candidate_ids = request.data.get('candidate_ids', '')
+
+        if not candidate_ids or not isinstance(candidate_ids, str):
+            return Response({"detail": "Поле 'candidate_ids' обязательно и должно быть строкой с ID через запятую."}, status=status.HTTP_400_BAD_REQUEST)
+
+        candidate_ids_list = [
+            int(id.strip()) for id in candidate_ids.split(',') if id.strip().isdigit()
+        ]
+
+        if not candidate_ids_list:
+            return Response({"detail": "Не переданы корректные ID кандидатов."}, status=status.HTTP_400_BAD_REQUEST)
+
+        operation_status, message = restore_archived_candidates(candidate_ids_list)
+        if operation_status:
+            return Response({"detail": message}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+        
+class LinkInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        link = models.ChatLink.objects.filter().first()
+        return Response({"link": link.link}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            admin = models.Administrator.objects.get(user=request.user)
+        except models.Administrator.DoesNotExist:
+            return Response({"detail": "Только администраторы могут редактировать."}, status=status.HTTP_403_FORBIDDEN)
+
+        link = request.data.get("link")
+        platform = request.data.get("platform")
+        if not link or not link.startswith("https"):
+            return Response({"detail": "Ссылка должна начинаться с 'https'."}, status=status.HTTP_400_BAD_REQUEST)
+        if not platform:
+            return Response({"detail": "platform is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if platform not in ['telegram', 'whatsapp']:
+            return Response({"detail": "platform is invalid ( only 'telegram' or 'whatsapp')"}, status=status.HTTP_400_BAD_REQUEST)
+
+        chat_link = models.ChatLink.objects.create(
+        user=request.user,
+        platform=platform,  
+        link=link
+        )
+
+        return Response({"detail": "Ссылка успешно обновлена."}, status=status.HTTP_200_OK)

@@ -102,7 +102,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
+        fields = ['is_active', 'office', 'is_free','username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
 
 class SupervisorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -214,7 +214,15 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         return Invitation.objects.filter(candidate=obj, office__supervisor__user=user, status='invited').exists()
 
-
+class MonthlyStatisticSerializer(serializers.Serializer):
+    month = serializers.CharField()
+    issued = serializers.IntegerField()
+    invited = serializers.IntegerField()
+    accepted = serializers.IntegerField()
+    rejected = serializers.IntegerField()
+    subtracted = serializers.IntegerField()
+    
+    
 class OfficeSerializer(serializers.ModelSerializer):
 
     class Meta :
@@ -234,3 +242,81 @@ class FavoriteSerializer(serializers.ModelSerializer):
                     'created_at',
                   ]  
         read_only_fields = ['created_at']
+
+
+class InvitationStatisticsSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    class Meta:
+        model = Invitation
+        fields = [
+            'full_name',
+            'city',
+            'status',
+            'updated_at',
+        ]
+    def get_full_name(self, obj):
+        candidate = obj.candidate
+        return f'{candidate.surname} {candidate.name} {candidate.patronymic}'
+    
+    def get_city(self,obj):
+        candidate = obj.candidate
+        return candidate.city
+
+
+class AdminInvitationSerializer(serializers.ModelSerializer):
+    supervisor = serializers.SerializerMethodField()
+    office_name = serializers.SerializerMethodField()
+    class Meta:
+        model = Invitation
+        fields = ['id', 'status', 'created_at','office_name' ,'supervisor', 'office'] 
+    
+    def get_supervisor(self, obj):
+        office = obj.office
+        try:
+            supervisor = Supervisor.objects.get(office=office)
+            user = supervisor.user
+            return user.get_full_name()
+        except Supervisor.DoesNotExist:
+            return "Not Exist"
+        
+    def get_office_name(self, obj):
+        return obj.office.name
+    
+    
+class ArchiveCandidateSerializer(serializers.ModelSerializer):
+    bio = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    cause = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Candidate
+        fields = [
+                'id',
+                'updated_at',
+                'bio',
+                'city',
+                'phone',
+                'email',
+                'cause'
+                ]
+        
+    def get_bio(self, obj):
+        """Вычисление возраста кандидата на основе его даты рождения."""
+        return f'{obj.surname} {obj.name}'
+        
+    def get_city(self,obj):
+        if obj.city:
+            return ''
+        return obj.city
+    
+    def get_cause(self,obj):
+        if obj.office:
+            office = obj.office
+            return office.name
+        return 'не прошёл собеседование'
+    
+    
+    
+
+    

@@ -16,6 +16,7 @@ urlpatterns = [
     # подключение CRUD
     path('api/', include(router.urls)),# для CRUD Api
     path('api/info/', views.GetUserInfoView.as_view()), # выдаёт всю информацию о пользователе
+    path('api/link/', views.LinkInfoView.as_view()),
     
     
     # Рук-ли
@@ -26,6 +27,13 @@ urlpatterns = [
     
     # Администратор
     path('api/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
+    path('api/statistic/invitions/', views.InvitationStatisticsViewSet.as_view(), name='invitions-stats'),
+    path('api/admin/candidates/<int:id>/invitations/', views.CandidateInvitationsView.as_view(), name='candidate-invitations'),
+    path('api/admin/candidates/<int:candidate_id>/invitations/<int:invitation_id>/', views.CandidateInvitationUpdateView.as_view(), name='candidate-invitation-update'),
+    path('api/admin/statistic/quotas/', views.AdminMonthlyStatisticView.as_view(), name = 'admin-quotas-statistic'),
+    path('api/admin/archive/', views.ArchiveCandidateInfoView.as_view(), name = 'archive'),
+    path('api/admin/archive/restore/', views.ArchiveBatchRestoreView.as_view(), name='archive-batch-restore'),
+    
     
 
     # index
