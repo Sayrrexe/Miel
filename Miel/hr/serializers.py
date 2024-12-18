@@ -307,8 +307,8 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
         
     def get_city(self,obj):
         if obj.city:
-            return ''
-        return obj.city
+            return obj.city
+        return ''
     
     def get_cause(self,obj):
         if obj.office:
