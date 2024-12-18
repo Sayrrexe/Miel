@@ -30,7 +30,8 @@ urlpatterns = [
     path('api/admin/candidates/<int:id>/invitations/', views.CandidateInvitationsView.as_view(), name='candidate-invitations'),
     path('api/admin/candidates/<int:candidate_id>/invitations/<int:invitation_id>/', views.CandidateInvitationUpdateView.as_view(), name='candidate-invitation-update'),
     path('api/admin/statistic/quotas/', views.AdminMonthlyStatisticView.as_view(), name = 'admin-quotas-statistic'),
-    
+    path('api/admin/archive/', views.ArchiveCandidateInfoView.as_view(), name = 'archive'),
+    path('api/admin/archive/restore/', views.ArchiveBatchRestoreView.as_view(), name='archive-batch-restore'),
 
     # index
     path('', views.index, name='index'),    

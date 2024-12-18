@@ -102,7 +102,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
+        fields = ['is_active', 'office', 'is_free','username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
 
 class SupervisorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -282,6 +282,40 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
         
     def get_office_name(self, obj):
         return obj.office.name
+    
+    
+class ArchiveCandidateSerializer(serializers.ModelSerializer):
+    bio = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    cause = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = Candidate
+        fields = [
+                'id',
+                'updated_at',
+                'bio',
+                'city',
+                'phone',
+                'email',
+                'cause'
+                ]
+        
+    def get_bio(self, obj):
+        """Вычисление возраста кандидата на основе его даты рождения."""
+        return f'{obj.surname} {obj.name}'
+        
+    def get_city(self,obj):
+        if obj.city:
+            return ''
+        return obj.city
+    
+    def get_cause(self,obj):
+        if obj.office:
+            office = obj.office
+            return office.name
+        return 'не прошёл собеседование'
+    
     
     
 

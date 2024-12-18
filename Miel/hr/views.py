@@ -16,8 +16,8 @@ from dateutil.relativedelta import relativedelta
 
 from .permissions import IsAdministrator, IsSupervisor
 from . import models
-from .utils import update_all_candidate_statuses, update_one_status, write_off_the_quota
-from .serializers import (AdminInvitationSerializer, CandidateInfoSerializer, FavoriteSerializer,
+from .utils import restore_archived_candidates, update_all_candidate_statuses, update_one_status, write_off_the_quota
+from .serializers import (AdminInvitationSerializer, ArchiveCandidateSerializer, CandidateInfoSerializer, FavoriteSerializer,
                           InfoAboutAdmin, InvitationStatisticsSerializer, MonthlyStatisticSerializer, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
@@ -467,7 +467,7 @@ class CandidateInvitationsView(APIView):
     
     
 class CandidateInvitationUpdateView(APIView):
-    permission_classes = [IsAdministrator]  # Только администратор может обновлять данные
+    permission_classes = [IsAdministrator]  
 
     def patch(self, request, candidate_id, invitation_id, *args, **kwargs):
         try:
@@ -541,5 +541,50 @@ class AdminMonthlyStatisticView(APIView):
         serializer = MonthlyStatisticSerializer(statistics, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
+        
+class ArchiveCandidateInfoView(ListAPIView):
+    permission_classes = [IsAdministrator]
+    queryset = models.Candidate.objects.filter(is_active=False)
+    model = models.Candidate
+    serializer_class = ArchiveCandidateSerializer
     
+    def get_queryset(self):
+        """
+        Переопределение метода для обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
+
+        # Получение параметров запроса
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        
+        if start_date and end_date:
+            queryset = queryset.filter(updated_at__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(updated_at__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(updated_at__lte=end_date)
+
+        return queryset
     
+class ArchiveBatchRestoreView(APIView):
+    permission_classes = [IsAdministrator]  # Доступ только для администраторов
+
+    def post(self, request, *args, **kwargs):
+        candidate_ids = request.data.get('candidate_ids', '')
+
+        if not candidate_ids or not isinstance(candidate_ids, str):
+            return Response({"detail": "Поле 'candidate_ids' обязательно и должно быть строкой с ID через запятую."}, status=status.HTTP_400_BAD_REQUEST)
+
+        candidate_ids_list = [
+            int(id.strip()) for id in candidate_ids.split(',') if id.strip().isdigit()
+        ]
+
+        if not candidate_ids_list:
+            return Response({"detail": "Не переданы корректные ID кандидатов."}, status=status.HTTP_400_BAD_REQUEST)
+
+        operation_status, message = restore_archived_candidates(candidate_ids_list)
+        if operation_status:
+            return Response({"detail": message}, status=status.HTTP_200_OK)
+        else:
+            return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)

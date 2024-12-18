@@ -97,3 +97,16 @@ def update_one_status(invitation_id, status):
     except Exception as e:
         return False, f'Unexpected error: {str(e)}'
 
+
+def restore_archived_candidates(candidate_ids):
+    try:
+        with transaction.atomic():
+            candidates = Candidate.objects.filter(id__in=candidate_ids)
+            if not candidates.exists():
+                return False, "Кандидаты с указанными ID не найдены или уже восстановлены."
+
+            # Восстанавливаем кандидатов
+            candidates.update(is_active=True)
+            return True, f"Восстановлено кандидатов: {candidates.count()}"
+    except Exception as e:
+        return False, f"Произошла ошибка: {str(e)}"
