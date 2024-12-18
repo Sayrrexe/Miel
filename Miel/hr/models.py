@@ -35,7 +35,7 @@ class Candidate(models.Model):
     Кандидат, который может быть привязан к офису, иметь различные курсы и выполнять проекты.
     
     Поля:
-        is_active (bool): Указывает, активен ли кандидат (по умолчанию True).
+        is_archive (bool): Указывает, активен ли кандидат (по умолчанию True).
         name (str): Имя кандидата (максимальная длина: 16 символов).
         surname (str): Фамилия кандидата (максимальная длина: 64 символа).
         patronymic (str, optional): Отчество кандидата (максимальная длина: 32 символа).
@@ -61,7 +61,7 @@ class Candidate(models.Model):
         updated_at (datetime): Дата и время последнего обновления записи (обновляется автоматически).
     """
 
-    is_active = models.BooleanField(default=True)
+    is_archive = models.BooleanField(default=True)
     name = models.CharField(max_length=16)
     surname = models.CharField(max_length=64)
     patronymic = models.CharField(max_length=32, null=True, blank=True)
@@ -438,3 +438,38 @@ class Favorite(models.Model):
         verbose_name_plural = "Избранные кандидаты"
         unique_together = (('user', 'candidate'),)
 
+
+class ChatLink(models.Model):
+    """
+    Модель для хранения актуальной ссылки на чат для связи
+
+    Поля:
+        user (ForeignKey): Пользователь, добавивший ссылку
+        candidate (ForeignKey): Кандидат, добавленный в избранное.
+        created_at (DateTimeField): Дата и время добавления в избранное.
+    """
+    PLATFORM_CHOICES = [
+        ('telegram', 'Telegram'),
+        ('whatsapp', 'Whatsapp'),
+    ]
+
+    user = models.ForeignKey(
+        CustomUser,
+        verbose_name="Пользователь",
+        on_delete=models.CASCADE
+    )
+    platform = models.CharField(
+        max_length=16,
+        choices=PLATFORM_CHOICES,
+        verbose_name="Платформа"
+    )
+    link = models.CharField(max_length=512, verbose_name='Ссылка')
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Добавлено в избранное")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="Стала неактивной")
+
+    def __str__(self):
+        return f"{self.user.username} -> {self.platform}"
+
+    class Meta:
+        verbose_name = "Активная ссылка"
+        verbose_name_plural = "Ссылки"

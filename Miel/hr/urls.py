@@ -16,6 +16,7 @@ urlpatterns = [
     # подключение CRUD
     path('api/', include(router.urls)),# для CRUD Api
     path('api/info/', views.GetUserInfoView.as_view()), # выдаёт всю информацию о пользователе
+    path('api/link/', views.LinkInfoView.as_view()),
     
     
     # Рук-ли
@@ -32,6 +33,8 @@ urlpatterns = [
     path('api/admin/statistic/quotas/', views.AdminMonthlyStatisticView.as_view(), name = 'admin-quotas-statistic'),
     path('api/admin/archive/', views.ArchiveCandidateInfoView.as_view(), name = 'archive'),
     path('api/admin/archive/restore/', views.ArchiveBatchRestoreView.as_view(), name='archive-batch-restore'),
+    
+    
 
     # index
     path('', views.index, name='index'),    

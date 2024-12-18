@@ -295,7 +295,7 @@ class CandidateViewSet(ModelViewSet):
     
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
-    queryset = models.Candidate.objects.filter(is_active=True, is_free = True)
+    queryset = models.Candidate.objects.filter(is_archive=True, is_free = True)
     model = models.Candidate
     serializer_class = CandidateInfoSerializer
     
@@ -544,7 +544,7 @@ class AdminMonthlyStatisticView(APIView):
         
 class ArchiveCandidateInfoView(ListAPIView):
     permission_classes = [IsAdministrator]
-    queryset = models.Candidate.objects.filter(is_active=False)
+    queryset = models.Candidate.objects.filter(is_archive=False)
     model = models.Candidate
     serializer_class = ArchiveCandidateSerializer
     
@@ -588,3 +588,33 @@ class ArchiveBatchRestoreView(APIView):
             return Response({"detail": message}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+        
+class LinkInfoView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, *args, **kwargs):
+        link = models.ChatLink.objects.filter().first()
+        return Response({"link": link.link}, status=status.HTTP_200_OK)
+
+    def post(self, request, *args, **kwargs):
+        try:
+            admin = models.Administrator.objects.get(user=request.user)
+        except models.Administrator.DoesNotExist:
+            return Response({"detail": "Только администраторы могут редактировать."}, status=status.HTTP_403_FORBIDDEN)
+
+        link = request.data.get("link")
+        platform = request.data.get("platform")
+        if not link or not link.startswith("https"):
+            return Response({"detail": "Ссылка должна начинаться с 'https'."}, status=status.HTTP_400_BAD_REQUEST)
+        if not platform:
+            return Response({"detail": "platform is required"}, status=status.HTTP_400_BAD_REQUEST)
+        if platform not in ['telegram', 'whatsapp']:
+            return Response({"detail": "platform is invalid ( only 'telegram' or 'whatsapp')"}, status=status.HTTP_400_BAD_REQUEST)
+
+        chat_link = models.ChatLink.objects.create(
+        user=request.user,
+        platform=platform,  
+        link=link
+        )
+
+        return Response({"detail": "Ссылка успешно обновлена."}, status=status.HTTP_200_OK)

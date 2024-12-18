@@ -64,7 +64,7 @@ def update_all_candidate_statuses(candidate_id, invitation_id):
             # Обновляем данные кандидата
             candidate.is_free = False
             candidate.office = office
-            candidate.is_active = False
+            candidate.is_archive = False
             candidate.save()
 
             # Обновляем выбранное приглашение, если нужно
@@ -106,7 +106,7 @@ def restore_archived_candidates(candidate_ids):
                 return False, "Кандидаты с указанными ID не найдены или уже восстановлены."
 
             # Восстанавливаем кандидатов
-            candidates.update(is_active=True)
+            candidates.update(is_archive=True)
             return True, f"Восстановлено кандидатов: {candidates.count()}"
     except Exception as e:
         return False, f"Произошла ошибка: {str(e)}"

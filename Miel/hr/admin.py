@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.contrib.auth.hashers import make_password
 from .models import (
+    ChatLink,
     CustomUser,
     Supervisor,
     Administrator,
@@ -17,8 +18,8 @@ class CustomUserAdmin(admin.ModelAdmin):
         if 'password' in form.changed_data:
             obj.password = make_password(obj.password)  
         
-        if not obj.is_active:
-            obj.is_active = True  
+        if not obj.is_archive:
+            obj.is_archive = True  
         
         super().save_model(request, obj, form, change)
 
@@ -34,3 +35,4 @@ admin.site.register(Favorite)
 admin.site.register(Todo)
 admin.site.register(Invitation)
 admin.site.register(Transaction)
+admin.site.register(ChatLink)
