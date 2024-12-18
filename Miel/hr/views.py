@@ -397,7 +397,7 @@ class MonthlyStatisticView(APIView):
                 'month': current_date.strftime('%B %Y'),
                 'issued': transactions.filter(operation='add').count(),
                 'invited': invitations.filter(status='invited').count(),
-                "employed": invitations.filter(status='accepted').count(),
+                "accepted": invitations.filter(status='accepted').count(),
                 'rejected': invitations.filter(status='rejected').count(),
                 "subtracted": transactions.filter(operation='subtract').count(),
             })
@@ -495,6 +495,51 @@ class CandidateInvitationUpdateView(APIView):
             else:
                 return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
             
+            
+class AdminMonthlyStatisticView(APIView):
+    permission_classes = [IsAdministrator]
+
+    def get(self, request, *args, **kwargs):
+        year = request.query_params.get('year')
+        
+        if year:
+            try:
+                start_date = datetime.strptime(f"{year}-01-01", "%Y-%m-%d")
+                end_date = datetime.strptime(f"{year}-12-31", "%Y-%m-%d")
+            except ValueError:
+                return Response({"detail": "Некорректный формат года!"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            end_date = datetime.now()
+            start_date = end_date - relativedelta(months=9)
+
+        statistics = []
+
+        # Генерация статистики по месяцам
+        current_date = start_date
+        while current_date <= end_date:
+            transactions = models.Transaction.objects.filter(
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
+            )
+
+            invitations = models.Invitation.objects.filter(
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
+            )
+
+            statistics.append({
+                'month': current_date.strftime('%B %Y'),
+                'issued': transactions.filter(operation='add').count(),
+                "subtracted": transactions.filter(operation='subtract').count(),
+                'invited': invitations.filter(status='invited').count(),
+                "accepted": invitations.filter(status='accepted').count(),
+                'rejected': invitations.filter(status='rejected').count(),
+            })
+
+            current_date += relativedelta(months=1)
+
+        serializer = MonthlyStatisticSerializer(statistics, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
         
     
     

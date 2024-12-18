@@ -218,7 +218,7 @@ class MonthlyStatisticSerializer(serializers.Serializer):
     month = serializers.CharField()
     issued = serializers.IntegerField()
     invited = serializers.IntegerField()
-    employed = serializers.IntegerField()
+    accepted = serializers.IntegerField()
     rejected = serializers.IntegerField()
     subtracted = serializers.IntegerField()
     
