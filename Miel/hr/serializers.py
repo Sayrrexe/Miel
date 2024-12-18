@@ -214,7 +214,15 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         return Invitation.objects.filter(candidate=obj, office__supervisor__user=user, status='invited').exists()
 
-
+class MonthlyStatisticSerializer(serializers.Serializer):
+    month = serializers.CharField()
+    issued = serializers.IntegerField()
+    invited = serializers.IntegerField()
+    employed = serializers.IntegerField()
+    rejected = serializers.IntegerField()
+    subtracted = serializers.IntegerField()
+    
+    
 class OfficeSerializer(serializers.ModelSerializer):
 
     class Meta :
@@ -234,3 +242,23 @@ class FavoriteSerializer(serializers.ModelSerializer):
                     'created_at',
                   ]  
         read_only_fields = ['created_at']
+
+
+class InvitationStatisticsSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
+    city = serializers.SerializerMethodField()
+    class Meta:
+        model = Invitation
+        fields = [
+            'full_name',
+            'city',
+            'status',
+            'updated_at',
+        ]
+    def get_full_name(self, obj):
+        candidate = obj.candidate
+        return f'{candidate.surname} {candidate.name} {candidate.patronymic}'
+    
+    def get_city(self,obj):
+        candidate = obj.candidate
+        return candidate.city

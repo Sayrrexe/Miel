@@ -26,6 +26,7 @@ urlpatterns = [
     
     # Администратор
     path('api/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
+    path('api/statistic/invitions/', views.InvitationStatisticsViewSet.as_view(), name='invitions-stats'),
     
 
     # index

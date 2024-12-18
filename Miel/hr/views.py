@@ -18,7 +18,7 @@ from .permissions import IsAdministrator, IsSupervisor
 from . import models
 from .utils import write_off_the_quota
 from .serializers import (CandidateInfoSerializer, FavoriteSerializer,
-                          InfoAboutAdmin, 
+                          InfoAboutAdmin, InvitationStatisticsSerializer, MonthlyStatisticSerializer, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
                           CandidateSerializer, 
@@ -357,54 +357,61 @@ class MonthlyStatisticView(APIView):
     def get(self, request, *args, **kwargs):
         user = request.user
         supervisor = models.Supervisor.objects.get(user=user)
+
         try:
             office = supervisor.office
-        except Exception as e:
-            return Response({
-                "detail": "Пользователь не относится к офису!"
-            }, status=status.HTTP_400_BAD_REQUEST)
+        except models.Supervisor.DoesNotExist:
+            return Response({"detail": "Пользователь не относится к офису!"}, status=status.HTTP_400_BAD_REQUEST)
 
-        # Определяем дату начала и конца
-        end_date = datetime.now()
-        start_date = end_date - relativedelta(months=9)  # Последние 10 месяцев (включая текущий)
+        # Фильтрация по году или последние 10 месяцев по умолчанию
+        year = request.query_params.get('year')
+        
+        if year:
+            try:
+                start_date = datetime.strptime(f"{year}-01-01", "%Y-%m-%d")
+                end_date = datetime.strptime(f"{year}-12-31", "%Y-%m-%d")
+            except ValueError:
+                return Response({"detail": "Некорректный формат года!"}, status=status.HTTP_400_BAD_REQUEST)
+        else:
+            end_date = datetime.now()
+            start_date = end_date - relativedelta(months=9)
 
         statistics = []
 
-        for i in range(10):  # Генерация статистики за 10 месяцев
-            month_date = start_date + relativedelta(months=i)
+        # Генерация статистики по месяцам
+        current_date = start_date
+        while current_date <= end_date:
             transactions = models.Transaction.objects.filter(
                 office=office,
-                created_at__year=month_date.year,
-                created_at__month=month_date.month,
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
             )
 
             invitations = models.Invitation.objects.filter(
                 office=office,
-                created_at__year=month_date.year,
-                created_at__month=month_date.month,
+                created_at__year=current_date.year,
+                created_at__month=current_date.month,
             )
 
-            issued = transactions.filter(operation='add').count()
-            invited = invitations.filter(status='invited').count()
-            employed = invitations.filter(status='accepted').count()
-            rejected = invitations.filter(status='rejected').count()
-            subtracted = transactions.filter(operation='subtract').count()
-
             statistics.append({
-                'month': month_date.strftime('%B %Y'),  # Форматируем месяц и год для удобства
-                'issued': issued,
-                'invited': invited,
-                "employed": employed,
-                'rejected': rejected,
-                "subtracted": subtracted,
+                'month': current_date.strftime('%B %Y'),
+                'issued': transactions.filter(operation='add').count(),
+                'invited': invitations.filter(status='invited').count(),
+                "employed": invitations.filter(status='accepted').count(),
+                'rejected': invitations.filter(status='rejected').count(),
+                "subtracted": transactions.filter(operation='subtract').count(),
             })
-        return Response(statistics,status= status.HTTP_200_OK)
+
+            current_date += relativedelta(months=1)
+
+        serializer = MonthlyStatisticSerializer(statistics, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
 
 
 class OfficeViewSet(ModelViewSet):
-    # permission_classes = [IsSupervisor]
+    permission_classes = [IsAdministrator]
     queryset = models.Office.objects.all()
     serializer_class = OfficeSerializer
 
@@ -419,4 +426,30 @@ class OfficeViewSet(ModelViewSet):
             queryset = queryset.filter(name__icontains=name)
 
         return queryset
+    
+class InvitationStatisticsViewSet(ListAPIView):
+    permission_classes = [IsAdministrator]
+    queryset = models.Invitation.objects.filter()
+    model = models.Invitation
+    serializer_class = InvitationStatisticsSerializer
+    
+    def get_queryset(self):
+        """
+        Переопределение метода для обработки параметров фильтрации.
+        """
+        queryset = super().get_queryset()
 
+        # Получение параметров запроса
+        start_date = self.request.query_params.get('start_date')
+        end_date = self.request.query_params.get('end_date')
+        
+        if start_date and end_date:
+            queryset = queryset.filter(updated_at__range=[start_date, end_date])
+        elif start_date:
+            queryset = queryset.filter(updated_at__gte=start_date)
+        elif end_date:
+            queryset = queryset.filter(updated_at__lte=end_date)  
+
+        return queryset
+    
+    
