@@ -262,3 +262,27 @@ class InvitationStatisticsSerializer(serializers.ModelSerializer):
     def get_city(self,obj):
         candidate = obj.candidate
         return candidate.city
+
+
+class AdminInvitationSerializer(serializers.ModelSerializer):
+    supervisor = serializers.SerializerMethodField()
+    office_name = serializers.SerializerMethodField()
+    class Meta:
+        model = Invitation
+        fields = ['id', 'status', 'created_at','office_name' ,'supervisor', 'office'] 
+    
+    def get_supervisor(self, obj):
+        office = obj.office
+        try:
+            supervisor = Supervisor.objects.get(office=office)
+            user = supervisor.user
+            return user.get_full_name()
+        except Supervisor.DoesNotExist:
+            return "Not Exist"
+        
+    def get_office_name(self, obj):
+        return obj.office.name
+    
+    
+
+    

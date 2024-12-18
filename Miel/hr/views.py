@@ -16,8 +16,8 @@ from dateutil.relativedelta import relativedelta
 
 from .permissions import IsAdministrator, IsSupervisor
 from . import models
-from .utils import write_off_the_quota
-from .serializers import (CandidateInfoSerializer, FavoriteSerializer,
+from .utils import update_all_candidate_statuses, update_one_status, write_off_the_quota
+from .serializers import (AdminInvitationSerializer, CandidateInfoSerializer, FavoriteSerializer,
                           InfoAboutAdmin, InvitationStatisticsSerializer, MonthlyStatisticSerializer, 
                           TodoSerializer,  
                           InfoAboutSupervisor,             
@@ -451,5 +451,50 @@ class InvitationStatisticsViewSet(ListAPIView):
             queryset = queryset.filter(updated_at__lte=end_date)  
 
         return queryset
+    
+class CandidateInvitationsView(APIView):
+    permission_classes = [IsAdministrator]  # Только администратор может запрашивать данные
+
+    def get(self, request, id, *args, **kwargs):
+        try:
+            candidate = models.Candidate.objects.get(id=id)
+        except models.Candidate.DoesNotExist:
+            return Response({"detail": "Кандидат не найден!"}, status=status.HTTP_404_NOT_FOUND)
+
+        invitations = models.Invitation.objects.filter(candidate=candidate)
+        serializer = AdminInvitationSerializer(invitations, many=True)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+    
+    
+class CandidateInvitationUpdateView(APIView):
+    permission_classes = [IsAdministrator]  # Только администратор может обновлять данные
+
+    def patch(self, request, candidate_id, invitation_id, *args, **kwargs):
+        try:
+            invitation = models.Invitation.objects.get(id=invitation_id, candidate_id=candidate_id)
+        except models.Invitation.DoesNotExist:
+            return Response({"detail": "Приглашение не найдено!"}, status=status.HTTP_404_NOT_FOUND)
+
+        # Проверяем наличие статуса в теле запроса
+        status_value = request.data.get('status')
+        if not status_value:
+            return Response({"detail": "Поле 'status' обязательно!"}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Обновляем статус приглашения
+        if status_value == 'accepted':
+            change_status, message = update_all_candidate_statuses(candidate_id=candidate_id,   invitation_id=invitation_id)
+
+            if change_status:
+                return Response({"detail": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+        elif status_value == 'invited' or status_value == 'rejected':
+            change_status, message = update_one_status(invitation_id=invitation_id, status=status_value)
+            if change_status:
+                return Response({"detail": message}, status=status.HTTP_200_OK)
+            else:
+                return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+            
+        
     
     

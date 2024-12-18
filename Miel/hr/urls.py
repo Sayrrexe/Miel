@@ -27,6 +27,8 @@ urlpatterns = [
     # Администратор
     path('api/todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
     path('api/statistic/invitions/', views.InvitationStatisticsViewSet.as_view(), name='invitions-stats'),
+    path('api/admin/candidates/<int:id>/invitations/', views.CandidateInvitationsView.as_view(), name='candidate-invitations'),
+    path('api/admin/candidates/<int:candidate_id>/invitations/<int:invitation_id>/', views.CandidateInvitationUpdateView.as_view(), name='candidate-invitation-update'),
     
 
     # index
