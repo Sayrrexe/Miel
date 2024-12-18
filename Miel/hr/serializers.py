@@ -102,7 +102,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = CustomUser
-        fields = ['is_active', 'office', 'is_free','username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
 
 class SupervisorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
