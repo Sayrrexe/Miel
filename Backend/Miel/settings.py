@@ -113,9 +113,9 @@ MEDIA_ROOT = BASE_DIR / 'mediafiles'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # Redirects
-LOGIN_REDIRECT_URL = '/admin/'
-LOGOUT_REDIRECT_URL = '/admin/'
-LOGIN_URL = '/admin/'
+LOGIN_REDIRECT_URL = '/api/admin/'
+LOGOUT_REDIRECT_URL = '/api/admin/'
+LOGIN_URL = '/api/admin/'
 
 # Logging
 LOGGING = {
