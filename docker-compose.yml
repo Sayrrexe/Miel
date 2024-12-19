@@ -3,13 +3,13 @@ version: '3.8'
 services:
   backend:
     build:
-      context: ./backend
+      context: ./Backend
     container_name: django_backend
     command: gunicorn your_project_name.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./backend:/app
+      - ./Backend:/app
     env_file:
-      - ./backend/.env
+      - ./Backend/.env
     ports:
       - "8000:8000"
     depends_on:
@@ -17,7 +17,7 @@ services:
 
   frontend:
     build:
-      context: ./frontend
+      context: ./Frontend
       dockerfile: Dockerfile
     container_name: nextjs_frontend
     environment:
@@ -48,7 +48,6 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./certs:/etc/nginx/certs:ro  # Если используете SSL
       - static_volume:/app/static
       - media_volume:/app/media
     depends_on:

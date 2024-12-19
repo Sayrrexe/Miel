@@ -22,7 +22,5 @@ COPY . .
 RUN python manage.py collectstatic --noinput
 RUN python manage.py migrate --noinput
 
-
-
 # Указываем команду для запуска приложения
 CMD ["gunicorn", "Miel.wsgi:application", "--bind", "0.0.0.0:8000"]
