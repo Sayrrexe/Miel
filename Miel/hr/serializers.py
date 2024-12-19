@@ -1,8 +1,12 @@
-from datetime import date
+from django.utils.crypto import get_random_string
+from django.contrib.auth.password_validation import validate_password
 
 from rest_framework import serializers
+from rest_framework.validators import UniqueValidator
 
+from .mail import send_password_mail
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
+
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
     role = serializers.CharField(default="2", read_only=True)
@@ -98,11 +102,15 @@ class InvitationSerializer(serializers.ModelSerializer):
     
         
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False)  # Оставляем для возможности смены пароля
+    password = serializers.CharField(write_only=True, required=False, validators=[validate_password])
 
     class Meta:
         model = CustomUser
         fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
+        extra_kwargs = {
+            'email': {'required': True, 'validators': [UniqueValidator(queryset=CustomUser.objects.all())]},
+            'username': {'required': True, 'validators': [UniqueValidator(queryset=CustomUser.objects.all())]},
+        }
 
 class SupervisorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -113,29 +121,44 @@ class SupervisorSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
-        user = CustomUser.objects.create_user(**user_data)
+        
+        # Генерация пароля, если он не предоставлен
+        password = user_data.pop('password', get_random_string(length=12))
+        
+        # Создание пользователя
+        user = CustomUser.objects.create_user(**user_data, password=password)
+        
+        # Создание супервайзера
         supervisor = Supervisor.objects.create(user=user, **validated_data)
+        
+        # Отправка письма с паролем
+        send_password_mail(username=user.username, password=password, email=user.email)
+        
         return supervisor
 
     def update(self, instance, validated_data):
-        # Извлекаем вложенные данные для пользователя
         user_data = validated_data.pop('user', None)
-
-        # Обновляем данные Supervisor
-        instance.office = validated_data.get('office', instance.office)
-        instance.department = validated_data.get('department', instance.department)
-        instance.save()
-
-        # Если переданы данные пользователя, обновляем их
+        
         if user_data:
             user = instance.user
+            password = user_data.pop('password', None)
+            
             for attr, value in user_data.items():
-                if attr == 'password':  # Особая обработка для пароля
-                    user.set_password(value)
-                else:
-                    setattr(user, attr, value)
-            user.save()
-
+                setattr(user, attr, value)
+            
+            if password:
+                user.set_password(password)
+                user.save()
+                # Опционально: отправка письма при смене пароля
+                send_password_mail(username=user.username, password=password, email=user.email)
+            else:
+                user.save()
+        
+        # Обновление данных супервайзера
+        for attr, value in validated_data.items():
+            setattr(instance, attr, value)
+        instance.save()
+        
         return instance
         
         

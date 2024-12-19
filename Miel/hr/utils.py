@@ -86,7 +86,6 @@ def update_one_status(invitation_id, status):
     try:
         with transaction.atomic():  
             selected_invitation = Invitation.objects.get(id=invitation_id)
-            print(selected_invitation)
 
             selected_invitation.status = status
             selected_invitation.save()

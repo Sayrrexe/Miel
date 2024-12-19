@@ -1,3 +1,7 @@
 DJANGO_SECRET_KEY='#7$@7h$81nx855p00!71w!=sn65=q%$m0ev(j=!yyj4s3xpy3_'
 DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=127.0.0.1,0.0.0.0
+DJANGO_ALLOWED_HOSTS='127.0.0.1','0.0.0.0'
+
+EMAIL_HOST_USER='yourname@yandex.ru'
+EMAIL_HOST_PASSWORD='your_secure_password'
+DEFAULT_FROM_EMAIL='webmaster@yourdomain.com'
