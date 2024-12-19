@@ -1,0 +1,1 @@
+export { AddingNewAdmin } from "./addingNewAdmin";

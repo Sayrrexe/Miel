@@ -1,0 +1,1 @@
+export { CandidateNewAdd } from "./candidateNewAdd";
