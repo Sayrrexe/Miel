@@ -1,0 +1,61 @@
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./backend
+    container_name: django_backend
+    command: gunicorn your_project_name.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./backend:/app
+    env_file:
+      - ./backend/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: nextjs_frontend
+    environment:
+      - NODE_ENV=production
+      - NEXT_PUBLIC_API_URL=https://your_domain.com/api/
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    environment:
+      - POSTGRES_DB=your_db_name
+      - POSTGRES_USER=your_db_user
+      - POSTGRES_PASSWORD=your_db_password
+    ports:
+      - "5432:5432"
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./certs:/etc/nginx/certs:ro  # Если используете SSL
+      - static_volume:/app/static
+      - media_volume:/app/media
+    depends_on:
+      - frontend
+      - backend
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
