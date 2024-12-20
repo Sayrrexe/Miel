@@ -22,7 +22,7 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 
 urlpatterns = [
     # Админка
-    path('api/admin/', admin.site.urls),
+    path('backend/admin/', admin.site.urls),
     # Подключение приложений
     path('api/', include('accountapp.urls')),  # Start page
     path('api/', include('hr.urls')),
