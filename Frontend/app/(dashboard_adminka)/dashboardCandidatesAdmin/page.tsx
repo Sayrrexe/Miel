@@ -1,13 +1,8 @@
-
 import { AdminCandidates } from "@/components/shared/dashboardAdmin/candidatesAdmin";
 import { cn } from "@/lib/utils";
-interface Props {
-  className?: string;
-}
-
-const DashboardCandidatesAdmin: React.FC<Props> = ({ className }) => {
+const DashboardCandidatesAdmin = () => {
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <AdminCandidates />
     </div>
   );

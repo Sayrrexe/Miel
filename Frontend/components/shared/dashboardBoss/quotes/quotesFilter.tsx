@@ -2,13 +2,9 @@ import { Button } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { DateFilter } from "../../dateFilter";
 
-interface Props {
-  className?: string;
-}
-
-export const QutesFilter: React.FC<Props> = ({ className }) => {
+export const QutesFilter = () => {
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <p className="text-4xl">Статистика по квотам (офис Люберцы-1)</p>
       <div className="pt-8 pl-[-23px] flex gap-4">
         <DateFilter />

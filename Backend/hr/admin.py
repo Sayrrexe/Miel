@@ -18,8 +18,8 @@ class CustomUserAdmin(admin.ModelAdmin):
         if 'password' in form.changed_data:
             obj.password = make_password(obj.password)  
         
-        if not obj.is_archive:
-            obj.is_archive = True  
+        if not obj.is_active:
+            obj.is_active = True  
         
         super().save_model(request, obj, form, change)
 

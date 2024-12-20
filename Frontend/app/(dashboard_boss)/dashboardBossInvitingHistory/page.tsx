@@ -1,12 +1,9 @@
 import { DashboardBossInvitingHistory } from "@/components/shared/dashboardBoss/invitingHistory";
 import { cn } from "@/lib/utils";
-interface Props {
-  className?: string;
-}
 
-const dashboardBossInvitingHistory: React.FC<Props> = ({ className }) => {
+const dashboardBossInvitingHistory = () => {
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <main>
         <DashboardBossInvitingHistory />
       </main>

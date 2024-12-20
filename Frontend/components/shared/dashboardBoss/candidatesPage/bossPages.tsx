@@ -11,11 +11,7 @@ import { useLocation } from "react-router-dom";
 import { useCategoryStore } from "@/store/context";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 
-interface Props {
-  className?: string;
-}
-
-export const BossPages: React.FC<Props> = ({ className }) => {
+export const BossPages = () => {
   const location = useLocation();
   const [activeCategorie, setActiveCategorie] = useState(
     location.pathname == "/dashboardBossFavored"
@@ -29,7 +25,7 @@ export const BossPages: React.FC<Props> = ({ className }) => {
   const data = useCategoryStore((state) => state.data);
 
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <div className="float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]">
         {data.username !== "" ? (
           <div className="flex items-center ml-6 mt-5 gap-3 ">

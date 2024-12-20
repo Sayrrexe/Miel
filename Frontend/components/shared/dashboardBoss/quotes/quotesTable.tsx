@@ -11,22 +11,20 @@ import { cn } from "@/lib/utils";
 import { quotesData } from "../../consts/data";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
+import { useCTokenStore } from "@/store/context";
 
-interface Props {
-  className?: string;
-}
-
-export const QuotesTable: React.FC<Props> = ({ className }) => {
+export const QuotesTable = () => {
   const [quotes, setQuotes] = useState([]);
+  const token = useCTokenStore((state) => state.token);
 
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/supervisor/info/quota/";
-      setQuotes((await fetchGetEndpoint(endpointToCall)).data);
+      setQuotes((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <p onClick={() => console.log(quotes)} className="mt-10 text-xl">
         Статистика за 2024
       </p>

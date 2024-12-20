@@ -11,11 +11,7 @@ import {
   AddInfo,
 } from "./newEmpComponents";
 
-interface Props {
-  className?: string;
-}
-
-export const AddingEmployee: React.FC<Props> = ({ className }) => {
+export const AddingEmployee = () => {
   const [actCat, setActCat] = useState(0);
   const activePage = [
     <PersonalInfo key={0} />,
@@ -24,7 +20,7 @@ export const AddingEmployee: React.FC<Props> = ({ className }) => {
     <Statistics key={3} />,
     <AddInfo key={4} />,
   ];
-  const [userInfo, setUserInfo] = useState({
+  const userInfo = {
     name: "",
     surname: "",
     patronymic: "",
@@ -33,7 +29,7 @@ export const AddingEmployee: React.FC<Props> = ({ className }) => {
     city: "",
     phone: "",
     email: "",
-  });
+  };
   const categories: string[] = [
     "Персональная информация",
     "Офис",
@@ -42,7 +38,7 @@ export const AddingEmployee: React.FC<Props> = ({ className }) => {
     "Доп. Инфо",
   ];
   return (
-    <div className={cn("mt-[52px] pl-10 w-full pr-10", className)}>
+    <div className={cn("mt-[52px] pl-10 w-full pr-10")}>
       <div className="w-full mr-10 border-[#CACBCD] border-solid border-[1px] pl-[23px] pb-[38px] pt-[18px] flex justify-between items-center">
         <div className="flex gap-[53px] items-center">
           <AvatarLoading />

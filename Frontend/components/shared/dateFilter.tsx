@@ -2,13 +2,9 @@ import { cn } from "@/lib/utils";
 import { DropdownMenu, DropdownMenuTrigger } from "../ui";
 import { CalendarDays } from "lucide-react";
 
-interface Props {
-  className?: string;
-}
-
-export const DateFilter: React.FC<Props> = ({ className }) => {
+export const DateFilter: React.FC<Props> = () => {
   return (
-    <div className={cn("pl-[-23px] flex gap-4 items-center", className)}>
+    <div className={cn("pl-[-23px] flex gap-4 items-center")}>
       <DropdownMenu>
         <DropdownMenuTrigger className="border-black border-solid border-opacity-40 w-[196px] border-[1px] h-[34px]">
           <div className="flex justify-between opacity-40">

@@ -12,13 +12,11 @@ import {
 } from "@/components/ui";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
-interface Props {
-  className?: string;
-}
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
+import { useCTokenStore } from "@/store/context";
 
-export const HistoryTable: React.FC<Props> = ({ className }) => {
+export const HistoryTable = () => {
   const statusColor: string[] = [
     "invited",
     "#FF7B2F",
@@ -39,12 +37,13 @@ export const HistoryTable: React.FC<Props> = ({ className }) => {
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/supervisor/invitations/";
-      setUsers((await fetchGetEndpoint(endpointToCall)).data);
+      setUsers((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
+  const token = useCTokenStore((state) => state.token);
   return (
     <div
-      className={cn("flex flex-col justify-between", className)}
+      className={cn("flex flex-col justify-between")}
       onClick={() => console.log(users)}
     >
       <div className="flex gap-[92px] mt-10 text-xl">

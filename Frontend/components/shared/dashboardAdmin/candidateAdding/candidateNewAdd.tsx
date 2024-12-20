@@ -5,18 +5,13 @@ import { useEmployee } from "@/store/context";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
 
-interface Props {
-  className?: string;
-}
-
-export const CandidateNewAdd: React.FC<Props> = ({ className }) => {
+export const CandidateNewAdd = () => {
   const router = useRouter();
   const setEmployee = useEmployee((state) => state.setEmployee);
   const data = useEmployee((state) => state.data);
   return (
-    <div className={cn("mt-[52px] ml-10", className)}>
+    <div className={cn("mt-[52px] ml-10")}>
       <Link
         href={"./dashboardCandidatesAdmin"}
         className="flex gap-[10px] hover:text-gray-300"

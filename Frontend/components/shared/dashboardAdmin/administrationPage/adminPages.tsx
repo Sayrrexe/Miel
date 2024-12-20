@@ -13,55 +13,31 @@ import Image from "next/image";
 import avatar from "../../../../public/assets/Ellipse 190@2x.png";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
-import { useCategoryStore } from "@/store/context";
-import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import { useState } from "react";
 
-interface Props {
-  className?: string;
-}
-
-export const AdminPages: React.FC<Props> = ({ className }) => {
-  const data = useCategoryStore((state) => state.data);
+export const AdminPages = () => {
   const [activeCategorie, setActiveCategorie] = useState(
     location.pathname == "/dashboardCandidatesAdmin" ? 2 : 0
   );
 
   return (
     <div
-      className={cn(
-        "float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]",
-        className
-      )}
+      className={cn("float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]")}
     >
-      {data.username !== "" ? (
-        <div className="flex items-center ml-6 mt-5 gap-3 ">
-          <Image
-            width={40}
-            height={40}
-            src={avatar}
-            alt="avatar"
-            className="mb-2"
-          />
-          <div>
-            <p className="text-xs font-bold">Привет, Мария 👋</p>
-            <p className="text-sm">Колесникова Мария</p>
-          </div>
+      <div className="flex items-center ml-6 mt-5 gap-3 ">
+        <Image
+          width={40}
+          height={40}
+          src={avatar}
+          alt="avatar"
+          className="mb-2"
+        />
+        <div>
+          <p className="text-xs font-bold">Привет, Мария 👋</p>
+          <p className="text-sm">Колесникова Мария</p>
         </div>
-      ) : (
-        <div className="flex items-center ml-6 mt-5 gap-3 ">
-          <Image
-            width={40}
-            height={40}
-            src={user}
-            alt="avatar"
-            className="mb-2"
-          />
-          <Link className="mb-[6px] hover:underline" href={"/authorisation"}>
-            Войти в аккаунт
-          </Link>
-        </div>
-      )}
+      </div>
+
       <div className="mt-12 gap-0 flex flex-col">
         <Link
           href={"./dashboardAdministration"}

@@ -4,7 +4,6 @@ import "./globals.css";
 import { Header } from "@/components/shared";
 import { BossPages } from "@/components/shared/dashboardBoss/candidatesPage";
 import { BrowserRouter } from "react-router-dom";
-import { useCategoryStore } from "@/store/context";
 
 const PTSans = PT_Sans({
   subsets: ["cyrillic"],
@@ -21,7 +20,6 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const data = useCategoryStore((state) => state.data);
   return (
     <html lang="en">
       <head>

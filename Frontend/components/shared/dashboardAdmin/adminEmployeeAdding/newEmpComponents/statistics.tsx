@@ -8,16 +8,11 @@ import {
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
 
-interface Props {
-  className?: string;
-}
-
-export const Statistics: React.FC<Props> = ({ className }) => {
+export const Statistics = () => {
   return (
     <div
       className={cn(
-        "flex pt-[25px] border-[1px]  border-solid border-[#CACBCD] border-t-0 pl-[9px] gap-6 pb-6",
-        className
+        "flex pt-[25px] border-[1px]  border-solid border-[#CACBCD] border-t-0 pl-[9px] gap-6 pb-6"
       )}
     >
       <Table className="border-solid border-[#CACBCD] border-2">

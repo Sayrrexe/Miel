@@ -4,15 +4,11 @@ import { BellIcon, LogOut, MessageSquareText } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/assets/Vector.png";
 
-interface Props {
-  className?: string;
-}
-export const Header: React.FC<Props> = ({ className }) => {
+export const Header = () => {
   return (
     <header
       className={cn(
-        "flex justify-between border-b-[1px] h-[72px] border-gray-300 border-solid bg-[#960047] items-center",
-        className
+        "flex justify-between border-b-[1px] h-[72px] border-gray-300 border-solid bg-[#960047] items-center"
       )}
     >
       <Image

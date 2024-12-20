@@ -16,37 +16,19 @@ import { useEffect, useState } from "react";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import { useRouter } from "next/navigation";
-interface Props {
-  className?: string;
-}
-
-export const AdminItems: React.FC<Props> = ({ className }) => {
+import { useCTokenStore } from "@/store/context";
+export const AdminItems = () => {
   const [candidates, setCandidates] = useState([]);
-  const statusColor: string[] = [
-    "invited",
-    "#FF7B2F",
-    "accepted",
-    "#00AAAD",
-    "rejected",
-    "#991FA9",
-  ];
-  const statusPosition: string[] = [
-    "invited",
-    "Приглашен(а)",
-    "accepted",
-    "Трудоустроен(а)",
-    "rejected",
-    "Отказ",
-  ];
+  const token = useCTokenStore((state) => state.token);
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/admin/supervisors/";
-      setCandidates((await fetchGetEndpoint(endpointToCall)).data);
+      setCandidates((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   const router = useRouter();
   return (
-    <div className={cn("", className)} onClick={() => console.log(candidates)}>
+    <div className={cn("")} onClick={() => console.log(candidates)}>
       <div className="pt-8 pl-[-23px] flex gap-4">
         <Input
           className="rounded-none w-[696px]"

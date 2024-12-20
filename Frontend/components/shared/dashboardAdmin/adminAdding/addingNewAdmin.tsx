@@ -2,20 +2,18 @@
 import { Button, Input } from "@/components/ui";
 import fetchGetEndpoint, { fetchPostEndpoint } from "@/lib/candidates";
 import { cn } from "@/lib/utils";
+import { useCTokenStore } from "@/store/context";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-interface Props {
-  className?: string;
-}
-
-export const AddingNewAdmin: React.FC<Props> = ({ className }) => {
+export const AddingNewAdmin = () => {
   const [admin, setAdmin] = useState([]);
+  const token = useCTokenStore((state) => state.token);
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/admin/offices/";
-      setAdmin((await fetchGetEndpoint(endpointToCall)).data);
+      setAdmin((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   const [officeData, setOfficeData] = useState({
@@ -32,7 +30,7 @@ export const AddingNewAdmin: React.FC<Props> = ({ className }) => {
     },
   });
   return (
-    <div className={cn("mt-[52px] ml-10", className)}>
+    <div className={cn("mt-[52px] ml-10")}>
       <Link
         href={"./dashboardAdministration"}
         className="flex gap-[10px] hover:text-gray-300"

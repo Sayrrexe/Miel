@@ -5,25 +5,26 @@ import { candidatObject } from "../../consts/data";
 import { Candidate } from "../../candidate";
 import fetchGetEndpoint from "../../../../lib/candidates";
 import { useEffect, useState } from "react";
+import { useCTokenStore } from "@/store/context";
 
-interface Props {
-  className?: string;
-}
-export const DashboardBossCandidates: React.FC<Props> = ({ className }) => {
+export const DashboardBossCandidates = () => {
   const [candidates, setCandidates] = useState<candidatObject[]>([]);
+  const token = useCTokenStore((state) => state.token);
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/supervisor/candidates/";
-      setCandidates((await fetchGetEndpoint(endpointToCall)).data);
+      console.log(
+        await fetchGetEndpoint(
+          "/api/supervisor/candidates/",
+          "1a5091d623065bdb3722c62b70a473cfe2b1749f"
+        )
+      );
     })();
   }, []);
   return (
     <div
       onClick={() => console.log(candidates)}
-      className={cn(
-        "w-[81vw] pt-8 pl-[23px] flex flex-col justify-between",
-        className
-      )}
+      className={cn("w-[81vw] pt-8 pl-[23px] flex flex-col justify-between")}
     >
       <BossFilters />
       <p className="mt-4 font-semibold text-xl">

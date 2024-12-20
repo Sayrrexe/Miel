@@ -5,6 +5,16 @@ interface user {
   setUser: (data: { username: string; password: string }) => void;
 }
 
+interface token {
+  token: string;
+  setToken: (token: string) => void;
+}
+
+export const useCTokenStore = create<token>()((set) => ({
+  token: "",
+  setToken: (token: string) => set({ token }),
+}));
+
 export const useCategoryStore = create<user>()((set) => ({
   data: {
     username: "",

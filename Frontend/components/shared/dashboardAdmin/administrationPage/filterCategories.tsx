@@ -4,19 +4,12 @@ import { useState } from "react";
 import { OfficeItems } from "./officeItems";
 import { AdminItems } from "./adminItems";
 
-interface Props {
-  className?: string;
-}
-
-export const FilterCategories: React.FC<Props> = ({ className }) => {
+export const FilterCategories = () => {
   const [page, setPage] = useState(true);
 
   return (
     <div
-      className={cn(
-        "w-[81vw] pt-8 pl-[23px] flex flex-col justify-between",
-        className
-      )}
+      className={cn("w-[81vw] pt-8 pl-[23px] flex flex-col justify-between")}
     >
       <div className="flex gap-[32px]">
         <p
