@@ -5,7 +5,7 @@ services:
     build:
       context: ./Backend
     container_name: django_backend
-    command: gunicorn your_project_name.wsgi:application --bind 0.0.0.0:8000
+    command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
     env_file:
