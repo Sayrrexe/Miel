@@ -22,15 +22,15 @@ from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, Sp
 
 urlpatterns = [
     # Админка
-    path('admin/', admin.site.urls),
+    path('backend/admin/', admin.site.urls),
     # Подключение приложений
-    path('', include('accountapp.urls')),  # Start page
-    path('', include('hr.urls')),
+    path('api/', include('accountapp.urls')),  # Start page
+    path('api/', include('hr.urls')),
 
     # OpenAPI схема
-    path('schema/', SpectacularAPIView.as_view(), name='schema'),
-    path('schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
-    path('schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/schema/swagger-ui/', SpectacularSwaggerView.as_view(url_name='schema'), name='swagger-ui'),
+    path('api/schema/redoc/', SpectacularRedocView.as_view(url_name='schema'), name='redoc'),
 ]
 
 if settings.DEBUG:
