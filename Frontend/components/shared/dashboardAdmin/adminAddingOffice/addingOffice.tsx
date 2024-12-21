@@ -18,7 +18,7 @@ export const AddingOffice = () => {
   return (
     <div className={cn("mt-[52px] ml-10")}>
       <Link
-        href={"./dashboardAdministration"}
+        href={"./administration"}
         className="flex gap-[10px] hover:text-gray-300"
       >
         <ArrowLeft />

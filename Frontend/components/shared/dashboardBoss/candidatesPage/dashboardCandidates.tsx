@@ -13,14 +13,7 @@ export const DashboardBossCandidates = () => {
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/supervisor/candidates/";
-      setCandidates(
-        (
-          await fetchGetEndpoint(
-            endpointToCall,
-            "1a5091d623065bdb3722c62b70a473cfe2b1749f"
-          )
-        ).data
-      );
+      setCandidates((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   return (

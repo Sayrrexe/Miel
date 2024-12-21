@@ -40,7 +40,7 @@ export const AdminPages = () => {
 
       <div className="mt-12 gap-0 flex flex-col">
         <Link
-          href={"./dashboardAdministration"}
+          href={"./administration"}
           onClick={() => setActiveCategorie(0)}
           className={`${
             activeCategorie == 0 && "bg-gray-300"
@@ -54,7 +54,7 @@ export const AdminPages = () => {
           Планирование
         </p>
         <Link
-          href={"./dashboardCandidatesAdmin"}
+          href={"./candidates"}
           onClick={() => setActiveCategorie(2)}
           className={`${
             activeCategorie == 2 && "bg-gray-300"

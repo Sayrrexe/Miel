@@ -58,7 +58,7 @@ export const BossPages = () => {
 
         <div className="mt-12 gap-0 flex flex-col">
           <Link
-            href={"./dashboardBossCandidates"}
+            href={"./candidates"}
             onClick={() => setActiveCategorie(0)}
             className={`${
               activeCategorie == 0 && "bg-gray-300"
@@ -68,7 +68,7 @@ export const BossPages = () => {
             Витрина кандидатов
           </Link>
           <Link
-            href={"./dashboardBossFavored"}
+            href={"./candidatesFavored"}
             onClick={() => setActiveCategorie(1)}
             className={`${
               activeCategorie == 1 && "bg-gray-300"
@@ -78,7 +78,7 @@ export const BossPages = () => {
             Избранное
           </Link>
           <Link
-            href={"./dashboardBossInvitingHistory"}
+            href={"./invitingHistory"}
             onClick={() => setActiveCategorie(2)}
             className={`${
               activeCategorie == 2 && "bg-gray-300"
@@ -88,7 +88,7 @@ export const BossPages = () => {
             История приглашений
           </Link>
           <Link
-            href={"./dashboardBossQuotes"}
+            href={"./quotes"}
             onClick={() => setActiveCategorie(3)}
             className={`${
               activeCategorie == 3 && "bg-gray-300"

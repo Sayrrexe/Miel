@@ -13,7 +13,7 @@ export const CandidateNewAdd = () => {
   return (
     <div className={cn("mt-[52px] ml-10")}>
       <Link
-        href={"./dashboardCandidatesAdmin"}
+        href={"./candidates"}
         className="flex gap-[10px] hover:text-gray-300"
       >
         <ArrowLeft />

@@ -16,7 +16,7 @@ import { z } from "zod";
 import Image from "next/image";
 import baloons from "@/public/assets/Скриншот-06-12-2024 16_52_58.jpg";
 import { useCategoryStore, useCTokenStore } from "@/store/context";
-import { fetchPostEndpoint } from "@/lib/candidates";
+import { fetchAuthorisation } from "@/lib/candidates";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 
@@ -127,10 +127,9 @@ const Authorisation = () => {
                       onClick={async () => {
                         try {
                           // Отправка запроса
-                          const response = await fetchPostEndpoint(
+                          const response = await fetchAuthorisation(
                             "/api/login/",
-                            data,
-                            null
+                            data
                           );
                           console.log(response);
                           // Проверка, что ответ от сервера валиден и содержит данные
@@ -138,7 +137,7 @@ const Authorisation = () => {
                             // Если все в порядке, сохраняем токен и переходим на страницу
                             console.log(1);
                             setToken(response.token);
-                            router.push("/dashboardBossCandidates");
+                            router.push("/bossCandidates");
                           } else {
                             // Если данных нет в ответе, обрабатываем ошибку
                             setUserWrong(true);

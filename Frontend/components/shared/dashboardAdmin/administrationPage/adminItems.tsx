@@ -39,7 +39,7 @@ export const AdminItems = () => {
         </Button>
         <Button
           onClick={async () => {
-            router.push("/addingAdmin");
+            router.push("addingAdmin");
           }}
           className="bg-[#960047] w-[226px] rounded-none hover:bg-[#960046a9]"
         >
