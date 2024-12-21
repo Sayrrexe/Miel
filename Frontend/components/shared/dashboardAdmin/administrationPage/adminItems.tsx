@@ -82,9 +82,7 @@ export const AdminItems = () => {
               </TableCell>
               <TableCell>Москва</TableCell>
               <TableCell>{objectData.user.phone}</TableCell>
-              <TableCell className="flex items-center gap-3">
-                {objectData.user.email}
-              </TableCell>
+              <TableCell>{objectData.user.email}</TableCell>
               <TableCell>{objectData.office}</TableCell>
             </TableRow>
           ))}

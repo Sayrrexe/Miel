@@ -12,13 +12,12 @@ export const AddingNewAdmin = () => {
   const token = useCTokenStore((state) => state.token);
   useEffect(() => {
     (async () => {
-      const endpointToCall = "/api/admin/offices/";
+      const endpointToCall = "/api/admin/supervisors/";
       setAdmin((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   const [officeData, setOfficeData] = useState({
     department: "",
-    id: admin.length + 1,
     office: "",
     user: {
       email: "",
@@ -160,7 +159,7 @@ export const AddingNewAdmin = () => {
         <Button
           className="mt-8 bg-[#960047] w-[160px] h-[44px]"
           onClick={async () => {
-            await fetchPostEndpoint("/api/admin/candidates/", officeData);
+            await fetchPostEndpoint("/api/admin/supervisors/", officeData);
           }}
         >
           Добавить

@@ -44,7 +44,7 @@ def write_off_the_quota(office_id, amount, cause):
     
 def update_all_candidate_statuses(candidate_id, invitation_id):
     try:
-        with transaction.atomic():  # Используем atomic для целостности операции
+        with transaction.atomic():  
             # Получаем необходимые объекты
             candidate = Candidate.objects.select_for_update().get(id=candidate_id)
             selected_invitation = Invitation.objects.get(id=invitation_id)

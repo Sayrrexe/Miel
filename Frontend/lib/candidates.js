@@ -6,7 +6,7 @@ export default async function fetchGetEndpoint(endpoint, token) {
     const response = await axios.get(`http://80.85.246.168${endpoint}`, {
       headers: {
         Authorization: `Token ${
-          token ? token : "1a5091d623065bdb3722c62b70a473cfe2b1749f admin"
+          token ? token : "1a5091d623065bdb3722c62b70a473cfe2b1749f"
         }`,
       },
     });
@@ -39,7 +39,7 @@ export async function fetchPostEndpoint(endpoint, body, token) {
     const response = await axios.post(`http://80.85.246.168${endpoint}`, body, {
       headers: {
         Authorization: `Token ${
-          token ? token : "1a5091d623065bdb3722c62b70a473cfe2b1749f admin"
+          token ? token : "1a5091d623065bdb3722c62b70a473cfe2b1749f"
         }`,
         "Content-Type": "application/json", // Убедитесь, что сервер ожидает JSON
       },
