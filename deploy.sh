@@ -157,6 +157,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/static
       - media_volume:/app/media
+      - /home/api/Miel/Backend/staticfiles:/app/staticfiles
     depends_on:
       - frontend
       - backend
@@ -208,6 +209,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/static
       - media_volume:/app/media
+      - /home/api/Miel/Backend/staticfiles:/app/staticfiles
     depends_on:
       - frontend
       - backend
