@@ -101,6 +101,7 @@ if [ -f "docker-compose.yml" ]; then
     echo "Резервная копия сохранена как docker-compose.yml.bak"
 fi
 
+CURRENT_DIR=$(pwd)
 # === Генерация docker-compose.yml ===
 echo "Генерируем docker-compose.yml..."
 if [ "$USE_POSTGRESQL" == "true" ]; then
@@ -115,7 +116,7 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
-      - /home/api/Miel/Backend/logs/app.log:/app/logs/app.log
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log
     env_file:
       - ./Backend/Miel/.env
     ports:
@@ -129,8 +130,7 @@ services:
       dockerfile: Dockerfile
     container_name: nextjs_frontend
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://your_domain.com/api/
+      - NODE_ENV=development
     ports:
       - "3000:3000"
     depends_on:
@@ -158,7 +158,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/static
       - media_volume:/app/media
-      - /home/api/Miel/Backend/staticfiles:/app/staticfiles
+      - $CURRENT_DIR/Backend/staticfiles:/app/staticfiles
     depends_on:
       - frontend
       - backend
@@ -180,8 +180,8 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
-      - /home/api/Miel/Backend/logs/app.log:/app/logs/app.log
-      - /home/api/Miel/Backend/db.sqlite3:/app/db.sqlite3
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log
+      - $CURRENT_DIR/Backend/db.sqlite3:/app/db.sqlite3
     env_file:
       - ./Backend/Miel/.env
     ports:
@@ -194,8 +194,7 @@ services:
       dockerfile: Dockerfile
     container_name: nextjs_frontend
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://your_domain.com/api/
+      - NODE_ENV=development
     ports:
       - "3000:3000"
     depends_on:
@@ -211,7 +210,7 @@ services:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/static
       - media_volume:/app/media
-      - /home/api/Miel/Backend/staticfiles:/app/staticfiles
+      - $CURRENT_DIR/Backend/staticfiles:/app/staticfiles
     depends_on:
       - frontend
       - backend
