@@ -115,6 +115,7 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
+      - /home/api/Miel/Backend/logs/app.log:/app/logs/app.log
     env_file:
       - ./Backend/Miel/.env
     ports:
@@ -179,7 +180,8 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
-      - ./Backend/db.sqlite3:/app/db.sqlite3
+      - /home/api/Miel/Backend/logs/app.log:/app/logs/app.log
+      - /home/api/Miel/Backend/db.sqlite3:/app/db.sqlite3
     env_file:
       - ./Backend/Miel/.env
     ports:
