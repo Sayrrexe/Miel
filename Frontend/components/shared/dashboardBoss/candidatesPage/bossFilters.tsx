@@ -2,13 +2,9 @@ import { Button, DropdownMenu, DropdownMenuTrigger } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 
-interface Props {
-  className?: string;
-}
-
-export const BossFilters: React.FC<Props> = ({ className }) => {
+export const BossFilters = () => {
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <div className="pt-8 pl-[-23px] flex gap-4">
         <DropdownMenu>
           <DropdownMenuTrigger className="border-black border-solid border-opacity-40 w-[196px] border-[1px] h-[34px]">

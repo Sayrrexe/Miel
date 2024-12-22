@@ -6,15 +6,9 @@ import "./rsuite-default.css";
 import { HistoryTable } from "./historyTable";
 import { DateFilter } from "../../dateFilter";
 
-interface Props {
-  className?: string;
-}
-
-export const DashboardBossInvitingHistory: React.FC<Props> = ({
-  className,
-}) => {
+export const DashboardBossInvitingHistory = () => {
   return (
-    <div className={cn("m-[53px] flex flex-col justify-between", className)}>
+    <div className={cn("m-[53px] flex flex-col justify-between")}>
       <p className="text-4xl">История приглашений (офис Люберцы-1)</p>
       <div>
         <div className="pt-8 pl-[-23px] flex gap-4">

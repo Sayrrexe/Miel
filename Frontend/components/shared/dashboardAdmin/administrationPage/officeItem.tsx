@@ -2,7 +2,6 @@ import { cn } from "@/lib/utils";
 import { MessageCircle } from "lucide-react";
 
 interface Props {
-  className?: string;
   candidatObject: {
     location: string;
     quota: number;
@@ -14,11 +13,7 @@ interface Props {
   index: number;
 }
 
-export const OfficeItem: React.FC<Props> = ({
-  className,
-  index,
-  candidatObject,
-}) => {
+export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
   const colors: string[] = [
     "border-b-[#FF5E01]",
     "border-b-[#9CC700]",
@@ -26,10 +21,7 @@ export const OfficeItem: React.FC<Props> = ({
     "border-b-[#FFCB05]",
   ];
   return (
-    <div
-      className={cn("", className)}
-      onClick={() => console.log(candidatObject)}
-    >
+    <div className={cn("")} onClick={() => console.log(candidatObject)}>
       <div
         key={index}
         className={`border-solid border-[1px] border-gray-300 w-[416px] h-[290px] p-5 border-b-4 ${

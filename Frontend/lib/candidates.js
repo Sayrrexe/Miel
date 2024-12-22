@@ -1,11 +1,13 @@
 import axios from "axios";
 
 // Функция для обработки запросов по эндпоинту
-export default async function fetchGetEndpoint(endpoint) {
+export default async function fetchGetEndpoint(endpoint, token) {
   try {
-    const response = await axios.get(`http://localhost:8000${endpoint}`, {
+    const response = await axios.get(`http://80.85.246.168${endpoint}`, {
       headers: {
-        Authorization: "Token b09500d5dd4a398bb8cea5b4763dd344e6f5b699",
+        Authorization: `Token ${
+          token ? token : "1a5091d623065bdb3722c62b70a473cfe2b1749f"
+        }`,
       },
     });
 
@@ -32,18 +34,46 @@ export default async function fetchGetEndpoint(endpoint) {
   }
 }
 
-export async function fetchPostEndpoint(endpoint, body) {
+
+export async function fetchPostEndpoint(endpoint, body, token) {
   try {
-    const response = await axios.post(
-      `http://localhost:8000${endpoint}`,
-      body,
-      {
-        headers: {
-          Authorization: "Token b09500d5dd4a398bb8cea5b4763dd344e6f5b699",
-          "Content-Type": "application/json", // Убедитесь, что сервер ожидает JSON
-        },
-      }
-    );
+    const response = await axios.post(`http://80.85.246.168${endpoint}`, body, {
+      headers: {
+        Authorization: `Token ${token}`,
+        "Content-Type": "application/json", // Убедитесь, что сервер ожидает JSON
+      },
+    });
+
+    return response.data; // Возвращаем данные из ответа
+  } catch (error) {
+    if (error.response) {
+      console.error("Server returned an error response:", error.response);
+      return {
+        error: `HTTP ${error.response.status}: ${error.response.statusText}`,
+        details: error.response.data,
+      };
+    } else if (error.request) {
+      console.error("No response received:", error.request);
+      return {
+        error: "No response received from the server.",
+      };
+    } else {
+      console.error("Unexpected error:", error.message);
+      return {
+        error: error.message,
+      };
+    }
+  }
+}
+
+export async function fetchAuthorisation(endpoint, body) {
+  try {
+    const response = await axios.post(`http://80.85.246.168${endpoint}`, body, {
+      headers: {
+        "Content-Type": "application/json", // Убедитесь, что сервер ожидает JSON
+      },
+    });
+
 
     return response.data; // Возвращаем данные из ответа
   } catch (error) {

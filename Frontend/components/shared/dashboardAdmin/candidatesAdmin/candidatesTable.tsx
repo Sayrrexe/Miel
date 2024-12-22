@@ -14,21 +14,19 @@ import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
+import { useCTokenStore } from "@/store/context";
 
-interface Props {
-  className?: string;
-}
-
-export const CandidatesTable: React.FC<Props> = ({ className }) => {
+export const CandidatesTable = () => {
   const [candidates, setCandidates] = useState([]);
+  const token = useCTokenStore((state) => state.token);
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/admin/candidates/";
-      setCandidates((await fetchGetEndpoint(endpointToCall)).data);
+      setCandidates((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <Table className="border-solid border-[#CACBCD] border-2 ml-10 w-[60vw]">
         <TableHeader>
           <TableRow>

@@ -2,16 +2,12 @@ import { DropdownMenuTrigger, DropdownMenu } from "@/components/ui";
 import { cn } from "@/lib/utils";
 import { ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui";
-interface Props {
-  className?: string;
-}
 
-export const Office: React.FC<Props> = ({ className }) => {
+export const Office = () => {
   return (
     <div
       className={cn(
-        "flex pt-[25px] border-[1px]  border-solid border-[#CACBCD] border-t-0 pl-[9px] gap-6 pb-6 items-start",
-        className
+        "flex pt-[25px] border-[1px]  border-solid border-[#CACBCD] border-t-0 pl-[9px] gap-6 pb-6 items-start"
       )}
     >
       <div className="text-lg flex flex-col gap-3 justify-center ml-[29px] items-start">

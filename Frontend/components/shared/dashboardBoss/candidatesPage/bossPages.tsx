@@ -11,11 +11,7 @@ import { useLocation } from "react-router-dom";
 import { useCategoryStore } from "@/store/context";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 
-interface Props {
-  className?: string;
-}
-
-export const BossPages: React.FC<Props> = ({ className }) => {
+export const BossPages = () => {
   const location = useLocation();
   const [activeCategorie, setActiveCategorie] = useState(
     location.pathname == "/dashboardBossFavored"
@@ -29,7 +25,7 @@ export const BossPages: React.FC<Props> = ({ className }) => {
   const data = useCategoryStore((state) => state.data);
 
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <div className="float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]">
         {data.username !== "" ? (
           <div className="flex items-center ml-6 mt-5 gap-3 ">
@@ -62,7 +58,7 @@ export const BossPages: React.FC<Props> = ({ className }) => {
 
         <div className="mt-12 gap-0 flex flex-col">
           <Link
-            href={"./dashboardBossCandidates"}
+            href={"./candidates"}
             onClick={() => setActiveCategorie(0)}
             className={`${
               activeCategorie == 0 && "bg-gray-300"
@@ -72,7 +68,7 @@ export const BossPages: React.FC<Props> = ({ className }) => {
             Витрина кандидатов
           </Link>
           <Link
-            href={"./dashboardBossFavored"}
+            href={"./candidatesFavored"}
             onClick={() => setActiveCategorie(1)}
             className={`${
               activeCategorie == 1 && "bg-gray-300"
@@ -82,7 +78,7 @@ export const BossPages: React.FC<Props> = ({ className }) => {
             Избранное
           </Link>
           <Link
-            href={"./dashboardBossInvitingHistory"}
+            href={"./invitingHistory"}
             onClick={() => setActiveCategorie(2)}
             className={`${
               activeCategorie == 2 && "bg-gray-300"
@@ -92,7 +88,7 @@ export const BossPages: React.FC<Props> = ({ className }) => {
             История приглашений
           </Link>
           <Link
-            href={"./dashboardBossQuotes"}
+            href={"./quotes"}
             onClick={() => setActiveCategorie(3)}
             className={`${
               activeCategorie == 3 && "bg-gray-300"

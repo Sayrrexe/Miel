@@ -1,12 +1,8 @@
 import { AddingOffice } from "@/components/shared/dashboardAdmin/adminAddingOffice";
 import { cn } from "@/lib/utils";
-interface Props {
-  className?: string;
-}
-
-const Dashboard_adminka: React.FC<Props> = ({ className }) => {
+const Dashboard_adminka = () => {
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <AddingOffice />
     </div>
   );

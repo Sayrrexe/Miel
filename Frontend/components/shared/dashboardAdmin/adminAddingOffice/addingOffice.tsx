@@ -1,34 +1,24 @@
 "use client";
 import { Button, Input } from "@/components/ui";
-import fetchGetEndpoint, { fetchPostEndpoint } from "@/lib/candidates";
+import { fetchPostEndpoint } from "@/lib/candidates";
 import { cn } from "@/lib/utils";
+import { useCTokenStore } from "@/store/context";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
-interface Props {
-  className?: string;
-}
-
-export const AddingOffice: React.FC<Props> = ({ className }) => {
-  const [offices, setOffices] = useState([]);
-  useEffect(() => {
-    (async () => {
-      const endpointToCall = "/api/admin/offices/";
-      setOffices((await fetchGetEndpoint(endpointToCall)).data);
-    })();
-  }, []);
+export const AddingOffice = () => {
   const [officeData, setOfficeData] = useState({
     location: "",
     name: "",
     quota: 0,
     used_quota: 0,
-    id: offices.length + 1,
   });
+  const token = useCTokenStore((state) => state.token);
   return (
-    <div className={cn("mt-[52px] ml-10", className)}>
+    <div className={cn("mt-[52px] ml-10")}>
       <Link
-        href={"./dashboardAdministration"}
+        href={"./administration"}
         className="flex gap-[10px] hover:text-gray-300"
       >
         <ArrowLeft />
@@ -48,7 +38,6 @@ export const AddingOffice: React.FC<Props> = ({ className }) => {
                   name: officeData.name,
                   quota: officeData.quota,
                   used_quota: officeData.used_quota,
-                  id: officeData.id,
                 })
               }
             />
@@ -62,7 +51,6 @@ export const AddingOffice: React.FC<Props> = ({ className }) => {
                   name: e.currentTarget.value,
                   quota: officeData.quota,
                   used_quota: officeData.used_quota,
-                  id: officeData.id,
                 })
               }
               value={officeData.name}
@@ -83,7 +71,6 @@ export const AddingOffice: React.FC<Props> = ({ className }) => {
                   name: officeData.name,
                   quota: Number(e.currentTarget.value),
                   used_quota: officeData.used_quota,
-                  id: officeData.id,
                 })
               }
             />
@@ -98,9 +85,8 @@ export const AddingOffice: React.FC<Props> = ({ className }) => {
                 setOfficeData({
                   location: officeData.location,
                   name: officeData.name,
-                  quota: officeData.quota,
+                  quota: Number(officeData.quota),
                   used_quota: Number(e.currentTarget.value),
-                  id: officeData.id,
                 })
               }
             />
@@ -109,7 +95,7 @@ export const AddingOffice: React.FC<Props> = ({ className }) => {
         <Button
           className="mt-8 bg-[#960047] w-[160px] h-[44px]"
           onClick={async () => {
-            await fetchPostEndpoint("/api/admin/offices/", officeData);
+            await fetchPostEndpoint("/api/admin/offices/", officeData, token);
           }}
         >
           Добавить

@@ -295,7 +295,7 @@ class CandidateViewSet(ModelViewSet):
     
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
-    queryset = models.Candidate.objects.filter(is_archive=True, is_free = True)
+    queryset = models.Candidate.objects.filter(is_archive=False, is_free = True)
     model = models.Candidate
     serializer_class = CandidateInfoSerializer
     
@@ -544,7 +544,7 @@ class AdminMonthlyStatisticView(APIView):
         
 class ArchiveCandidateInfoView(ListAPIView):
     permission_classes = [IsAdministrator]
-    queryset = models.Candidate.objects.filter(is_archive=False)
+    queryset = models.Candidate.objects.filter(is_archive=True)
     model = models.Candidate
     serializer_class = ArchiveCandidateSerializer
     

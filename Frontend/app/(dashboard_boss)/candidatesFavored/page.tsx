@@ -1,12 +1,8 @@
 import { Favored } from "@/components/shared";
 import { cn } from "@/lib/utils";
-interface Props {
-  className?: string;
-}
-
-const dashboardBossfavored: React.FC<Props> = ({ className }) => {
+const dashboardBossfavored = () => {
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <main>
         <Favored />
       </main>

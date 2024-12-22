@@ -5,18 +5,13 @@ import { cn } from "@/lib/utils";
 import { useEmployee } from "@/store/context";
 import { Trash2 } from "lucide-react";
 
-interface Props {
-  className?: string;
-}
-
-export const PersonalInfo: React.FC<Props> = ({ className }) => {
+export const PersonalInfo = () => {
   const setEmployee = useEmployee((state) => state.setEmployee);
   const data = useEmployee((state) => state.data);
   return (
     <div
       className={cn(
-        "flex pt-[25px] border-[1px]  border-solid border-[#CACBCD] border-t-0 pl-[9px] gap-6 pb-6",
-        className
+        "flex pt-[25px] border-[1px]  border-solid border-[#CACBCD] border-t-0 pl-[9px] gap-6 pb-6"
       )}
     >
       <div className="flex">

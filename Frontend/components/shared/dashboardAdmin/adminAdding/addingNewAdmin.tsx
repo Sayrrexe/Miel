@@ -2,25 +2,22 @@
 import { Button, Input } from "@/components/ui";
 import fetchGetEndpoint, { fetchPostEndpoint } from "@/lib/candidates";
 import { cn } from "@/lib/utils";
+import { useCTokenStore } from "@/store/context";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useEffect, useState } from "react";
 
-interface Props {
-  className?: string;
-}
-
-export const AddingNewAdmin: React.FC<Props> = ({ className }) => {
+export const AddingNewAdmin = () => {
   const [admin, setAdmin] = useState([]);
+  const token = useCTokenStore((state) => state.token);
   useEffect(() => {
     (async () => {
-      const endpointToCall = "/api/admin/offices/";
-      setAdmin((await fetchGetEndpoint(endpointToCall)).data);
+      const endpointToCall = "/api/admin/supervisors/";
+      setAdmin((await fetchGetEndpoint(endpointToCall, token)).data);
     })();
   }, []);
   const [officeData, setOfficeData] = useState({
     department: "",
-    id: admin.length + 1,
     office: "",
     user: {
       email: "",
@@ -32,7 +29,7 @@ export const AddingNewAdmin: React.FC<Props> = ({ className }) => {
     },
   });
   return (
-    <div className={cn("mt-[52px] ml-10", className)}>
+    <div className={cn("mt-[52px] ml-10")}>
       <Link
         href={"./dashboardAdministration"}
         className="flex gap-[10px] hover:text-gray-300"
@@ -162,7 +159,7 @@ export const AddingNewAdmin: React.FC<Props> = ({ className }) => {
         <Button
           className="mt-8 bg-[#960047] w-[160px] h-[44px]"
           onClick={async () => {
-            await fetchPostEndpoint("/api/admin/candidates/", officeData);
+            await fetchPostEndpoint("/api/admin/supervisors/", officeData);
           }}
         >
           Добавить

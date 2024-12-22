@@ -21,7 +21,7 @@ services:
       dockerfile: Dockerfile
     container_name: nextjs_frontend
     environment:
-      - NODE_ENV=production
+      - NODE_ENV=development
       - NEXT_PUBLIC_API_URL=https://your_domain.com/api/
     ports:
       - "3000:3000"

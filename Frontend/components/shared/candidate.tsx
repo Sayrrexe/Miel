@@ -6,11 +6,10 @@ import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import Image from "next/image";
 
 interface Props {
-  className?: string;
   candidate: candidatObject;
 }
 
-export const Candidate: React.FC<Props> = ({ className, candidate }) => {
+export const Candidate: React.FC<Props> = ({ candidate }) => {
   const courseInfo: string[] = [
     "not_started",
     "не начат",
@@ -20,7 +19,7 @@ export const Candidate: React.FC<Props> = ({ className, candidate }) => {
     "в процессе",
   ];
   return (
-    <div className={cn("", className)}>
+    <div className={cn("")}>
       <div
         className={`w-[476px] h-[596px] shadow-xl mr-12`}
         onClick={() => console.log(candidate)}

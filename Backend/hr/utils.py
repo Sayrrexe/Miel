@@ -44,7 +44,7 @@ def write_off_the_quota(office_id, amount, cause):
     
 def update_all_candidate_statuses(candidate_id, invitation_id):
     try:
-        with transaction.atomic():  # Используем atomic для целостности операции
+        with transaction.atomic():  
             # Получаем необходимые объекты
             candidate = Candidate.objects.select_for_update().get(id=candidate_id)
             selected_invitation = Invitation.objects.get(id=invitation_id)
@@ -64,7 +64,7 @@ def update_all_candidate_statuses(candidate_id, invitation_id):
             # Обновляем данные кандидата
             candidate.is_free = False
             candidate.office = office
-            candidate.is_archive = False
+            candidate.is_archive = True
             candidate.save()
 
             # Обновляем выбранное приглашение, если нужно
@@ -106,7 +106,7 @@ def restore_archived_candidates(candidate_ids):
                 return False, "Кандидаты с указанными ID не найдены или уже восстановлены."
 
             # Восстанавливаем кандидатов
-            candidates.update(is_archive=True)
+            candidates.update(is_archive=False)
             return True, f"Восстановлено кандидатов: {candidates.count()}"
     except Exception as e:
         return False, f"Произошла ошибка: {str(e)}"
