@@ -10,7 +10,9 @@
 - **Управление квотами**: Ограничение на количество приглашений для каждого руководителя офиса.  
 - **Система приглашений**: Отслеживание и маршрутизация приглашений по выбранным администратором ссылкам.  
 - **Работа через API**: Полный функционал доступен через REST API с визуализацией в Swagger UI.  
-- **Стек технологий**: Python, Django REST Framework (DRF), PostgreSQL, React, Next.js.
+
+
+##  **Стек технологий**: Python, Django REST Framework (DRF), PostgreSQL, React, Next.js.
 
 ---
 
@@ -19,24 +21,33 @@
 ### Клонирование репозитория
 ```bash
 git clone https://github.com/sayrrexe/Miel
-cd Miel/Backend/Miel/
+cd Miel/
 ```
 
-### Настройка переменных окружения
-Создайте файл `.env` и заполните его следующими параметрами:
-```env
-DJANGO_SECRET_KEY=your_secret_key
-DJANGO_DEBUG=False
-DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
-DATABASE_NAME=mydatabase
-DATABASE_USER=myuser
-DATABASE_PASSWORD=mypassword
-DATABASE_HOST=db
-DATABASE_PORT=5432
+---
 
-```
+### Автоматический деплой через скрипт
 
-### Настройка backend
+Скрипт автоматизирует процесс настройки, выбора базы данных (PostgreSQL или SQLite) и запуска проекта через Docker.
+
+1. **Запуск скрипта:**
+   ```bash
+   chmod +x deploy.sh
+   ./deploy.sh
+   ```
+
+2. **Что делает скрипт:**
+   - Запрашивает переменные окружения, включая `DJANGO_SECRET_KEY`, `DATABASE_NAME` и другие.
+   - Позволяет выбрать базу данных: PostgreSQL или SQLite.
+   - Создаёт или обновляет `.env` файл.
+   - Обновляет `docker-compose.yml` для хранения базы SQLite на хосте или для PostgreSQL.
+   - Устанавливает виртуальное окружение и зависимости.
+   - Выполняет миграции и создаёт суперпользователя.
+   - Запускает проект через Docker Compose.
+---
+
+### Ручная настройка 
+
 1. Создайте виртуальное окружение и установите зависимости:
    ```bash
    python3 -m venv .venv
@@ -71,7 +82,6 @@ DATABASE_PORT=5432
    ```
 
 ---
-
 ## Использование
 
 1. **Суперпользователь**: Войдите в систему под суперпользователем (`root`) и создайте администратора.  
