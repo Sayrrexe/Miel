@@ -34,7 +34,6 @@ export default async function fetchGetEndpoint(endpoint, token) {
   }
 }
 
-
 export async function fetchPostEndpoint(endpoint, body, token) {
   try {
     const response = await axios.post(`http://80.85.246.168${endpoint}`, body, {
@@ -73,7 +72,6 @@ export async function fetchAuthorisation(endpoint, body) {
         "Content-Type": "application/json", // Убедитесь, что сервер ожидает JSON
       },
     });
-
 
     return response.data; // Возвращаем данные из ответа
   } catch (error) {

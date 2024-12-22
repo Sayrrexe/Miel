@@ -58,7 +58,7 @@ export const BossPages = () => {
 
         <div className="mt-12 gap-0 flex flex-col">
           <Link
-            href={"./candidates"}
+            href={"./main2"}
             onClick={() => setActiveCategorie(0)}
             className={`${
               activeCategorie == 0 && "bg-gray-300"

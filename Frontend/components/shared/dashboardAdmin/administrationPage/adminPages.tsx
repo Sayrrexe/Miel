@@ -14,12 +14,13 @@ import avatar from "../../../../public/assets/Ellipse 190@2x.png";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
 import { useState } from "react";
+import { useCategoryStore } from "@/store/context";
 
 export const AdminPages = () => {
   const [activeCategorie, setActiveCategorie] = useState(
     location.pathname == "/dashboardCandidatesAdmin" ? 2 : 0
   );
-
+  const data = useCategoryStore((state) => state.data);
   return (
     <div
       className={cn("float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]")}
@@ -33,14 +34,14 @@ export const AdminPages = () => {
           className="mb-2"
         />
         <div>
-          <p className="text-xs font-bold">Привет, Мария 👋</p>
-          <p className="text-sm">Колесникова Мария</p>
+          <p className="text-xs font-bold">Привет, {data.username} 👋</p>
+          <p className="text-sm">{data.full_name}</p>
         </div>
       </div>
 
       <div className="mt-12 gap-0 flex flex-col">
         <Link
-          href={"./administration"}
+          href={"./main1"}
           onClick={() => setActiveCategorie(0)}
           className={`${
             activeCategorie == 0 && "bg-gray-300"

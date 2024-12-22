@@ -9,7 +9,7 @@ services:
     volumes:
       - ./Backend:/app
     env_file:
-      - ./Backend/.env
+      - ./Backend/Miel/.env
     ports:
       - "8000:8000"
     depends_on:
