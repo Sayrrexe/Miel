@@ -221,8 +221,11 @@ echo "docker-compose.yml создан!"
 
 # === Настройка окружения и миграция ===
 cd Backend
-mkdir logs
+
+echo "Создаём директорию для логов..."
+mkdir -p logs
 touch logs/app.log
+
 echo "Настраиваем виртуальное окружение..."
 python3 -m venv .venv
 source .venv/bin/activate
@@ -237,7 +240,7 @@ echo "Создание суперпользователя..."
 python3 manage.py createsuperuser
 
 # === Запуск Docker ===
-cd ../../
+cd ..
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
 
