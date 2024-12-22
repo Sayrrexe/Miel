@@ -25,9 +25,15 @@ cd Miel/Backend/Miel/
 ### Настройка переменных окружения
 Создайте файл `.env` и заполните его следующими параметрами:
 ```env
-DJANGO_SECRET_KEY=ваш_секретный_ключ
-DJANGO_DEBUG=True
-DJANGO_ALLOWED_HOSTS=ваши_разрешённые_хосты
+DJANGO_SECRET_KEY=your_secret_key
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=localhost,127.0.0.1
+DATABASE_NAME=mydatabase
+DATABASE_USER=myuser
+DATABASE_PASSWORD=mypassword
+DATABASE_HOST=db
+DATABASE_PORT=5432
+
 ```
 
 ### Настройка backend
