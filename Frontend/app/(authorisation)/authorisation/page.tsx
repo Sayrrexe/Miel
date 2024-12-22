@@ -16,14 +16,20 @@ import { z } from "zod";
 import Image from "next/image";
 import baloons from "@/public/assets/Скриншот-06-12-2024 16_52_58.jpg";
 import { useCategoryStore, useCTokenStore } from "@/store/context";
-import { fetchAuthorisation } from "@/lib/candidates";
+import fetchGetEndpoint, { fetchAuthorisation } from "@/lib/candidates";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Authorisation = () => {
   const setUser = useCategoryStore((state) => state.setUser);
   const data = useCategoryStore((state) => state.data);
   const setToken = useCTokenStore((state) => state.setToken);
+  const [info, setInfo] = useState({});
+  useEffect(() => {
+    if (data.role != "") {
+      router.push(`main1`);
+    }
+  }, [data]);
 
   const [userWrong, setUserWrong] = useState(false);
   const formSchema = z.object({
@@ -84,6 +90,10 @@ const Authorisation = () => {
                               setUser({
                                 username: e.currentTarget.value,
                                 password: data.password,
+                                role: data.role,
+                                full_name: data.full_name,
+                                email: data.email,
+                                phone: data.phone,
                               })
                             }
                           />
@@ -109,6 +119,10 @@ const Authorisation = () => {
                               setUser({
                                 username: data.username,
                                 password: e.currentTarget.value,
+                                role: data.role,
+                                full_name: data.full_name,
+                                email: data.email,
+                                phone: data.phone,
                               })
                             }
                           />
@@ -137,7 +151,34 @@ const Authorisation = () => {
                             // Если все в порядке, сохраняем токен и переходим на страницу
                             console.log(1);
                             setToken(response.token);
-                            router.push("/bossCandidates");
+                            localStorage.setItem("token", response.token);
+                            (async () => {
+                              const endpointToCall = "/api/info/";
+                              await setInfo(
+                                (
+                                  await fetchGetEndpoint(
+                                    endpointToCall,
+                                    response.token
+                                  )
+                                ).data
+                              );
+                              if (info) {
+                                await setUser({
+                                  username: data.username,
+                                  password: data.password,
+                                  role: info.role,
+                                  full_name: info.full_name,
+                                  email: info.email,
+                                  phone: info.phone,
+                                });
+                                localStorage.setItem("username", data.username);
+                                localStorage.setItem(
+                                  "full_name",
+                                  info.full_name
+                                );
+                                localStorage.setItem("role", info.role);
+                              }
+                            })();
                           } else {
                             // Если данных нет в ответе, обрабатываем ошибку
                             setUserWrong(true);
