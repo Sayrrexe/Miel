@@ -220,7 +220,7 @@ fi
 echo "docker-compose.yml создан!"
 
 # === Настройка окружения и миграция ===
-cd Backend/Miel/
+cd Backend
 echo "Настраиваем виртуальное окружение..."
 python3 -m venv .venv
 source .venv/bin/activate
