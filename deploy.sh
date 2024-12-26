@@ -44,6 +44,7 @@ if [ "$IP_CHOICE" == "2" ]; then
 else
     echo "Пропуск."
     SERVER_IP=""
+fi
 
 # === Выбор базы данных ===
 echo "Выберите базу данных (по умолчанию PostgreSQL):"
@@ -270,35 +271,13 @@ sleep 10  # Можно увеличить время ожидания при н�
 
 # === Применение миграций и создание суперпользователя ===
 echo "Применяем миграции базы данных..."
-docker-compose exec backend python manage.py migrate
-docker-compose exec backend python manage.py collectstatic --noinput
+docker exec -it django_backend python manage.py migrate
+docker exec -it django_backend python manage.py collectstatic --noinput
 
 echo "Создаём суперпользователя..."
-# Читаем данные для суперпользователя
-echo "Введите имя пользователя для суперпользователя:"
-read SUPERUSER_NAME
-echo "Введите email для суперпользователя:"
-read SUPERUSER_EMAIL
-
-# Безопасный ввод пароля
-while true; do
-    echo "Введите пароль для суперпользователя:"
-    read -s SUPERUSER_PASSWORD
-    echo "Повторите пароль:"
-    read -s SUPERUSER_PASSWORD_CONFIRM
-    if [ "$SUPERUSER_PASSWORD" == "$SUPERUSER_PASSWORD_CONFIRM" ]; then
-        break
-    else
-        echo "Пароли не совпадают. Попробуйте снова."
-    fi
-done
-
-# Создаём суперпользователя с помощью manage.py
-docker-compose exec backend python manage.py createsuperuser --noinput --username "$SUPERUSER_NAME" --email "$SUPERUSER_EMAIL"
-
-# Устанавливаем пароль с помощью хелпера
-docker-compose exec backend python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); user = User.objects.get(username='$SUPERUSER_NAME'); user.set_password('$SUPERUSER_PASSWORD'); user.save()"
-
+docker exec -it django_backend python manage.py createsuperuser
 echo "Суперпользователь создан успешно!"
+
+# === Конец ===
 
 echo "Развёртывание завершено!"
