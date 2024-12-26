@@ -155,12 +155,12 @@ services:
   db:
     image: postgres:15
     container_name: postgres_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./Backend/Miel/.env
     environment:
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
 
