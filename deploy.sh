@@ -81,6 +81,11 @@ DATABASE_PASSWORD=$POSTGRES_PASSWORD
 DATABASE_HOST=db
 DATABASE_PORT=5432
 EOL
+cat <<EOL > Backend/Miel/db.env
+POSTGRES_DB=$POSTGRES_DB
+POSTGRES_USER=$POSTGRES_USER
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+EOL
 else
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
@@ -131,14 +136,15 @@ services:
     volumes:
       - ./Backend:/app
       - static_volume:/app/static  
-      - media_volume:/app/media 
-      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log    
+      - media_volume:/app/media
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log 
     env_file:
       - ./Backend/Miel/.env
     ports:
       - "8000:8000"
     depends_on:
       - db
+    restart: unless-stopped
 
   frontend:
     build:
@@ -151,18 +157,18 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
 
   db:
     image: postgres:15
     container_name: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./Backend/Miel/.env
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB}
-      - POSTGRES_USER=${POSTGRES_USER}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+      - ./Backend/Miel/db.env
     ports:
       - "5432:5432"
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -173,11 +179,11 @@ services:
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
       - static_volume:/app/static  
-      - media_volume:/app/media  
-      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log   
+      - media_volume:/app/media    
     depends_on:
       - frontend
       - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:
@@ -204,6 +210,7 @@ services:
       - ./Backend/Miel/.env
     ports:
       - "8000:8000"
+    restart: unless-stopped
 
   frontend:
     build:
@@ -216,6 +223,7 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
