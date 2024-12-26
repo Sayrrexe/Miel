@@ -30,21 +30,21 @@ read DJANGO_SECRET_KEY
 echo "Введите значение DJANGO_DEBUG (True/False):"
 read DJANGO_DEBUG
 
-echo "Введите DJANGO_ALLOWED_HOSTS (например: 127.0.0.1,localhost):"
-read DJANGO_ALLOWED_HOSTS
-
-echo "изменить настройки nginx на ip вашего сервера?"
-echo "1. нет (по умолчанию)"
-echo "2. да"
-read IP_CHOICE
-if [ "$IP_CHOICE" == "2" ]; then
-    echo "Введите IP"
-    read SERVER_IP
+echo "хотите добавить ALLOWED HOSTS: 127.0.0.1,localhost):"
+echo "1. да (по умолчанию)"
+echo "2. нет"
+read CHOICE_HOSTS
+if [ "$CHOICE_HOSTS" == "1" ]; then
+    echo "Добавляем..."
+    DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
 
 else
     echo "Пропуск."
-    SERVER_IP=""
+    DJANGO_ALLOWED_HOSTS=""
 fi
+
+echo "введите iP вашего сервера ( как в ssh )?"
+read SERVER_IP
 
 # === Выбор базы данных ===
 echo "Выберите базу данных (по умолчанию PostgreSQL):"
@@ -93,26 +93,16 @@ echo ".env файл создан!"
 # === Обновление settings.py ===
 echo "Обновляем settings.py..."
 if [ "$USE_POSTGRESQL" == "true" ]; then
-    # Удаляем старые строки с параметрами базы данных
-    sed -i "/'USER'/d" Backend/Miel/settings.py
-    sed -i "/'PASSWORD'/d" Backend/Miel/settings.py
-    sed -i "/'HOST'/d" Backend/Miel/settings.py
-    sed -i "/'PORT'/d" Backend/Miel/settings.py
-
-    # Обновляем движок базы данных
-    sed -i "s|'ENGINE': 'django.db.backends.sqlite3'|'ENGINE': 'django.db.backends.postgresql'|g" Backend/Miel/settings.py
+    sed -i "s/'ENGINE': 'django.db.backends.sqlite3'/'ENGINE': 'django.db.backends.postgresql'/g" Backend/Miel/settings.py
     sed -i "s|BASE_DIR / 'db.sqlite3'|os.getenv('DATABASE_NAME')|g" Backend/Miel/settings.py
-
-    # Добавляем новые параметры
     sed -i "/'NAME': os.getenv('DATABASE_NAME')/a \        'USER': os.getenv('DATABASE_USER'),\n        'PASSWORD': os.getenv('DATABASE_PASSWORD'),\n        'HOST': os.getenv('DATABASE_HOST'),\n        'PORT': os.getenv('DATABASE_PORT')," Backend/Miel/settings.py
 else
-    # Возврат к SQLite и удаление параметров PostgreSQL
-    sed -i "s|'ENGINE': 'django.db.backends.postgresql'|'ENGINE': 'django.db.backends.sqlite3'|g" Backend/Miel/settings.py
+    sed -i "s/'ENGINE': 'django.db.backends.postgresql'/'ENGINE': 'django.db.backends.sqlite3'/g" Backend/Miel/settings.py
     sed -i "s|os.getenv('DATABASE_NAME')|BASE_DIR / 'db.sqlite3'|g" Backend/Miel/settings.py
-    sed -i "/'USER'/d" Backend/Miel/settings.py
-    sed -i "/'PASSWORD'/d" Backend/Miel/settings.py
-    sed -i "/'HOST'/d" Backend/Miel/settings.py
-    sed -i "/'PORT'/d" Backend/Miel/settings.py
+    sed -i "/'USER': os.getenv('DATABASE_USER'),/d" Backend/Miel/settings.py
+    sed -i "/'PASSWORD': os.getenv('DATABASE_PASSWORD'),/d" Backend/Miel/settings.py
+    sed -i "/'HOST': os.getenv('DATABASE_HOST'),/d" Backend/Miel/settings.py
+    sed -i "/'PORT': os.getenv('DATABASE_PORT'),/d" Backend/Miel/settings.py
 fi
 echo "settings.py обновлён!"
 
