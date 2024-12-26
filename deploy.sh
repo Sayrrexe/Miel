@@ -259,7 +259,6 @@ fi
 cd ..
 
 # === Запуск Docker ===
-cd ..
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
 
