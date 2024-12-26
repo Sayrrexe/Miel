@@ -33,6 +33,18 @@ read DJANGO_DEBUG
 echo "Введите DJANGO_ALLOWED_HOSTS (например: 127.0.0.1,localhost):"
 read DJANGO_ALLOWED_HOSTS
 
+echo "изменить настройки nginx на ip вашего сервера?"
+echo "1. нет (по умолчанию)"
+echo "2. да"
+read IP_CHOICE
+if [ "$IP_CHOICE" == "2" ]; then
+    echo "Введите IP"
+    read SERVER_IP
+
+else
+    echo "Пропуск."
+    SERVER_IP=""
+
 # === Выбор базы данных ===
 echo "Выберите базу данных (по умолчанию PostgreSQL):"
 echo "1. PostgreSQL (по умолчанию)"
@@ -61,7 +73,7 @@ if [ "$USE_POSTGRESQL" == "true" ]; then
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
 DJANGO_DEBUG=$DJANGO_DEBUG
-DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS
+DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS,$SERVER_IP
 DATABASE_NAME=$POSTGRES_DB
 DATABASE_USER=$POSTGRES_USER
 DATABASE_PASSWORD=$POSTGRES_PASSWORD
@@ -72,7 +84,7 @@ else
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
 DJANGO_DEBUG=$DJANGO_DEBUG
-DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS
+DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS,$SERVER_IP
 EOL
 fi
 echo ".env файл создан!"
@@ -116,7 +128,9 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
-      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log
+      - static_volume:/app/static  
+      - media_volume:/app/media 
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log    
     env_file:
       - ./Backend/Miel/.env
     ports:
@@ -156,9 +170,9 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/static
-      - media_volume:/app/media
-      - $CURRENT_DIR/Backend/staticfiles:/app/staticfiles
+      - static_volume:/app/static  
+      - media_volume:/app/media  
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log   
     depends_on:
       - frontend
       - backend
@@ -179,14 +193,15 @@ services:
     container_name: django_backend
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./Backend:/app
+      - ./Backend:/app  
+      - static_volume:/app/static  
+      - media_volume:/app/media   
       - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log
-      - $CURRENT_DIR/Backend/db.sqlite3:/app/db.sqlite3
+      - $CURRENT_DIR/Backend/db.sqlite3:/app/db.sqlite3 
     env_file:
       - ./Backend/Miel/.env
     ports:
       - "8000:8000"
-    depends_on: []
 
   frontend:
     build:
@@ -208,9 +223,9 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/static
-      - media_volume:/app/media
-      - $CURRENT_DIR/Backend/staticfiles:/app/staticfiles
+      - static_volume:/app/static  
+      - media_volume:/app/media   
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log 
     depends_on:
       - frontend
       - backend
@@ -228,23 +243,62 @@ cd Backend
 echo "Создаём директорию для логов..."
 mkdir -p logs
 touch logs/app.log
+cd ..
 
-echo "Настраиваем виртуальное окружение..."
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# === Настройка nginx ===
+cd nginx
 
-echo "Выполняем миграции..."
-python3 manage.py collectstatic --noinput
-python3 manage.py migrate
-
-# === Создание суперпользователя ===
-echo "Создание суперпользователя..."
-python3 manage.py createsuperuser
+if [ -n "$SERVER_IP" ]; then
+    echo "Обновляем конфигурацию NGINX с использованием IP сервера..."
+    sed -i "s/server_name localhost;/server_name $SERVER_IP;/" nginx.conf
+    echo "Конфигурация NGINX обновлена с server_name $SERVER_IP."
+else
+    echo "Используется конфигурация NGINX по умолчанию (server_name localhost)."
+fi
+cd ..
 
 # === Запуск Docker ===
 cd ..
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
 
-echo "Деплой завершён!"
+echo "Контейнеры запущены!"
+
+# === Ожидание готовности приложения ===
+echo "Ожидаем, пока бэкенд станет доступен..."
+sleep 10  # Можно увеличить время ожидания при необходимости
+
+# === Применение миграций и создание суперпользователя ===
+echo "Применяем миграции базы данных..."
+docker-compose exec backend python manage.py migrate
+docker-compose exec backend python manage.py collectstatic --noinput
+
+echo "Создаём суперпользователя..."
+# Читаем данные для суперпользователя
+echo "Введите имя пользователя для суперпользователя:"
+read SUPERUSER_NAME
+echo "Введите email для суперпользователя:"
+read SUPERUSER_EMAIL
+
+# Безопасный ввод пароля
+while true; do
+    echo "Введите пароль для суперпользователя:"
+    read -s SUPERUSER_PASSWORD
+    echo "Повторите пароль:"
+    read -s SUPERUSER_PASSWORD_CONFIRM
+    if [ "$SUPERUSER_PASSWORD" == "$SUPERUSER_PASSWORD_CONFIRM" ]; then
+        break
+    else
+        echo "Пароли не совпадают. Попробуйте снова."
+    fi
+done
+
+# Создаём суперпользователя с помощью manage.py
+docker-compose exec backend python manage.py createsuperuser --noinput --username "$SUPERUSER_NAME" --email "$SUPERUSER_EMAIL"
+
+# Устанавливаем пароль с помощью хелпера
+docker-compose exec backend python manage.py shell -c "from django.contrib.auth import get_user_model; User = get_user_model(); user = User.objects.get(username='$SUPERUSER_NAME'); user.set_password('$SUPERUSER_PASSWORD'); user.save()"
+
+echo "Суперпользователь создан успешно!"
+
+echo "Развёртывание завершено!"
