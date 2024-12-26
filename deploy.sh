@@ -93,18 +93,29 @@ echo ".env файл создан!"
 # === Обновление settings.py ===
 echo "Обновляем settings.py..."
 if [ "$USE_POSTGRESQL" == "true" ]; then
-    sed -i "s/'ENGINE': 'django.db.backends.sqlite3'/'ENGINE': 'django.db.backends.postgresql'/g" Backend/Miel/settings.py
+    # Удаляем старые строки с параметрами базы данных
+    sed -i "/'USER'/d" Backend/Miel/settings.py
+    sed -i "/'PASSWORD'/d" Backend/Miel/settings.py
+    sed -i "/'HOST'/d" Backend/Miel/settings.py
+    sed -i "/'PORT'/d" Backend/Miel/settings.py
+
+    # Обновляем движок базы данных
+    sed -i "s|'ENGINE': 'django.db.backends.sqlite3'|'ENGINE': 'django.db.backends.postgresql'|g" Backend/Miel/settings.py
     sed -i "s|BASE_DIR / 'db.sqlite3'|os.getenv('DATABASE_NAME')|g" Backend/Miel/settings.py
+
+    # Добавляем новые параметры
     sed -i "/'NAME': os.getenv('DATABASE_NAME')/a \        'USER': os.getenv('DATABASE_USER'),\n        'PASSWORD': os.getenv('DATABASE_PASSWORD'),\n        'HOST': os.getenv('DATABASE_HOST'),\n        'PORT': os.getenv('DATABASE_PORT')," Backend/Miel/settings.py
 else
-    sed -i "s/'ENGINE': 'django.db.backends.postgresql'/'ENGINE': 'django.db.backends.sqlite3'/g" Backend/Miel/settings.py
+    # Возврат к SQLite и удаление параметров PostgreSQL
+    sed -i "s|'ENGINE': 'django.db.backends.postgresql'|'ENGINE': 'django.db.backends.sqlite3'|g" Backend/Miel/settings.py
     sed -i "s|os.getenv('DATABASE_NAME')|BASE_DIR / 'db.sqlite3'|g" Backend/Miel/settings.py
-    sed -i "/'USER': os.getenv('DATABASE_USER'),/d" Backend/Miel/settings.py
-    sed -i "/'PASSWORD': os.getenv('DATABASE_PASSWORD'),/d" Backend/Miel/settings.py
-    sed -i "/'HOST': os.getenv('DATABASE_HOST'),/d" Backend/Miel/settings.py
-    sed -i "/'PORT': os.getenv('DATABASE_PORT'),/d" Backend/Miel/settings.py
+    sed -i "/'USER'/d" Backend/Miel/settings.py
+    sed -i "/'PASSWORD'/d" Backend/Miel/settings.py
+    sed -i "/'HOST'/d" Backend/Miel/settings.py
+    sed -i "/'PORT'/d" Backend/Miel/settings.py
 fi
 echo "settings.py обновлён!"
+
 
 # === Проверка docker-compose.yml ===
 if [ -f "docker-compose.yml" ]; then
