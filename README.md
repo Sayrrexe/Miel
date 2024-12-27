@@ -50,6 +50,7 @@ cd Miel/
 
 1. Создайте виртуальное окружение и установите зависимости:
    ```bash
+   cd Backend
    python3 -m venv .venv
    source .venv/bin/activate
    pip install -r requirements.txt
@@ -63,7 +64,50 @@ cd Miel/
    cd ..
    ```
 
-3. Выполните миграции и создайте суперпользователя:
+3. Создайте файлы с секретами:
+   ```bash
+   cd Backend/Miel
+   ```
+.env
+```env
+# Django Settings /Miel/Backend/Miel/.env
+DJANGO_SECRET_KEY='your_secret_key_here'
+DJANGO_DEBUG=False
+DJANGO_ALLOWED_HOSTS=127.0.0.1,localhost,your_server_ip
+
+# Database Settings
+DATABASE_NAME=Mieldb
+DATABASE_USER=Mieluser
+DATABASE_PASSWORD=password
+DATABASE_HOST=db
+DATABASE_PORT=5432
+
+```
+
+db.env
+```env
+# Django Settings /Miel/Backend/Miel/db.env
+POSTGRES_DB=Mieldb
+POSTGRES_USER=Mieluser
+POSTGRES_PASSWORD=228228
+```
+уточнение структуры:
+```
+your-repo/
+├── Backend/
+│   ├── Miel/
+│   │   ├── __init__.py
+│   │   ├── settings.py
+│   │   ├── urls.py
+│   │   ├── wsgi.py
+│   │   ├── .env <-- для setting.py
+│   │   ├── db.env < -- для базы данных
+│   │   └── ... (другие файлы и директории)
+│   ├── manage.py
+│   └── ... (другие файлы и директории)
+```
+
+4. Выполните миграции и создайте суперпользователя:
    ```bash
    python3 manage.py collectstatic
    python3 manage.py migrate
@@ -75,7 +119,7 @@ cd Miel/
    - Email: `root@root.com`
    - Пароль: `root`
 
-4. Запустите проект через Docker:
+5. Запустите проект через Docker:
    ```bash
    cd ..
    docker-compose up -d --build
