@@ -89,7 +89,7 @@ db.env
 # Django Settings /Miel/Backend/Miel/db.env
 POSTGRES_DB=Mieldb
 POSTGRES_USER=Mieluser
-POSTGRES_PASSWORD=228228
+POSTGRES_PASSWORD=password
 ```
 уточнение структуры:
 ```
