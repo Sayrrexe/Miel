@@ -8,12 +8,16 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
+      - static_volume:/app/static  
+      - media_volume:/app/media
+      - ./Backend/logs/app.log:/app/logs/app.log
     env_file:
       - ./Backend/Miel/.env
     ports:
       - "8000:8000"
     depends_on:
       - db
+    restart: unless-stopped
 
   frontend:
     build:
@@ -21,24 +25,23 @@ services:
       dockerfile: Dockerfile
     container_name: nextjs_frontend
     environment:
-      - NODE_ENV=production
-      - NEXT_PUBLIC_API_URL=https://your_domain.com/api/
+      - NODE_ENV=development
     ports:
       - "3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
 
   db:
     image: postgres:15
     container_name: postgres_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=your_db_name
-      - POSTGRES_USER=your_db_user
-      - POSTGRES_PASSWORD=your_db_password
+    env_file:
+      - ./Backend/Miel/db.env
     ports:
       - "5432:5432"
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -48,11 +51,12 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/static
-      - media_volume:/app/media
+      - static_volume:/app/static  
+      - media_volume:/app/media    
     depends_on:
       - frontend
       - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:

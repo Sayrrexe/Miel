@@ -61,7 +61,7 @@ class Candidate(models.Model):
         updated_at (datetime): Дата и время последнего обновления записи (обновляется автоматически).
     """
 
-    is_archive = models.BooleanField(default=True)
+    is_archive = models.BooleanField(default=False)
     name = models.CharField(max_length=16)
     surname = models.CharField(max_length=64)
     patronymic = models.CharField(max_length=32, null=True, blank=True)
