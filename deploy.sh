@@ -74,6 +74,7 @@ if [ "$USE_POSTGRESQL" == "true" ]; then
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
 DJANGO_DEBUG=$DJANGO_DEBUG
+
 DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS,$SERVER_IP
 DATABASE_NAME=$POSTGRES_DB
 DATABASE_USER=$POSTGRES_USER
@@ -110,7 +111,6 @@ else
     sed -i "/'PORT': os.getenv('DATABASE_PORT'),/d" Backend/Miel/settings.py
 fi
 echo "settings.py обновлён!"
-
 
 # === Проверка docker-compose.yml ===
 if [ -f "docker-compose.yml" ]; then
