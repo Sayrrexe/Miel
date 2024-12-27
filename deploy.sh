@@ -81,7 +81,7 @@ DATABASE_PASSWORD=$POSTGRES_PASSWORD
 DATABASE_HOST=db
 DATABASE_PORT=5432
 EOL
-cat <<EOL > Backend/Miel/db.env
+    cat <<EOL > Backend/Miel/db.env
 POSTGRES_DB=$POSTGRES_DB
 POSTGRES_USER=$POSTGRES_USER
 POSTGRES_PASSWORD=$POSTGRES_PASSWORD
@@ -267,24 +267,46 @@ else
 fi
 cd ..
 
+# === Остановка и удаление существующих контейнеров и томов данных ===
+echo "Останавливаем и удаляем существующие контейнеры и тома данных..."
+docker-compose down -v
+
 # === Запуск Docker ===
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
 
 echo "Контейнеры запущены!"
 
-# === Ожидание готовности приложения ===
-echo "Ожидаем, пока бэкенд станет доступен..."
-sleep 10  # Можно увеличить время ожидания при необходимости
+# === Развёртывание базы данных ===
+echo "Обновляем настраиваем базу данных..."
+if [ "$USE_POSTGRESQL" == "true" ]; then
+  # === Ожидание готовности приложения ===
+  echo "Ожидаем, пока бэкенд станет доступен..."
+  sleep 30  # Можно увеличить время ожидания при необходимости
 
-# === Применение миграций и создание суперпользователя ===
-echo "Применяем миграции базы данных..."
-docker exec -it django_backend python manage.py migrate
-docker exec -it django_backend python manage.py collectstatic --noinput
+  # === Применение миграций и создание суперпользователя ===
+  echo "Применяем миграции базы данных..."
+  docker exec -it django_backend python manage.py migrate
+  docker exec -it django_backend python manage.py collectstatic --noinput
 
-echo "Создаём суперпользователя..."
-docker exec -it django_backend python manage.py createsuperuser
-echo "Суперпользователь создан успешно!"
+  echo "Создаём суперпользователя..."
+  docker exec -it django_backend python manage.py createsuperuser
+  echo "Суперпользователь создан успешно!"
+else
+  echo "Настраиваем базу данных sqlite..."
+  cd Backend
+  rm -rf db.sqlite3
+  echo "Запускаем виртуальное окружение..."
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip3 install -r requirements.txt
+  echo "Применяем миграции..."
+  python manage.py migrate
+  python manage.py collectstatic --noinput
+  python manage.py createsuperuser
+  rm -rf .venv
+  cd ..
+fi
 
 # === Конец ===
 
