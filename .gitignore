@@ -192,6 +192,7 @@ venv/
 # Secrets and config
 *.env
 .env
+db.env
 settings_local.py
 
 # IDE and editor files

@@ -30,8 +30,21 @@ read DJANGO_SECRET_KEY
 echo "Введите значение DJANGO_DEBUG (True/False):"
 read DJANGO_DEBUG
 
-echo "Введите DJANGO_ALLOWED_HOSTS (например: 127.0.0.1,localhost):"
-read DJANGO_ALLOWED_HOSTS
+echo "хотите добавить ALLOWED HOSTS: 127.0.0.1,localhost):"
+echo "1. да (по умолчанию)"
+echo "2. нет"
+read CHOICE_HOSTS
+if [ "$CHOICE_HOSTS" == "1" ]; then
+    echo "Добавляем..."
+    DJANGO_ALLOWED_HOSTS='127.0.0.1,localhost'
+
+else
+    echo "Пропуск."
+    DJANGO_ALLOWED_HOSTS=""
+fi
+
+echo "введите iP вашего сервера ( как в ssh )?"
+read SERVER_IP
 
 # === Выбор базы данных ===
 echo "Выберите базу данных (по умолчанию PostgreSQL):"
@@ -61,18 +74,24 @@ if [ "$USE_POSTGRESQL" == "true" ]; then
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
 DJANGO_DEBUG=$DJANGO_DEBUG
-DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS
+
+DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS,$SERVER_IP
 DATABASE_NAME=$POSTGRES_DB
 DATABASE_USER=$POSTGRES_USER
 DATABASE_PASSWORD=$POSTGRES_PASSWORD
 DATABASE_HOST=db
 DATABASE_PORT=5432
 EOL
+    cat <<EOL > Backend/Miel/db.env
+POSTGRES_DB=$POSTGRES_DB
+POSTGRES_USER=$POSTGRES_USER
+POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+EOL
 else
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
 DJANGO_DEBUG=$DJANGO_DEBUG
-DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS
+DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS,$SERVER_IP
 EOL
 fi
 echo ".env файл создан!"
@@ -116,13 +135,16 @@ services:
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - ./Backend:/app
-      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log
+      - static_volume:/app/static  
+      - media_volume:/app/media
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log 
     env_file:
       - ./Backend/Miel/.env
     ports:
       - "8000:8000"
     depends_on:
       - db
+    restart: unless-stopped
 
   frontend:
     build:
@@ -135,18 +157,18 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
 
   db:
     image: postgres:15
     container_name: postgres_db
     volumes:
       - postgres_data:/var/lib/postgresql/data/
-    environment:
-      - POSTGRES_DB=$POSTGRES_DB
-      - POSTGRES_USER=$POSTGRES_USER
-      - POSTGRES_PASSWORD=$POSTGRES_PASSWORD
+    env_file:
+      - ./Backend/Miel/db.env
     ports:
       - "5432:5432"
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -156,12 +178,12 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/static
-      - media_volume:/app/media
-      - $CURRENT_DIR/Backend/staticfiles:/app/staticfiles
+      - static_volume:/app/static  
+      - media_volume:/app/media    
     depends_on:
       - frontend
       - backend
+    restart: unless-stopped
 
 volumes:
   postgres_data:
@@ -179,14 +201,16 @@ services:
     container_name: django_backend
     command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
     volumes:
-      - ./Backend:/app
+      - ./Backend:/app  
+      - static_volume:/app/static  
+      - media_volume:/app/media   
       - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log
-      - $CURRENT_DIR/Backend/db.sqlite3:/app/db.sqlite3
+      - $CURRENT_DIR/Backend/db.sqlite3:/app/db.sqlite3 
     env_file:
       - ./Backend/Miel/.env
     ports:
       - "8000:8000"
-    depends_on: []
+    restart: unless-stopped
 
   frontend:
     build:
@@ -199,6 +223,7 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    restart: unless-stopped
 
   nginx:
     image: nginx:latest
@@ -208,9 +233,9 @@ services:
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/static
-      - media_volume:/app/media
-      - $CURRENT_DIR/Backend/staticfiles:/app/staticfiles
+      - static_volume:/app/static  
+      - media_volume:/app/media   
+      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log 
     depends_on:
       - frontend
       - backend
@@ -228,23 +253,60 @@ cd Backend
 echo "Создаём директорию для логов..."
 mkdir -p logs
 touch logs/app.log
+cd ..
 
-echo "Настраиваем виртуальное окружение..."
-python3 -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+# === Настройка nginx ===
+cd nginx
 
-echo "Выполняем миграции..."
-python3 manage.py collectstatic --noinput
-python3 manage.py migrate
+if [ -n "$SERVER_IP" ]; then
+    echo "Обновляем конфигурацию NGINX с использованием IP сервера..."
+    sed -i "s/server_name localhost;/server_name $SERVER_IP;/" nginx.conf
+    echo "Конфигурация NGINX обновлена с server_name $SERVER_IP."
+else
+    echo "Используется конфигурация NGINX по умолчанию (server_name localhost)."
+fi
+cd ..
 
-# === Создание суперпользователя ===
-echo "Создание суперпользователя..."
-python3 manage.py createsuperuser
+# === Остановка и удаление существующих контейнеров и томов данных ===
+echo "Останавливаем и удаляем существующие контейнеры и тома данных..."
+docker-compose down -v
 
 # === Запуск Docker ===
-cd ..
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
 
-echo "Деплой завершён!"
+echo "Контейнеры запущены!"
+
+# === Развёртывание базы данных ===
+echo "Обновляем настраиваем базу данных..."
+if [ "$USE_POSTGRESQL" == "true" ]; then
+  # === Ожидание готовности приложения ===
+  echo "Ожидаем, пока бэкенд станет доступен..."
+  sleep 30  # Можно увеличить время ожидания при необходимости
+
+  # === Применение миграций и создание суперпользователя ===
+  echo "Применяем миграции базы данных..."
+  docker exec -it django_backend python manage.py migrate
+  docker exec -it django_backend python manage.py collectstatic --noinput
+
+  echo "Создаём суперпользователя..."
+  docker exec -it django_backend python manage.py createsuperuser
+  echo "Суперпользователь создан успешно!"
+else
+  echo "Настраиваем базу данных sqlite..."
+  cd Backend
+  rm -rf db.sqlite3
+  echo "Запускаем виртуальное окружение..."
+  python3 -m venv .venv
+  source .venv/bin/activate
+  pip3 install -r requirements.txt
+  echo "Применяем миграции..."
+  python manage.py migrate
+  python manage.py createsuperuser
+  rm -rf .venv
+  cd ..
+fi
+
+# === Конец ===
+
+echo "Развёртывание завершено!"
