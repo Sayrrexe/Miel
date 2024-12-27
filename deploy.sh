@@ -302,7 +302,6 @@ else
   pip3 install -r requirements.txt
   echo "Применяем миграции..."
   python manage.py migrate
-  python manage.py collectstatic --noinput
   python manage.py createsuperuser
   rm -rf .venv
   cd ..
