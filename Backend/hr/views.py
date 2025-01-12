@@ -568,7 +568,7 @@ class ArchiveCandidateInfoView(ListAPIView):
         return queryset
     
 class ArchiveBatchRestoreView(APIView):
-    permission_classes = [IsAdministrator]  # Доступ только для администраторов
+    permission_classes = [IsAdministrator]  
 
     def post(self, request, *args, **kwargs):
         candidate_ids = request.data.get('candidate_ids', '')
