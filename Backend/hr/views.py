@@ -14,23 +14,17 @@ from rest_framework import status
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from .permissions import IsAdministrator, IsSupervisor
 from . import models
-from .utils import restore_archived_candidates, update_all_candidate_statuses, update_one_status, write_off_the_quota
-from .serializers import (AdminInvitationSerializer, ArchiveCandidateSerializer, CandidateInfoSerializer, FavoriteSerializer,
-                          InfoAboutAdmin, InvitationStatisticsSerializer, MonthlyStatisticSerializer, 
-                          TodoSerializer,  
-                          InfoAboutSupervisor,             
-                          CandidateSerializer, 
-                          InvitationSerializer,
-                          SupervisorSerializer,
-                          OfficeSerializer)
+from . import serializers
+
+from .permissions import IsAdministrator, IsSupervisor
+from .utils import (restore_archived_candidates, 
+                    update_all_candidate_statuses, 
+                    update_one_status, write_off_the_quota)
 
 
-# Create your views here.
 def index(request):
     return redirect('/admin/')
-
 
 class GetUserInfoView(APIView):
     permission_classes = [IsAuthenticated]
@@ -40,7 +34,7 @@ class GetUserInfoView(APIView):
             # Проверяем, является ли пользователь админа
             queryset = models.Administrator.objects.filter(user=request.user)
             if queryset.exists():
-                serializer = InfoAboutAdmin(queryset, many=True)
+                serializer = serializers.InfoAboutAdmin(queryset, many=True)
                 return Response(serializer.data)
         except models.Administrator.DoesNotExist:
             pass  
@@ -50,7 +44,7 @@ class GetUserInfoView(APIView):
             # Проверяем, является ли пользователь Supervisor
             queryset = models.Supervisor.objects.filter(user=request.user)
             if queryset.exists():
-                serializer = InfoAboutSupervisor(queryset, many=True)
+                serializer = serializers.InfoAboutSupervisor(queryset, many=True)
                 return Response(serializer.data)
         except models.Supervisor.DoesNotExist:
             pass  
@@ -60,7 +54,7 @@ class GetUserInfoView(APIView):
 
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all()
-    serializer_class = TodoSerializer
+    serializer_class = serializers.TodoSerializer
     permission_classes = [IsAuthenticated]
 
     def get_queryset(self):
@@ -77,7 +71,7 @@ class TodoViewSet(ModelViewSet):
 
 class InvitationAPIView(APIView):
     permission_classes = [IsSupervisor]
-    serializer_class = InvitationSerializer
+    serializer_class = serializers.InvitationSerializer
     model = models.Invitation
     
     def get(self, request):
@@ -102,12 +96,8 @@ class InvitationAPIView(APIView):
         elif end_date:
             queryset = queryset.filter(updated_at__lte=end_date)
         
-        
-        
-    
-        serializer = InvitationSerializer(queryset, many=True)
+        serializer = serializers.InvitationSerializer(queryset, many=True)
         return Response(serializer.data)
-
     
     def post(self, request):
         supervisor = models.Supervisor.objects.filter(user=self.request.user).first()
@@ -134,7 +124,7 @@ class InvitationAPIView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        serializer = InvitationSerializer(data=request.data)
+        serializer = serializers.InvitationSerializer(data=request.data)
         
         if serializer.is_valid():
             cause = f'Приглашение кандидата {candidate_id}'
@@ -149,7 +139,7 @@ class InvitationAPIView(APIView):
     
     
 class FavoriteViewSet(ModelViewSet):
-    serializer_class = FavoriteSerializer
+    serializer_class = serializers.FavoriteSerializer
     permission_classes = [IsSupervisor]
 
     def get_queryset(self):
@@ -157,6 +147,7 @@ class FavoriteViewSet(ModelViewSet):
 
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+        
         
 class TodoStatsView(APIView):
     permission_classes = [IsAuthenticated]
@@ -222,10 +213,11 @@ class TodoStatsView(APIView):
 
         return Response(stats, status=status.HTTP_200_OK)
     
+    
 class SupervisorViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all()
-    serializer_class = SupervisorSerializer
+    serializer_class = serializers.SupervisorSerializer
     
     def get_queryset(self):
         """
@@ -270,10 +262,11 @@ class SupervisorViewSet(ModelViewSet):
         instance.user.save()
         instance.delete()
 
+
 class CandidateViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
     queryset = models.Candidate.objects.all()
-    serializer_class = CandidateSerializer
+    serializer_class = serializers.CandidateSerializer
 
     def get_queryset(self):
         """
@@ -293,11 +286,12 @@ class CandidateViewSet(ModelViewSet):
 
         return queryset
     
+    
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
     queryset = models.Candidate.objects.filter(is_archive=False, is_free = True)
     model = models.Candidate
-    serializer_class = CandidateInfoSerializer
+    serializer_class = serializers.CandidateInfoSerializer
     
     def get_queryset(self):
         """
@@ -312,16 +306,12 @@ class CandidateInfoView(ListAPIView):
         age_max = self.request.query_params.get('age_max')
         courses = self.request.query_params.get('courses')
 
-
-
         if age:
             queryset = queryset.filter(age=age)
             
         if age_min and age_max:
             queryset = queryset.filter(age__gte=age_min, age__lte=age_max)
             
-
-
         if courses:
             course_list = courses.split(',')
             for course in course_list:
@@ -333,16 +323,14 @@ class CandidateInfoView(ListAPIView):
                     queryset = queryset.filter(course_mortgage="completed")
                 elif course == "course_taxation":
                     queryset = queryset.filter(course_taxation="completed")
-
         # Сортировка по дате создания
         if by_new:
             if by_new.lower() == 'true':
                 queryset = queryset.order_by('-created_at')  
             elif by_new.lower() == 'false':
                 queryset = queryset.order_by('created_at')  
-
         return queryset
-    
+
     def get_serializer_context(self):
         """
         Передаём текущий запрос в контекст сериализатора.
@@ -351,21 +339,19 @@ class CandidateInfoView(ListAPIView):
         context.update({'request': self.request})
         return context
 
+
 class MonthlyStatisticView(APIView):
     permission_classes = [IsSupervisor]
 
     def get(self, request, *args, **kwargs):
         user = request.user
         supervisor = models.Supervisor.objects.get(user=user)
-
         try:
             office = supervisor.office
         except models.Supervisor.DoesNotExist:
             return Response({"detail": "Пользователь не относится к офису!"}, status=status.HTTP_400_BAD_REQUEST)
-
         # Фильтрация по году или последние 10 месяцев по умолчанию
         year = request.query_params.get('year')
-        
         if year:
             try:
                 start_date = datetime.strptime(f"{year}-01-01", "%Y-%m-%d")
@@ -377,7 +363,6 @@ class MonthlyStatisticView(APIView):
             start_date = end_date - relativedelta(months=9)
 
         statistics = []
-
         # Генерация статистики по месяцам
         current_date = start_date
         while current_date <= end_date:
@@ -404,16 +389,14 @@ class MonthlyStatisticView(APIView):
 
             current_date += relativedelta(months=1)
 
-        serializer = MonthlyStatisticSerializer(statistics, many=True)
+        serializer = serializers.MonthlyStatisticSerializer(statistics, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
-
-
 
 
 class OfficeViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
     queryset = models.Office.objects.all()
-    serializer_class = OfficeSerializer
+    serializer_class = serializers.OfficeSerializer
 
     def get_queryset(self):
         """
@@ -427,11 +410,12 @@ class OfficeViewSet(ModelViewSet):
 
         return queryset
     
+    
 class InvitationStatisticsViewSet(ListAPIView):
     permission_classes = [IsAdministrator]
     queryset = models.Invitation.objects.filter()
     model = models.Invitation
-    serializer_class = InvitationStatisticsSerializer
+    serializer_class = serializers.InvitationStatisticsSerializer
     
     def get_queryset(self):
         """
@@ -452,6 +436,7 @@ class InvitationStatisticsViewSet(ListAPIView):
 
         return queryset
     
+    
 class CandidateInvitationsView(APIView):
     permission_classes = [IsAdministrator]  # Только администратор может запрашивать данные
 
@@ -462,7 +447,7 @@ class CandidateInvitationsView(APIView):
             return Response({"detail": "Кандидат не найден!"}, status=status.HTTP_404_NOT_FOUND)
 
         invitations = models.Invitation.objects.filter(candidate=candidate)
-        serializer = AdminInvitationSerializer(invitations, many=True)
+        serializer = serializers.AdminInvitationSerializer(invitations, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
     
     
@@ -538,7 +523,7 @@ class AdminMonthlyStatisticView(APIView):
 
             current_date += relativedelta(months=1)
 
-        serializer = MonthlyStatisticSerializer(statistics, many=True)
+        serializer = serializers.MonthlyStatisticSerializer(statistics, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
         
@@ -546,7 +531,7 @@ class ArchiveCandidateInfoView(ListAPIView):
     permission_classes = [IsAdministrator]
     queryset = models.Candidate.objects.filter(is_archive=True)
     model = models.Candidate
-    serializer_class = ArchiveCandidateSerializer
+    serializer_class = serializers.ArchiveCandidateSerializer
     
     def get_queryset(self):
         """
@@ -566,6 +551,7 @@ class ArchiveCandidateInfoView(ListAPIView):
             queryset = queryset.filter(updated_at__lte=end_date)
 
         return queryset
+    
     
 class ArchiveBatchRestoreView(APIView):
     permission_classes = [IsAdministrator]  
@@ -588,6 +574,7 @@ class ArchiveBatchRestoreView(APIView):
             return Response({"detail": message}, status=status.HTTP_200_OK)
         else:
             return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
+       
         
 class LinkInfoView(APIView):
     permission_classes = [IsAuthenticated]

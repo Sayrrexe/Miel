@@ -1,8 +1,4 @@
-from django.contrib.auth import authenticate, login, logout, get_user_model
-from django.shortcuts import render, redirect
-from django.views import View
-from django.contrib import messages
-from django.conf import settings
+from django.contrib.auth import get_user_model
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.authtoken.models import Token
