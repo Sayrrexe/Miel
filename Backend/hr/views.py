@@ -34,7 +34,7 @@ class GetUserInfoView(APIView):
             # Проверяем, является ли пользователь админа
             queryset = models.Administrator.objects.filter(user=request.user)
             if queryset.exists():
-                serializer = serializers.InfoAboutAdmin(queryset, many=True)
+                serializer = serializers.InfoAboutAdmin(queryset, many=True, context={'request': request})
                 return Response(serializer.data)
         except models.Administrator.DoesNotExist:
             pass  
@@ -44,7 +44,7 @@ class GetUserInfoView(APIView):
             # Проверяем, является ли пользователь Supervisor
             queryset = models.Supervisor.objects.filter(user=request.user)
             if queryset.exists():
-                serializer = serializers.InfoAboutSupervisor(queryset, many=True)
+                serializer = serializers.InfoAboutSupervisor(queryset, many=True, context={'request': request})
                 return Response(serializer.data)
         except models.Supervisor.DoesNotExist:
             pass  
@@ -438,7 +438,7 @@ class InvitationStatisticsViewSet(ListAPIView):
     
     
 class CandidateInvitationsView(APIView):
-    permission_classes = [IsAdministrator]  # Только администратор может запрашивать данные
+    permission_classes = [IsAdministrator] 
 
     def get(self, request, id, *args, **kwargs):
         try:
