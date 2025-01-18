@@ -72,24 +72,24 @@ WSGI_APPLICATION = 'Miel.wsgi.application'
 
 # Database
 # postgresql
-#DATABASES = {
-#    'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': os.getenv('DATABASE_NAME'),
-#        'USER': os.getenv('DATABASE_USER'),
-#        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
-#        'HOST': os.getenv('DATABASE_HOST'),
-#        'PORT': os.getenv('DATABASE_PORT'),
-#    }
-#}
-
-# sqlite3
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': os.getenv('DATABASE_NAME'),
+        'USER': os.getenv('DATABASE_USER'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD'),
+        'HOST': os.getenv('DATABASE_HOST'),
+        'PORT': os.getenv('DATABASE_PORT'),
     }
 }
+
+# sqlite3
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': 'db.sqlite3',
+#    }
+#}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
