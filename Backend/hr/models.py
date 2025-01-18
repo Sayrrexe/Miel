@@ -9,6 +9,7 @@ from datetime import date, timedelta
 class CustomUser(AbstractUser):
     patronymic = models.CharField(max_length=32, verbose_name='Отчество', null=True, blank=True)
     phone = models.CharField(max_length=15, verbose_name="Номер телефона", blank=True, null=True)
+    photo = models.ImageField(upload_to='avatars/users/', null=True, blank=True)
     
     def get_full_name(self):
         return f'{self.last_name} {self.first_name} {self.patronymic}'
@@ -67,14 +68,14 @@ class Candidate(models.Model):
     patronymic = models.CharField(max_length=32, null=True, blank=True)
     birth = models.DateField(null=True, blank=True)
     education = models.CharField(max_length=128, null=True, blank=True)
-    photo = models.CharField(max_length=128, null=True, blank=True)
+    photo = models.ImageField(upload_to='avatars/candidates/', null=True, blank=True)
 
     country = models.CharField(max_length=32, default="Россия")
     city = models.CharField(max_length=32)
 
     email = models.EmailField(null=True, blank=True)
     phone = models.CharField(max_length=16)
-    resume = models.CharField(max_length=128)
+    resume = models.CharField(max_length=128, null=True, blank=True)
 
     is_free = models.BooleanField(default=True)
     office = models.ForeignKey(

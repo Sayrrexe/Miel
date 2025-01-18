@@ -71,6 +71,7 @@ TEMPLATES = [
 WSGI_APPLICATION = 'Miel.wsgi.application'
 
 # Database
+# postgresql
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
@@ -81,6 +82,14 @@ DATABASES = {
         'PORT': os.getenv('DATABASE_PORT'),
     }
 }
+
+# sqlite3
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': 'db.sqlite3',
+#    }
+#}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [

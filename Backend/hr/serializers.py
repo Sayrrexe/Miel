@@ -8,7 +8,9 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
     role = serializers.CharField(default="2", read_only=True)
     full_name = serializers.SerializerMethodField()
     email = serializers.EmailField(source='user.email', read_only=True)
-    phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
+    phone = serializers.CharField(source='user.phone', read_only=True)  
+    photo = serializers.ImageField(source='user.photo', read_only=True)
+    
     office_name = serializers.CharField(source='office.name', read_only=True)
     office_location = serializers.CharField(source='office.location', read_only=True)
     office_quota = serializers.CharField(source='office.quota', read_only=True)
@@ -18,14 +20,15 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
         model = Supervisor
         fields = [
             'role',
-            'full_name',    # Полное имя пользователя
-            'email',        # Email пользователя
-            'phone',        # Номер телефона пользователя
-            'office_name',  # Название офиса
-            'office_location',  # Локация офиса
-            'department',   # Подразделение
+            'full_name',    
+            'email',        
+            'phone', 
+            'photo',       
+            'office_name', 
+            'office_location',  
+            'department',   
             'office_quota',
-            'office_used_quota',# 
+            'office_used_quota', 
         ]
 
     def get_full_name(self, obj):
@@ -34,24 +37,33 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
 class InfoAboutAdmin(serializers.ModelSerializer):
     role = serializers.CharField(default="1", read_only=True)
     full_name = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
+    
     email = serializers.EmailField(source='user.email', read_only=True)
-    phone = serializers.CharField(source='user.phone', read_only=True)  # Если у пользователя есть поле телефона
+    phone = serializers.CharField(source='user.phone', read_only=True)  
 
     class Meta:
         model = Supervisor
         fields = [
             'role',
-            'full_name',    # Полное имя пользователя
-            'email',        # Email пользователя
-            'phone',        # Номер телефона пользователя
+            'full_name', 
+            'photo',  
+            'email',       
+            'phone',      
         ]
 
     def get_full_name(self, obj):
         return obj.user.get_full_name()
+    
+    def get_photo(self, obj):
+        request = self.context.get('request')
+        if obj.user.photo and request:
+            return request.build_absolute_uri(obj.user.photo.url)
+        return None
 
 
 class TodoSerializer(serializers.ModelSerializer):
-    user = serializers.StringRelatedField(read_only=True)  # Отображение имени пользователя вместо ID
+    user = serializers.StringRelatedField(read_only=True)  
 
     class Meta:
         model = Todo
@@ -98,11 +110,12 @@ class InvitationSerializer(serializers.ModelSerializer):
     
         
 class UserSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, required=False)  # Оставляем для возможности смены пароля
+    password = serializers.CharField(write_only=True, required=False)  
+    photo = serializers.ImageField(required=False, allow_null=True)
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone']
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone','photo']
 
 class SupervisorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
@@ -230,8 +243,6 @@ class OfficeSerializer(serializers.ModelSerializer):
         fields = "__all__"
 
 
-        
-
 class FavoriteSerializer(serializers.ModelSerializer):
     candidate = CandidateInfoSerializer()
     class Meta:
@@ -283,7 +294,6 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
     def get_office_name(self, obj):
         return obj.office.name
     
-    
 class ArchiveCandidateSerializer(serializers.ModelSerializer):
     bio = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
@@ -295,6 +305,7 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
                 'id',
                 'updated_at',
                 'bio',
+                'photo',
                 'city',
                 'phone',
                 'email',
