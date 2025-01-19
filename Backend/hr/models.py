@@ -223,6 +223,7 @@ class Office(models.Model):
 
     name = models.CharField(max_length=255, verbose_name="Название офиса")
     location = models.CharField(max_length=255, verbose_name="Местоположение")
+    phone = models.CharField(max_length=15, null=True, blank=True)
     quota = models.PositiveIntegerField(verbose_name="Базовая квота")  # Стартовая квота
     used_quota = models.PositiveIntegerField(default=0, verbose_name="Использованная квота")
 
