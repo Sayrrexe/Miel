@@ -1,4 +1,5 @@
 from datetime import date
+from os import read
 
 from rest_framework import serializers
 
@@ -67,7 +68,7 @@ class TodoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Todo
-        fields = ['id', 'user', 'task', 'due_date']
+        fields = ['id', "user",'task','due_date','is_complete','is_deleted','date_creation']
         read_only_fields = ['user']
 
 
@@ -244,15 +245,17 @@ class OfficeSerializer(serializers.ModelSerializer):
 
 
 class FavoriteSerializer(serializers.ModelSerializer):
-    candidate = CandidateInfoSerializer()
+    candidate_info = CandidateInfoSerializer(source = 'candidate', read_only=True)
+    
     class Meta:
         model = Favorite
         fields = [
                     'id',
                     'candidate', 
+                    'candidate_info',
                     'created_at',
                   ]  
-        read_only_fields = ['created_at']
+        read_only_fields = ['created_at', 'candidate_info']
 
 
 class InvitationStatisticsSerializer(serializers.ModelSerializer):

@@ -61,7 +61,7 @@ class TodoViewSet(ModelViewSet):
         """
         Переопределяем метод для фильтрации задач по текущему пользователю.
         """
-        return models.Todo.objects.filter(user=self.request.user)
+        return models.Todo.objects.filter(user=self.request.user, is_visible=True)
 
     def perform_create(self, serializer):
         """
@@ -106,6 +106,8 @@ class InvitationAPIView(APIView):
         
         
         office = supervisor.office
+        if office == None:
+            return Response({'error': 'Office not found'}, status=status.HTTP_400_BAD_REQUEST)
 
         candidate_id = request.data.get('candidate')
         if not candidate_id:
@@ -307,10 +309,19 @@ class CandidateInfoView(ListAPIView):
         courses = self.request.query_params.get('courses')
 
         if age:
-            queryset = queryset.filter(age=age)
+            year = datetime.now().year - int(age)
+            queryset = queryset.filter(birth__year=year)
             
         if age_min and age_max:
-            queryset = queryset.filter(age__gte=age_min, age__lte=age_max)
+            year_min = datetime.now().year - int(age_min)
+            year_max = datetime.now().year - int(age_max)
+            queryset = queryset.filter(birth__year__lte=year_min, birth__year__gte=year_max)
+        elif age_min:
+            year_min = datetime.now().year - int(age_min)
+            queryset = queryset.filter(birth__year__lte=year_min)
+        elif age_max:
+            year_max = datetime.now().year - int(age_max)
+            queryset = queryset.filter(birth__year__gte=year_max)
             
         if courses:
             course_list = courses.split(',')
@@ -323,6 +334,7 @@ class CandidateInfoView(ListAPIView):
                     queryset = queryset.filter(course_mortgage="completed")
                 elif course == "course_taxation":
                     queryset = queryset.filter(course_taxation="completed")
+                    
         # Сортировка по дате создания
         if by_new:
             if by_new.lower() == 'true':
