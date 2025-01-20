@@ -99,9 +99,7 @@ echo ".env файл создан!"
 # === Обновление settings.py ===
 echo "Обновляем settings.py..."
 if [ "$USE_POSTGRESQL" == "true" ]; then
-    sed -i "s/'ENGINE': 'django.db.backends.sqlite3'/'ENGINE': 'django.db.backends.postgresql'/g" Backend/Miel/settings.py
-    sed -i "s|BASE_DIR / 'db.sqlite3'|os.getenv('DATABASE_NAME')|g" Backend/Miel/settings.py
-    sed -i "/'NAME': os.getenv('DATABASE_NAME')/a \        'USER': os.getenv('DATABASE_USER'),\n        'PASSWORD': os.getenv('DATABASE_PASSWORD'),\n        'HOST': os.getenv('DATABASE_HOST'),\n        'PORT': os.getenv('DATABASE_PORT')," Backend/Miel/settings.py
+    echo "Не требуется..."
 else
     sed -i "s/'ENGINE': 'django.db.backends.postgresql'/'ENGINE': 'django.db.backends.sqlite3'/g" Backend/Miel/settings.py
     sed -i "s|os.getenv('DATABASE_NAME')|BASE_DIR / 'db.sqlite3'|g" Backend/Miel/settings.py
@@ -113,7 +111,7 @@ fi
 echo "settings.py обновлён!"
 
 # === Проверка docker-compose.yml ===
-if [ -f "docker-compose.yml" ]; then
+if [ "$USE_POSTGRESQL" == "false" ]; then
     echo "Файл docker-compose.yml уже существует."
     echo "Создаём резервную копию..."
     cp docker-compose.yml docker-compose.yml.bak
@@ -122,75 +120,11 @@ fi
 
 CURRENT_DIR=$(pwd)
 # === Генерация docker-compose.yml ===
-echo "Генерируем docker-compose.yml..."
+
 if [ "$USE_POSTGRESQL" == "true" ]; then
-    cat <<EOL > docker-compose.yml
-version: '3.8'
-
-services:
-  backend:
-    build:
-      context: ./Backend
-    container_name: django_backend
-    command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
-    volumes:
-      - ./Backend:/app
-      - static_volume:/app/static  
-      - media_volume:/app/media
-      - $CURRENT_DIR/Backend/logs/app.log:/app/logs/app.log 
-    env_file:
-      - ./Backend/Miel/.env
-    ports:
-      - "8000:8000"
-    depends_on:
-      - db
-    restart: unless-stopped
-
-  frontend:
-    build:
-      context: ./Frontend
-      dockerfile: Dockerfile
-    container_name: nextjs_frontend
-    environment:
-      - NODE_ENV=development
-    ports:
-      - "3000:3000"
-    depends_on:
-      - backend
-    restart: unless-stopped
-
-  db:
-    image: postgres:15
-    container_name: postgres_db
-    volumes:
-      - postgres_data:/var/lib/postgresql/data/
-    env_file:
-      - ./Backend/Miel/db.env
-    ports:
-      - "5432:5432"
-    restart: unless-stopped
-
-  nginx:
-    image: nginx:latest
-    container_name: nginx_server
-    ports:
-      - "80:80"
-      - "443:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - static_volume:/app/static  
-      - media_volume:/app/media    
-    depends_on:
-      - frontend
-      - backend
-    restart: unless-stopped
-
-volumes:
-  postgres_data:
-  static_volume:
-  media_volume:
-EOL
+echo "docker-compose верный!"
 else
+echo "Генерируем docker-compose.yml..."
     cat <<EOL > docker-compose.yml
 version: '3.8'
 
@@ -244,8 +178,8 @@ volumes:
   static_volume:
   media_volume:
 EOL
-fi
 echo "docker-compose.yml создан!"
+fi
 
 # === Настройка окружения и миграция ===
 cd Backend
