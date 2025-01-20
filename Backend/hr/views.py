@@ -267,7 +267,7 @@ class SupervisorViewSet(ModelViewSet):
 
 class CandidateViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
-    queryset = models.Candidate.objects.all()
+    queryset = models.Candidate.objects.all().order_by('id')
     serializer_class = serializers.CandidateSerializer
 
     def get_queryset(self):
