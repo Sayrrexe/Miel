@@ -68,7 +68,7 @@ class TodoSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Todo
-        fields = ['id', "user",'task','due_date','is_complete','is_deleted','date_creation']
+        fields = ['id', "user",'task','due_date','is_complete','is_deleted','created_at']
         read_only_fields = ['user']
 
 

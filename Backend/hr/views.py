@@ -53,7 +53,7 @@ class GetUserInfoView(APIView):
         return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
 
 class TodoViewSet(ModelViewSet):
-    queryset = models.Todo.objects.all()
+    queryset = models.Todo.objects.all().order_by('-due_date')
     serializer_class = serializers.TodoSerializer
     permission_classes = [IsAuthenticated]
 
@@ -80,7 +80,7 @@ class InvitationAPIView(APIView):
             return Response({'error': 'Supervisor not found'}, status=status.HTTP_400_BAD_REQUEST)
     
         office = supervisor.office
-        queryset = models.Invitation.objects.filter(office=office).all()
+        queryset = models.Invitation.objects.filter(office=office).all().order_by('-id')
         
         # Фильтрация
         status = request.query_params.get('status')
@@ -172,9 +172,9 @@ class TodoStatsView(APIView):
         todos_filter = models.Todo.objects.filter(user=user)
 
         if start_date:
-            todos_filter = todos_filter.filter(date_creation__gte=start_date)
+            todos_filter = todos_filter.filter(created_at__gte=start_date)
         if end_date:
-            todos_filter = todos_filter.filter(date_creation__lte=end_date)
+            todos_filter = todos_filter.filter(created_at__lte=end_date)
 
         # 1. Всего создано
         total_created = todos_filter.count()
@@ -187,7 +187,7 @@ class TodoStatsView(APIView):
 
         # 4. День недели с максимальными созданиями
         max_created_day = (
-            todos_filter.annotate(day=TruncDay('date_creation'))
+            todos_filter.annotate(day=TruncDay('created_at'))
             .values('day')
             .annotate(count=Count('id'))
             .order_by('-count')
@@ -197,7 +197,7 @@ class TodoStatsView(APIView):
         # 5. День недели с максимальными завершениями
         completed_by_day = (
             todos_filter.filter(is_complete=True)
-            .annotate(day=TruncDay('date_complete'))
+            .annotate(day=TruncDay('complete_at'))
             .values('day')
             .annotate(count=Count('id'))
             .order_by('-count')
@@ -218,7 +218,7 @@ class TodoStatsView(APIView):
     
 class SupervisorViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
-    queryset = models.Supervisor.objects.select_related('user', 'office').all()
+    queryset = models.Supervisor.objects.select_related('user', 'office').all().order_by('-id')
     serializer_class = serializers.SupervisorSerializer
     
     def get_queryset(self):
@@ -267,7 +267,7 @@ class SupervisorViewSet(ModelViewSet):
 
 class CandidateViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
-    queryset = models.Candidate.objects.all().filter(is_archive = False).order_by('id')
+    queryset = models.Candidate.objects.all().filter(is_archive = False).order_by('-id')
     serializer_class = serializers.CandidateSerializer
 
     def get_queryset(self):
@@ -291,7 +291,7 @@ class CandidateViewSet(ModelViewSet):
     
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
-    queryset = models.Candidate.objects.filter(is_archive=False, is_free = True)
+    queryset = models.Candidate.objects.filter(is_archive=False, is_free = True).order_by('-id')
     model = models.Candidate
     serializer_class = serializers.CandidateInfoSerializer
     
@@ -407,7 +407,7 @@ class MonthlyStatisticView(APIView):
 
 class OfficeViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
-    queryset = models.Office.objects.all()
+    queryset = models.Office.objects.all().order_by('-id')
     serializer_class = serializers.OfficeSerializer
 
     def get_queryset(self):
@@ -425,7 +425,7 @@ class OfficeViewSet(ModelViewSet):
     
 class InvitationStatisticsViewSet(ListAPIView):
     permission_classes = [IsAdministrator]
-    queryset = models.Invitation.objects.filter()
+    queryset = models.Invitation.objects.filter().order_by('-id')
     model = models.Invitation
     serializer_class = serializers.InvitationStatisticsSerializer
     
@@ -541,7 +541,7 @@ class AdminMonthlyStatisticView(APIView):
         
 class ArchiveCandidateInfoView(ListAPIView):
     permission_classes = [IsAdministrator]
-    queryset = models.Candidate.objects.filter(is_archive=True)
+    queryset = models.Candidate.objects.filter(is_archive=True).order_by('updated_at')
     model = models.Candidate
     serializer_class = serializers.ArchiveCandidateSerializer
     

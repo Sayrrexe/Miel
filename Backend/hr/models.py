@@ -226,6 +226,8 @@ class Office(models.Model):
     phone = models.CharField(max_length=15, null=True, blank=True)
     quota = models.PositiveIntegerField(verbose_name="Базовая квота")  # Стартовая квота
     used_quota = models.PositiveIntegerField(default=0, verbose_name="Использованная квота")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def available_quota(self):
         """
@@ -352,13 +354,13 @@ class Todo(models.Model):
         is_deleted (BooleanField): Логическое удаление задачи (по умолчанию False).
         date_update (DateTimeField): Дата и время последнего обновления записи.
         date_creation (DateTimeField): Дата создания задачи.
-        date_complete (DateField): Дата завершения задачи (если задача выполнена).
+        complete_at (DateField): Дата завершения задачи (если задача выполнена).
 
     Методы:
         check_visibility(): Проверяет, прошло ли 12 часов с момента выполнения задачи.
                             Если прошло, скрывает задачу (is_visible=False).
         save(): Переопределённый метод сохранения для автоматического заполнения
-               поля `date_complete`, если задача была помечена как выполненная.
+               поля `complete_at`, если задача была помечена как выполненная.
     """
 
     user = models.ForeignKey(
@@ -373,9 +375,9 @@ class Todo(models.Model):
     is_visible = models.BooleanField(default=True, verbose_name="Видимость")
     is_deleted = models.BooleanField(default=False, verbose_name="Удалена")
     
-    date_update = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
-    date_creation = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    date_complete = models.DateField(null = True, blank=True)
+    update_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    complete_at = models.DateField(null = True, blank=True)
 
     def check_visibility(self):
         """
@@ -385,17 +387,17 @@ class Todo(models.Model):
         - Если прошло, устанавливает `is_visible=False` и сохраняет запись.
         """
         if self.is_complete and self.is_visible:
-            elapsed_time = now() - self.date_update
+            elapsed_time = now() - self.update_at
             if elapsed_time >= timedelta(hours=12):
                 self.is_visible = False
                 self.save()
                 
     def save(self, *args, **kwargs):
-        if self.is_complete and not self.date_complete:
+        if self.is_complete and not self.complete_at:
             # Если задача выполнена и дата завершения еще не установлена
-            self.date_complete = now().date()
+            self.complete_at = now().date()
 
-        elif not self.is_complete and self.date_complete:
+        elif not self.is_complete and self.complete_at:
             # Если задача не завершена, и дата завершения уже была установлена,
             # мы не должны её изменять
             pass
