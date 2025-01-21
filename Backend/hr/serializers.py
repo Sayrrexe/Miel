@@ -155,6 +155,7 @@ class SupervisorSerializer(serializers.ModelSerializer):
         
 class CandidateSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
+    office_name = serializers.SerializerMethodField()
     
     class Meta:
         model = Candidate
@@ -164,6 +165,14 @@ class CandidateSerializer(serializers.ModelSerializer):
         """Вычисление возраста кандидата на основе его даты рождения."""
         if obj.birth:
             return obj.calculate_age()
+        
+    def get_office_name(self, obj):
+        if obj.is_free:
+            return None
+        else:
+            office = obj.office
+            return office.name
+            
     
     def validate(self, data):
         """Обработка логики в save методе"""
