@@ -492,6 +492,8 @@ class CandidateInvitationUpdateView(APIView):
             else:
                 return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
             
+        return Response({"detail": f"Неподдерживаемый статус: {status_value}"}, status=status.HTTP_400_BAD_REQUEST)
+            
             
 class AdminMonthlyStatisticView(APIView):
     permission_classes = [IsAdministrator]
