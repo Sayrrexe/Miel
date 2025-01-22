@@ -1,7 +1,5 @@
-from datetime import date
-from os import read
-
 from rest_framework import serializers
+from drf_spectacular.utils import extend_schema_field
 
 from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
 
@@ -32,6 +30,7 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
             'office_used_quota', 
         ]
 
+    @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
         return obj.user.get_full_name()
     
@@ -53,9 +52,11 @@ class InfoAboutAdmin(serializers.ModelSerializer):
             'phone',      
         ]
 
+    @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
         return obj.user.get_full_name()
     
+    @extend_schema_field(serializers.CharField)
     def get_photo(self, obj):
         request = self.context.get('request')
         if obj.user.photo and request:
@@ -94,18 +95,23 @@ class InvitationSerializer(serializers.ModelSerializer):
             'updated_at',
         ]
 
+    @extend_schema_field(serializers.CharField)
     def get_name(self, obj):
         return obj.candidate.name
 
+    @extend_schema_field(serializers.CharField)
     def get_surname(self, obj):
         return obj.candidate.surname
 
+    @extend_schema_field(serializers.CharField)
     def get_patronymic(self, obj):
         return obj.candidate.patronymic
 
+    @extend_schema_field(serializers.CharField)
     def get_city(self, obj):
         return obj.candidate.city
 
+    @extend_schema_field(serializers.IntegerField)
     def get_age(self, obj):
         return obj.candidate.calculate_age()
     
@@ -160,12 +166,14 @@ class CandidateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Candidate
         fields = '__all__'
-        
+    
+    @extend_schema_field(serializers.IntegerField)
     def get_age(self, obj):
         """Вычисление возраста кандидата на основе его даты рождения."""
         if obj.birth:
             return obj.calculate_age()
-        
+    
+    @extend_schema_field(serializers.CharField)
     def get_office_name(self, obj):
         if obj.is_free:
             return None
@@ -216,15 +224,19 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'favorite_id',
             'is_invited',
         ]
+        
+    @extend_schema_field(serializers.IntegerField)
     def get_age(self, obj):
         """Вычисление возраста кандидата на основе его даты рождения."""
         if obj.birth:
             return obj.calculate_age()
-        
+    
+    @extend_schema_field(serializers.BooleanField)
     def get_is_favorite(self, obj):
         user = self.context['request'].user
         return Favorite.objects.filter(user=user, candidate=obj).exists()
 
+    @extend_schema_field(serializers.IntegerField)
     def get_favorite_id(self, obj):
         """
         Возвращает ID записи избранного, если кандидат находится в избранном.
@@ -233,6 +245,7 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
         favorite = Favorite.objects.filter(user=user, candidate=obj).first()
         return favorite.id if favorite else None
     
+    @extend_schema_field(serializers.BooleanField)
     def get_is_invited(self, obj):
         user = self.context['request'].user
         return Invitation.objects.filter(candidate=obj, office__supervisor__user=user, status='invited').exists()
@@ -278,10 +291,13 @@ class InvitationStatisticsSerializer(serializers.ModelSerializer):
             'status',
             'updated_at',
         ]
+        
+    @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
         candidate = obj.candidate
         return f'{candidate.surname} {candidate.name} {candidate.patronymic}'
     
+    @extend_schema_field(serializers.CharField)
     def get_city(self,obj):
         candidate = obj.candidate
         return candidate.city
@@ -294,6 +310,7 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
         model = Invitation
         fields = ['id', 'status', 'created_at','office_name' ,'supervisor', 'office'] 
     
+    @extend_schema_field(serializers.CharField)
     def get_supervisor(self, obj):
         office = obj.office
         try:
@@ -302,7 +319,8 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
             return user.get_full_name()
         except Supervisor.DoesNotExist:
             return "Not Exist"
-        
+    
+    @extend_schema_field(serializers.CharField)
     def get_office_name(self, obj):
         return obj.office.name
     
@@ -322,17 +340,19 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
                 'phone',
                 'email',
                 'cause'
-                ]
-        
+            ]
+    
+    @extend_schema_field(serializers.CharField)
     def get_bio(self, obj):
-        """Вычисление возраста кандидата на основе его даты рождения."""
         return f'{obj.surname} {obj.name}'
         
+    @extend_schema_field(serializers.CharField)
     def get_city(self,obj):
         if obj.city:
             return obj.city
         return ''
     
+    @extend_schema_field(serializers.CharField)
     def get_cause(self,obj):
         if obj.office:
             office = obj.office
