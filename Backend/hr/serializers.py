@@ -314,8 +314,13 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
     def get_supervisor(self, obj):
         office = obj.office
         try:
-            supervisor = Supervisor.objects.get(office=office)
-            user = supervisor.user
+            supervisor = Supervisor.objects.filter(office=office).first()
+            if supervisor is None:
+                return None
+            try:
+                user = supervisor.user
+            except CustomUser.DoesNotExist:
+                return None
             return user.get_full_name()
         except Supervisor.DoesNotExist:
             return "Not Exist"
