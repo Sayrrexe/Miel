@@ -325,6 +325,7 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
         return obj.office.name
     
 class ArchiveCandidateSerializer(serializers.ModelSerializer):
+    full_name = serializers.SerializerMethodField()
     bio = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
     cause = serializers.SerializerMethodField()
@@ -333,6 +334,7 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
         model = Candidate
         fields = [
                 'id',
+                'full_name',
                 'updated_at',
                 'bio',
                 'photo',
@@ -358,6 +360,10 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
             office = obj.office
             return office.name
         return 'не прошёл собеседование'
+    
+    @extend_schema_field(serializers.CharField)
+    def get_full_name(self, obj):
+        return f'{obj.surname} {obj.name} {obj.patronymic}'
     
     
     
