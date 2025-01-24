@@ -27,7 +27,7 @@ urlpatterns = [
     
     # Администратор
     path('todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
-    path('admin/invation/statistic', views.InvitationStatisticsViewSet.as_view(), name='invitions-stats'),
+    path('admin/invitations/statistic/', views.InvitationStatisticsViewSet.as_view(), name='invitations-stats'),
     path('admin/candidates/<int:id>/invitations/', views.CandidateInvitationsView.as_view(), name='candidate-invitations'),
     path('admin/candidates/<int:candidate_id>/invitations/<int:invitation_id>/', views.CandidateInvitationUpdateView.as_view(), name='candidate-invitation-update'),
     path('admin/statistic/quotas/', views.AdminMonthlyStatisticView.as_view(), name = 'admin-quotas-statistic'),

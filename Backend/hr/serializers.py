@@ -282,11 +282,16 @@ class FavoriteSerializer(serializers.ModelSerializer):
 
 class InvitationStatisticsSerializer(serializers.ModelSerializer):
     full_name = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
+    age = serializers.SerializerMethodField()
+    
     class Meta:
         model = Invitation
         fields = [
             'full_name',
+            'photo',
+            'age',
             'city',
             'status',
             'updated_at',
@@ -298,9 +303,21 @@ class InvitationStatisticsSerializer(serializers.ModelSerializer):
         return f'{candidate.surname} {candidate.name} {candidate.patronymic}'
     
     @extend_schema_field(serializers.CharField)
-    def get_city(self,obj):
+    def get_photo(self, obj):
+        request = self.context.get('request')  
+        candidate = obj.candidate
+        if candidate.photo and candidate.photo.name:
+            return request.build_absolute_uri(candidate.photo.url) 
+        return None
+    
+    @extend_schema_field(serializers.CharField)
+    def get_city(self, obj):
         candidate = obj.candidate
         return candidate.city
+    
+    @extend_schema_field(serializers.IntegerField)
+    def get_age(self, obj):
+        return obj.candidate.calculate_age()
 
 
 class AdminInvitationSerializer(serializers.ModelSerializer):
