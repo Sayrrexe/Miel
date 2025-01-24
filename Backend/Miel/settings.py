@@ -158,10 +158,17 @@ REST_FRAMEWORK = {
 
 # drf-spectacular settings
 SPECTACULAR_SETTINGS = {
-    'TITLE': 'User Management API',
-    'DESCRIPTION': 'API для регистрации, получения и удаления пользователей.',
-    'VERSION': '1.0.0',
-    'SERVE_INCLUDE_SCHEMA': False,
+    'TITLE': 'Miel API',  
+    'DESCRIPTION': (
+        'API для управления кандидатами, руководителями и статистикой. '
+        'Позволяет выполнять операции с задачами, приглашениями, транзакциями, '
+        'а также получать статистику по различным данным.'
+    ),  
+    'VERSION': '1.0.0',  
+    'SERVE_INCLUDE_SCHEMA': True,  
+    'SCHEMA_PATH_PREFIX': '/api/schema/',
+    'SECURITY': [{'Token': []}], 
+    'UI_FORMAT': 'swagger',  
 }
 
 # -- CORS --

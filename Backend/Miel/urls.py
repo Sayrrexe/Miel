@@ -19,12 +19,10 @@ from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView, SpectacularRedocView
-
+    
 urlpatterns = [
-    # Админка
     path('backend/admin/', admin.site.urls),
-    # Подключение приложений
-    path('api/', include('accountapp.urls')),  # Start page
+    path('api/', include('accountapp.urls')),
     path('api/', include('hr.urls')),
 
     # OpenAPI схема

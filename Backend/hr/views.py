@@ -1,15 +1,16 @@
-from django.shortcuts import redirect
-from django.db.models.functions import TruncDay
 from django.utils import timezone
+
+from django.db.models.functions import TruncDay
 from django.db.models import Count
 from django.db.models import Q
+
+from rest_framework import status
 
 from rest_framework.generics import ListAPIView
 from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
-from rest_framework import status
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -22,10 +23,86 @@ from .utils import (restore_archived_candidates,
                     update_all_candidate_statuses, 
                     update_one_status, write_off_the_quota)
 
+from drf_spectacular.utils import extend_schema,extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
+from drf_spectacular.types import OpenApiTypes
 
-def index(request):
-    return redirect('/admin/')
 
+@extend_schema(
+    summary="Получение полной информации о пользователе",
+    description=(
+        "Возвращает информацию о пользователе в зависимости от его роли. "
+        "Если пользователь администратор, возвращаются данные об администраторе. "
+        "Если супервайзер, возвращаются данные о супервайзере. "
+        "Иначе ошибка."
+    ),
+    responses={
+        200: OpenApiResponse(
+            response={
+                "admin": {
+                    "role": "int",
+                    "full_name": "str",
+                    "photo": "str (nullable)",
+                    "email": "str",
+                    "phone": "str"
+                },
+                "supervisor": {
+                    "role": "int",
+                    "full_name": "str",
+                    "email": "str",
+                    "phone": "str",
+                    "photo": "str (nullable)",
+                    "office_name": "str",
+                    "office_location": "str",
+                    "department": "str",
+                    "office_quota": "int",
+                    "office_used_quota": "int"
+                }
+            },
+            description="Успешное получение данных о пользователе"
+        ),
+        400: OpenApiResponse(
+            response={"error": "str"},
+            description="Пользователь не является членом команды"
+        ),
+    },
+    examples=[
+        OpenApiExample(
+            "Ответ для администратора",
+            value={
+                "role": 1,
+                "full_name": "Admin User",
+                "photo": None,
+                "email": "admin@example.com",
+                "phone": "+123456789"
+            },
+            response_only=True,
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            "Ответ для супервайзера",
+            value={
+                "role": 2,
+                "full_name": "Supervisor User",
+                "email": "supervisor@example.com",
+                "phone": "+987654321",
+                "photo": "https://example.com/photo.jpg",
+                "office_name": "Main Office",
+                "office_location": "123 Main St.",
+                "department": "Real Estate",
+                "office_quota": 15,
+                "office_used_quota": 7
+            },
+            response_only=True,
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            "Ответ с ошибкой",
+            value={"error": "The user is not a member of staff."},
+            response_only=True,
+            status_codes=["400"],
+        ),
+    ],
+)
 class GetUserInfoView(APIView):
     permission_classes = [IsAuthenticated]
     
@@ -52,6 +129,63 @@ class GetUserInfoView(APIView):
 
         return Response({'error': 'The user is not a member of staff.'}, status=status.HTTP_400_BAD_REQUEST)
 
+@extend_schema(
+        summary="Получение списка задач",
+        description="Возвращает список задач текущего пользователя. Поддерживается фильтрация по `status` и `due_date`.",
+        parameters=[
+            OpenApiParameter(
+                name="status",
+                description="Фильтр по статусу задачи (e.g., 'completed', 'pending')",
+                required=False,
+                type=str,
+            ),
+            OpenApiParameter(
+                name="due_date",
+                description="Фильтр задач по дате выполнения (в формате 'YYYY-MM-DD')",
+                required=False,
+                type=str,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=serializers.TodoSerializer(many=True),
+                description="Успешный список задач",
+            ),
+            400: OpenApiResponse(
+                response={"error": "str"},
+                description="Ошибка в фильтрах запроса",
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Пример успешного ответа",
+                value=[
+                    {
+                        "id": 1,
+                        "title": "Закончить проект",
+                        "description": "Сделать финальные правки в проекте.",
+                        "status": "pending",
+                        "due_date": "2025-01-25",
+                    },
+                    {
+                        "id": 2,
+                        "title": "Прочитать книгу",
+                        "description": "Дочитать книгу по программированию.",
+                        "status": "completed",
+                        "due_date": "2025-01-20",
+                    },
+                ],
+                response_only=True,
+                status_codes=["200"],
+            ),
+            OpenApiExample(
+                "Пример ошибки",
+                value={"error": "Invalid date format in due_date parameter."},
+                response_only=True,
+                status_codes=["400"],
+            ),
+        ],
+    )
 class TodoViewSet(ModelViewSet):
     queryset = models.Todo.objects.all().order_by('-due_date')
     serializer_class = serializers.TodoSerializer
@@ -74,6 +208,40 @@ class InvitationAPIView(APIView):
     serializer_class = serializers.InvitationSerializer
     model = models.Invitation
     
+    @extend_schema(
+        summary="Получение списка приглашённых кандидатов",
+        description="Возвращает список приглашённых рук-лем кандидатов, с потдержкой фильтрации и отправкой новых приглашений",
+        parameters=[
+            OpenApiParameter(
+                name="status",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по статусу приглашений (invited, accepted, rejected)."
+            ),
+            OpenApiParameter(
+                name="start_date",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по дате: начало диапазона (формат 'YYYY-MM-DD')."
+            ),
+            OpenApiParameter(
+                name="end_date",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по дате: конец диапазона (формат 'YYYY-MM-DD')."
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=serializers.InvitationSerializer(many=True),
+                description="Список приглашений успешно получен."
+            ),
+            400: OpenApiResponse(
+                response={"error": "str"},
+                description="Ошибка в запросе или отсутствует супервизор."
+            ),
+        },
+    )
     def get(self, request):
         supervisor = models.Supervisor.objects.filter(user=request.user).first()
         if not supervisor:
@@ -99,6 +267,21 @@ class InvitationAPIView(APIView):
         serializer = serializers.InvitationSerializer(queryset, many=True)
         return Response(serializer.data)
     
+    @extend_schema(
+        summary="Создать новое приглашение",
+        description="Создает новое приглашение для кандидата, проверяя наличие квоты у офиса.",
+        request=serializers.InvitationSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=serializers.InvitationSerializer,
+                description="Приглашение успешно создано."
+            ),
+            400: OpenApiResponse(
+                response={"error": "str"},
+                description="Ошибка в запросе (например, кандидат уже приглашён или неверные данные)."
+            ),
+        },
+    )
     def post(self, request):
         supervisor = models.Supervisor.objects.filter(user=self.request.user).first()
         if not supervisor:
@@ -139,7 +322,63 @@ class InvitationAPIView(APIView):
         
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
     
-    
+@extend_schema_view(
+    list=extend_schema(
+        summary="Получить список избранного",
+        description="Возвращает список избранных объектов пользователя.",
+        responses={
+            200: OpenApiResponse(
+                response=serializers.FavoriteSerializer(many=True),
+                description="Список избранных объектов успешно получен."
+            ),
+        },
+    ),
+    create=extend_schema(
+        summary="Добавить в избранное",
+        description="Добавляет новый объект в избранное для текущего пользователя.",
+        request=serializers.FavoriteSerializer,
+        responses={
+            201: OpenApiResponse(
+                response=serializers.FavoriteSerializer,
+                description="Объект успешно добавлен в избранное."
+            ),
+        },
+    ),
+    retrieve=extend_schema(
+        summary="Получить избранный объект",
+        description="Возвращает подробную информацию об объекте в избранном.",
+        responses={
+            200: OpenApiResponse(
+                response=serializers.FavoriteSerializer,
+                description="Объект успешно получен."
+            ),
+            404: OpenApiResponse(
+                response={"error": "str"},
+                description="Объект не найден."
+            ),
+        },
+    ),
+    update=extend_schema(
+        summary="Обновить избранный объект",
+        description="Обновляет данные избранного объекта.",
+        request=serializers.FavoriteSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=serializers.FavoriteSerializer,
+                description="Объект успешно обновлён."
+            ),
+        },
+    ),
+    destroy=extend_schema(
+        summary="Удалить из избранного",
+        description="Удаляет объект из избранного пользователя.",
+        responses={
+            204: OpenApiResponse(
+                description="Объект успешно удалён."
+            ),
+        },
+    ),
+) 
 class FavoriteViewSet(ModelViewSet):
     serializer_class = serializers.FavoriteSerializer
     permission_classes = [IsSupervisor]
@@ -150,72 +389,133 @@ class FavoriteViewSet(ModelViewSet):
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
         
-        
+@extend_schema(
+    summary="Получить статистику TODO",
+    description=(
+        "Возвращает статистику задач пользователя: общее количество созданных, завершённых, "
+        "удалённых задач, а также дни недели с максимальной активностью."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="start_date",
+            type=OpenApiTypes.DATE,
+            location=OpenApiParameter.QUERY,
+            description="Фильтр задач по начальной дате создания (формат 'YYYY-MM-DD')."
+        ),
+        OpenApiParameter(
+            name="end_date",
+            type=OpenApiTypes.DATE,
+            location=OpenApiParameter.QUERY,
+            description="Фильтр задач по конечной дате создания (формат 'YYYY-MM-DD')."
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(
+            response=OpenApiTypes.OBJECT,
+            description="Успешный ответ со статистикой задач",
+            examples=[
+                OpenApiExample(
+                    "Пример",
+                    value={
+                        "total_created": 25,
+                        "total_completed": 15,
+                        "total_deleted": 5,
+                        "max_created_day": "Monday",
+                        "max_completed_day": "Wednesday",
+                    },
+                    response_only=True,
+                )
+            ],
+        ),
+        400: OpenApiResponse(
+            response={"error": "str"},
+            description="Ошибка в запросе (например, неверный формат даты)."
+        ),
+    },
+)      
 class TodoStatsView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None):
-        now = timezone.now()
-        user = request.user
+        try:
+            user = request.user
 
-        # Получаем параметры start_date и end_date из GET-запроса
-        start_date = request.query_params.get('start_date')
-        end_date = request.query_params.get('end_date')
+            # Получаем параметры start_date и end_date из GET-запроса
+            start_date = request.query_params.get('start_date')
+            end_date = request.query_params.get('end_date')
 
-        # Преобразуем параметры в datetime
-        if start_date:
-            start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
-        if end_date:
-            end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+            # Преобразуем параметры в datetime
+            
+            if start_date:
+                start_date = timezone.make_aware(datetime.strptime(start_date, '%Y-%m-%d'))
+            if end_date:
+                end_date = timezone.make_aware(datetime.strptime(end_date, '%Y-%m-%d'))
+                
 
-        # Фильтруем задачи пользователя
-        todos_filter = models.Todo.objects.filter(user=user)
+            # Фильтруем задачи пользователя
+            todos_filter = models.Todo.objects.filter(user=user)
 
-        if start_date:
-            todos_filter = todos_filter.filter(created_at__gte=start_date)
-        if end_date:
-            todos_filter = todos_filter.filter(created_at__lte=end_date)
+            if start_date:
+                todos_filter = todos_filter.filter(created_at__gte=start_date)
+            if end_date:
+                todos_filter = todos_filter.filter(created_at__lte=end_date)
+            
+                
 
-        # 1. Всего создано
-        total_created = todos_filter.count()
+            # 1. Всего создано
+            total_created = todos_filter.count()
 
-        # 2. Завершено
-        total_completed = todos_filter.filter(is_complete=True).count()
+            # 2. Завершено
+            total_completed = todos_filter.filter(is_complete=True).count()
 
-        # 3. Удалено
-        total_deleted = todos_filter.filter(is_deleted=True).count()
+            # 3. Удалено
+            total_deleted = todos_filter.filter(is_deleted=True).count()
 
-        # 4. День недели с максимальными созданиями
-        max_created_day = (
-            todos_filter.annotate(day=TruncDay('created_at'))
-            .values('day')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-            .first()
-        )
+            # 4. День недели с максимальными созданиями
+            max_created_day = (
+                todos_filter.annotate(day=TruncDay('created_at'))
+                .values('day')
+                .annotate(count=Count('id'))
+                .order_by('-count')
+                .first()
+            )
 
-        # 5. День недели с максимальными завершениями
-        completed_by_day = (
-            todos_filter.filter(is_complete=True)
-            .annotate(day=TruncDay('complete_at'))
-            .values('day')
-            .annotate(count=Count('id'))
-            .order_by('-count')
-        )
-        max_completed_day = completed_by_day.first()
+            # 5. День недели с максимальными завершениями
+            completed_by_day = (
+                todos_filter.filter(is_complete=True)
+                .annotate(day=TruncDay('complete_at'))
+                .values('day')
+                .annotate(count=Count('id'))
+                .order_by('-count')
+            )
+            max_completed_day = completed_by_day.first()
 
-        # Статистика
-        stats = {
-            'total_created': total_created,
-            'total_completed': total_completed,
-            'total_deleted': total_deleted,
-            'max_created_day': max_created_day['day'].strftime('%A') if max_created_day else 'No data',
-            'max_completed_day': max_completed_day['day'].strftime('%A') if max_completed_day else 'No data',
-        }
+            # Статистика
+            stats = {
+                'total_created': total_created,
+                'total_completed': total_completed,
+                'total_deleted': total_deleted,
+                'max_created_day': max_created_day['day'].strftime('%A') if max_created_day else 'No data',
+                'max_completed_day': max_completed_day['day'].strftime('%A') if max_completed_day else 'No data',
+            }
 
-        return Response(stats, status=status.HTTP_200_OK)
+            return Response(stats, status=status.HTTP_200_OK)
+        except Exception as except_text:
+            return Response({"error": except_text}, status=status.HTTP_400_BAD_REQUEST)
     
-    
+@extend_schema(
+    summary="Список супервайзеров",
+    description="Возвращает список супервайзеров, с возможностью фильтрации по имени, фамилии и отчеству.",
+    parameters=[
+        OpenApiParameter(
+            name="search",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Поиск по имени, фамилии или отчество пользователя."
+        )
+    ],
+    responses={200: serializers.SupervisorSerializer(many=True)}
+)   
 class SupervisorViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
     queryset = models.Supervisor.objects.select_related('user', 'office').all().order_by('-id')
@@ -264,7 +564,25 @@ class SupervisorViewSet(ModelViewSet):
         instance.user.save()
         instance.delete()
 
-
+@extend_schema(
+    summary="Список кандидатов",
+    description="Возвращает список кандидатов с возможностью фильтрации по состоянию и имени.",
+    parameters=[
+        OpenApiParameter(
+            name="is_free",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Фильтрация кандидатов по состоянию: свободен (true/false)."
+        ),
+        OpenApiParameter(
+            name="search",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Поиск кандидатов по имени (регистронезависимый)."
+        )
+    ],
+    responses={200: serializers.CandidateSerializer(many=True)}
+)
 class CandidateViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
     queryset = models.Candidate.objects.all().filter(is_archive = False).order_by('-id')
@@ -276,19 +594,72 @@ class CandidateViewSet(ModelViewSet):
         """
         queryset = super().get_queryset()
         is_free = self.request.query_params.get('is_free')
-        name = self.request.query_params.get('search')
+        search = self.request.query_params.get('search')
 
         if is_free is not None:
             # Фильтрация по "свободен?"
-            queryset = queryset.filter(is_free=is_free.lower() == 'true')
+            if is_free.lower() == 'true':
+                queryset = queryset.filter(is_free=True)
+            elif is_free.lower() == 'false':
+                queryset = queryset.filter(is_free=False)
+            else:
+                pass
 
-        if name:
+        if search:
             # Поиск по имени (регистронезависимый)
-            queryset = queryset.filter(name__icontains=name)
+            search = search.lower()
+            queryset = queryset.filter(
+                Q(name__icontains=search) |
+                Q(surname__icontains=search) |
+                Q(patronymic__icontains=search)
+            )
 
         return queryset
     
-    
+@extend_schema(
+    summary="Получение информации о кандидатах",
+    description="Возвращает список доступных кандидатов с фильтрацией по возрасту, курсам и дате создания.",
+    parameters=[
+        OpenApiParameter(
+            name="by_new",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description="Сортировка по дате создания. Значения: true (по убыванию), false (по возрастанию)."
+        ),
+        OpenApiParameter(
+            name="age",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="Фильтрация по точному возрасту кандидата."
+        ),
+        OpenApiParameter(
+            name="age_min",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="Минимальный возраст для фильтрации кандидатов."
+        ),
+        OpenApiParameter(
+            name="age_max",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="Максимальный возраст для фильтрации кандидатов."
+        ),
+        OpenApiParameter(
+            name="courses",
+            type=str,
+            location=OpenApiParameter.QUERY,
+            description=(
+                "Фильтрация по пройденным курсам. "
+                "Укажите через запятую. Возможные значения: "
+                "`course_rieltor_join` (курс риэлторов), "
+                "`basic_legal_course` (базовый юридический курс), "
+                "`course_mortgage` (курс ипотечного кредитования), "
+                "`course_taxation` (курс по налогообложению)."
+            )
+        )
+    ],
+    responses={200: serializers.CandidateInfoSerializer(many=True)},
+)
 class CandidateInfoView(ListAPIView):
     permission_classes = [IsSupervisor]
     queryset = models.Candidate.objects.filter(is_archive=False, is_free = True).order_by('-id')
@@ -351,7 +722,22 @@ class CandidateInfoView(ListAPIView):
         context.update({'request': self.request})
         return context
 
-
+@extend_schema(
+    summary="Статистика по месяцам",
+    description=(
+        "Возвращает статистику по месяцам за указанный год или последние 10 месяцев по умолчанию. "
+        "Для фильтрации можно передать параметр `year` (например, ?year=2024)."
+    ),
+    parameters=[
+        OpenApiParameter(
+            name="year",
+            type=int,
+            location=OpenApiParameter.QUERY,
+            description="Год для фильтрации статистики (например, 2024)."
+        )
+    ],
+    responses={200: serializers.MonthlyStatisticSerializer(many=True)},
+)
 class MonthlyStatisticView(APIView):
     permission_classes = [IsSupervisor]
 
@@ -404,7 +790,21 @@ class MonthlyStatisticView(APIView):
         serializer = serializers.MonthlyStatisticSerializer(statistics, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-
+@extend_schema(
+        summary="Получить список офисов",
+        description=(
+            "Возвращает список офисов с возможностью фильтрации по имени. "
+            "Используйте параметр `search` для поиска."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="search",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Фильтр по названию офиса (регистронезависимый поиск)."
+            )
+        ],
+)
 class OfficeViewSet(ModelViewSet):
     permission_classes = [IsAdministrator]
     queryset = models.Office.objects.all().order_by('-id')
@@ -415,14 +815,33 @@ class OfficeViewSet(ModelViewSet):
         Переопределение метода для ручной обработки параметров фильтрации.
         """
         queryset = super().get_queryset()
-        name = self.request.query_params.get('search')
+        search_query = self.request.query_params.get('search')
 
-        if name:
-            queryset = queryset.filter(name__icontains=name)
+        if search_query:
+            queryset = queryset.filter(name__icontains=search_query.strip())
 
         return queryset
     
-    
+@extend_schema(
+        summary="Статистика приглашений",
+        description=(
+            "Позволяет получить статистику по приглашениям с фильтрацией по диапазону дат."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="start_date",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Начальная дата в формате YYYY-MM-DDTHH:MM:SSZ."
+            ),
+            OpenApiParameter(
+                name="end_date",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="Конечная дата в формате YYYY-MM-DDTHH:MM:SSZ."
+            ),
+        ],
+    )    
 class InvitationStatisticsViewSet(ListAPIView):
     permission_classes = [IsAdministrator]
     queryset = models.Invitation.objects.filter().order_by('-id')
@@ -452,6 +871,61 @@ class InvitationStatisticsViewSet(ListAPIView):
 class CandidateInvitationsView(APIView):
     permission_classes = [IsAdministrator] 
 
+    @extend_schema(
+        summary="Получение приглашений кандидата",
+        description=(
+            "Возвращает список приглашений, связанных с указанным кандидатом. "
+            "Требует идентификатор кандидата в URL."
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="id",
+                location=OpenApiParameter.PATH,
+                description="Идентификатор кандидата",
+                required=True,
+                type=int,
+            ),
+        ],
+        responses={
+            200: OpenApiResponse(
+                response=serializers.AdminInvitationSerializer(many=True),
+                description="Успешный ответ с приглашениями кандидата."
+            ),
+            404: OpenApiResponse(
+                response={"detail": "Кандидат не найден!"},
+                description="Ошибка: Кандидат не найден."
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Успешный ответ",
+                value=[
+                    {
+                        "id": 1,
+                        "candidate": 123,
+                        "status": "invited",
+                        "created_at": "2025-01-23T12:34:56Z",
+                        "updated_at": "2025-01-23T15:12:30Z",
+                    },
+                    {
+                        "id": 2,
+                        "candidate": 123,
+                        "status": "accepted",
+                        "created_at": "2025-01-20T10:10:10Z",
+                        "updated_at": "2025-01-21T14:00:00Z",
+                    },
+                ],
+                response_only=True,
+                status_codes=["200"],
+            ),
+            OpenApiExample(
+                "Кандидат не найден",
+                value={"detail": "Кандидат не найден!"},
+                response_only=True,
+                status_codes=["404"],
+            ),
+        ],
+    )
     def get(self, request, id, *args, **kwargs):
         try:
             candidate = models.Candidate.objects.get(id=id)
@@ -466,6 +940,69 @@ class CandidateInvitationsView(APIView):
 class CandidateInvitationUpdateView(APIView):
     permission_classes = [IsAdministrator]  
 
+    @extend_schema(
+        summary="Обновление статуса приглашения",
+        description=(
+            "Позволяет обновить статус конкретного приглашения кандидата.\n "
+            "Поддерживаемые статусы: 'accepted', 'invited', 'rejected'."
+            "в случае, если передан accepted все остальные приглашения кандидата будут отклонены"
+        ),
+        parameters=[
+            OpenApiParameter(
+                name="candidate_id",
+                location=OpenApiParameter.PATH,
+                description="Идентификатор кандидата",
+                required=True,
+                type=int,
+            ),
+            OpenApiParameter(
+                name="invitation_id",
+                location=OpenApiParameter.PATH,
+                description="Идентификатор приглашения",
+                required=True,
+                type=int,
+            ),
+        ],
+        request={
+            "application/json": {
+            "status": "accepted | invited | rejected"  # Строка с возможными значениями
+            }
+        },
+        responses={
+            200: OpenApiResponse(
+                response={"detail": "str"},
+                description="Успешное обновление статуса."
+            ),
+            400: OpenApiResponse(
+                response={"detail": "str"},
+                description="Ошибка валидации или неподдерживаемый статус."
+            ),
+            404: OpenApiResponse(
+                response={"detail": "str"},
+                description="Приглашение или кандидат не найдены."
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Успешное обновление статуса",
+                value={"detail": "Статус приглашения обновлён."},
+                response_only=True,
+                status_codes=["200"],
+            ),
+            OpenApiExample(
+                "Ошибка валидации",
+                value={"detail": "Поле 'status' обязательно!"},
+                response_only=True,
+                status_codes=["400"],
+            ),
+            OpenApiExample(
+                "Приглашение не найдено",
+                value={"detail": "Приглашение не найдено!"},
+                response_only=True,
+                status_codes=["404"],
+            ),
+        ],
+    )
     def patch(self, request, candidate_id, invitation_id, *args, **kwargs):
         try:
             invitation = models.Invitation.objects.get(id=invitation_id, candidate_id=candidate_id)
@@ -494,7 +1031,60 @@ class CandidateInvitationUpdateView(APIView):
             
         return Response({"detail": f"Неподдерживаемый статус: {status_value}"}, status=status.HTTP_400_BAD_REQUEST)
             
-            
+@extend_schema(
+    summary="Получение статистики по месяцам для администратора",
+    description="Возвращает статистику по транзакциям и приглашениям по месяцам за указанный год. Если год не указан, возвращаются данные за последние 10 месяцев.",
+    parameters=[
+        OpenApiParameter(
+            "year", 
+            OpenApiTypes.INT, 
+            description="Год, за который необходимо получить статистику. По умолчанию 10 последних месяцев.",
+            required=False
+        )
+    ],
+    responses={
+        200: OpenApiResponse(
+            response={
+                "month": "str",  # Месяц и год
+                "issued": "int",  # Количество выданных транзакций
+                "subtracted": "int",  # Количество списанных транзакций
+                "invited": "int",  # Количество приглашений со статусом "invited"
+                "accepted": "int",  # Количество приглашений со статусом "accepted"
+                "rejected": "int",  # Количество приглашений со статусом "rejected"
+            },
+            description="Успешное получение статистики",
+        ),
+        400: OpenApiResponse(
+            response={"detail": "Некорректный формат года!"},
+            description="Ошибка формата года",
+        ),
+    },
+    examples=[
+        OpenApiExample(
+            "Пример статистики за 2023 год",
+            value=[
+                {
+                    "month": "January 2023",
+                    "issued": 50,
+                    "subtracted": 20,
+                    "invited": 30,
+                    "accepted": 15,
+                    "rejected": 5
+                },
+                {
+                    "month": "February 2023",
+                    "issued": 60,
+                    "subtracted": 25,
+                    "invited": 40,
+                    "accepted": 20,
+                    "rejected": 10
+                }
+            ],
+            response_only=True,
+            status_codes=["200"],
+        )
+    ],
+)         
 class AdminMonthlyStatisticView(APIView):
     permission_classes = [IsAdministrator]
 
@@ -540,7 +1130,60 @@ class AdminMonthlyStatisticView(APIView):
         serializer = serializers.MonthlyStatisticSerializer(statistics, many=True)
         return Response(serializer.data, status=status.HTTP_200_OK)
         
-        
+@extend_schema(
+    summary="Получение информации о архивных кандидатах",
+    description=(
+        "Возвращает список архивированных кандидатов. Кандидаты фильтруются по датам обновления "
+        "в зависимости от параметров запроса 'start_date' и 'end_date'."
+    ),
+    parameters=[
+        OpenApiParameter(
+            "start_date", 
+            OpenApiTypes.DATE, 
+            description="Дата начала фильтрации по дате обновления (в формате YYYY-MM-DD).",
+            required=False
+        ),
+        OpenApiParameter(
+            "end_date", 
+            OpenApiTypes.DATE, 
+            description="Дата конца фильтрации по дате обновления (в формате YYYY-MM-DD).",
+            required=False
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(
+            response=serializers.ArchiveCandidateSerializer,
+            description="Список архивных кандидатов",
+        ),
+        400: OpenApiResponse(
+            response={"detail": "Некорректный формат даты!"},
+            description="Ошибка формата даты",
+        ),
+    },
+    examples=[
+        OpenApiExample(
+            "Пример архива кандидатов",
+            value=[
+                {
+                    "id": 1,
+                    "full_name": "Ivan Ivanov",
+                    "email": "ivan@example.com",
+                    "phone": "+123456789",
+                    "updated_at": "2023-12-15T10:00:00Z"
+                },
+                {
+                    "id": 2,
+                    "full_name": "Anna Petrovna",
+                    "email": "anna@example.com",
+                    "phone": "+987654321",
+                    "updated_at": "2023-12-10T14:00:00Z"
+                }
+            ],
+            response_only=True,
+            status_codes=["200"],
+        )
+    ],
+)
 class ArchiveCandidateInfoView(ListAPIView):
     permission_classes = [IsAdministrator]
     queryset = models.Candidate.objects.filter(is_archive=True).order_by('updated_at')
@@ -566,7 +1209,51 @@ class ArchiveCandidateInfoView(ListAPIView):
 
         return queryset
     
-    
+@extend_schema(
+    summary="Восстановление архивированных кандидатов",
+    description=(
+        "Позволяет восстановить кандидатов из архива. Требуется передать список ID кандидатов, "
+        "разделённых запятой, в теле запроса. Если ID кандидатов некорректны, будет возвращена ошибка."
+    ),
+    parameters=[
+        OpenApiParameter(
+            "candidate_ids", 
+            OpenApiTypes.STR, 
+            description="Строка с ID кандидатов, разделённая запятой. Например: '1, 2, 3'.",
+            required=True
+        ),
+    ],
+    responses={
+        200: OpenApiResponse(
+            response={"detail": "Статус операции"},
+            description="Успешное восстановление кандидатов из архива",
+        ),
+        400: OpenApiResponse(
+            response={"detail": "Ошибка операции"},
+            description="Ошибка при восстановлении кандидатов",
+        ),
+    },
+    examples=[
+        OpenApiExample(
+            "Пример запроса",
+            value={"candidate_ids": "1, 2, 3"},
+            request_only=True,
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            "Пример ответа (успех)",
+            value={"detail": "Восстановлено кандидатов: 1"},
+            response_only=True,
+            status_codes=["200"],
+        ),
+        OpenApiExample(
+            "Пример ответа (ошибка)",
+            value={"detail": "Не переданы корректные ID кандидатов."},
+            response_only=True,
+            status_codes=["400"],
+        ),
+    ],
+)
 class ArchiveBatchRestoreView(APIView):
     permission_classes = [IsAdministrator]  
 
@@ -589,14 +1276,96 @@ class ArchiveBatchRestoreView(APIView):
         else:
             return Response({"detail": message}, status=status.HTTP_400_BAD_REQUEST)
        
-        
+    
 class LinkInfoView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @extend_schema(
+        summary="Получение ссылки чата",
+        description="Метод GET позволяет получить текущую ссылку чата на чат с администратором",
+        responses={
+            200: OpenApiResponse(
+                response={"link": 'https://example.com/chat'},
+                description="Успешное получение ссылки",
+            ),
+            404: OpenApiResponse(
+                response={"detail": "ссылка не найдена"},
+                description="Если ссылка не найдена",
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Пример ответа GET",
+                value={"link": "https://example.com/chat"},
+                response_only=True,
+                status_codes=["200"],
+            ),
+        ]
+    )
     def get(self, request, *args, **kwargs):
         link = models.ChatLink.objects.filter().first()
+        if not link:
+            return Response({"detail": "ссылка не найдена"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"link": link.link}, status=status.HTTP_200_OK)
 
+    @extend_schema(
+        summary="Обновление ссылки чата",
+        description="Метод POST позволяет администраторам обновить ссылку чата для платформы 'telegram' или 'whatsapp'. Ссылка должна быть валидной (начинаться с 'https').",
+        responses={
+            200: OpenApiResponse(
+                response={"detail": 'https://example.com/chat'},
+                description="Успешное обновление ссылки",
+            ),
+            400: OpenApiResponse(
+                response={"detail": 'error message'},
+                description="Ошибка валидации данных (неверный формат ссылки или отсутствует платформа)",
+            ),
+            403: OpenApiResponse(
+                response={"detail": 'you are not an admin'},
+                description="Ошибка прав доступа, доступно только администраторам",
+            ),
+        },
+        parameters=[
+            OpenApiParameter(
+                "link", 
+                str, 
+                description="Ссылка на чат, должна начинаться с 'https'",
+                required=True
+            ),
+            OpenApiParameter(
+                "platform", 
+                str, 
+                description="Платформа чата, доступные значения: 'telegram', 'whatsapp'",
+                required=True
+            ),
+        ],
+        examples=[
+            OpenApiExample(
+                "Пример успешного ответа POST",
+                value={"detail": "Ссылка успешно обновлена."},
+                response_only=True,
+                status_codes=["200"],
+            ),
+            OpenApiExample(
+                "Пример ошибки (неправильная платформа)",
+                value={"detail": "platform is invalid ( only 'telegram' or 'whatsapp')"},
+                response_only=True,
+                status_codes=["400"],
+            ),
+            OpenApiExample(
+                "Пример ошибки (неправильный формат ссылки)",
+                value={"detail": "Ссылка должна начинаться с 'https'."},
+                response_only=True,
+                status_codes=["400"],
+            ),
+            OpenApiExample(
+                "Пример ошибки (неавторизованный доступ)",
+                value={"detail": "Только администраторы могут редактировать."},
+                response_only=True,
+                status_codes=["403"],
+            ),
+        ],
+    )
     def post(self, request, *args, **kwargs):
         try:
             admin = models.Administrator.objects.get(user=request.user)

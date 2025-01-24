@@ -133,6 +133,8 @@ def restore_archived_candidates(candidate_ids: list):
 
             # Восстанавливаем кандидатов
             candidates.update(is_archive=False)
+            candidates.update(office=None)
+            candidates.update(is_free=True)
             return True, f"Восстановлено кандидатов: {candidates.count()}"
     except Exception as e:
         return False, f"Произошла ошибка: {str(e)}"
