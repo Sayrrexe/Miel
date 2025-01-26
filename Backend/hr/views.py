@@ -420,8 +420,8 @@ class FavoriteViewSet(ModelViewSet):
                         "total_created": 25,
                         "total_completed": 15,
                         "total_deleted": 5,
-                        "max_created_day": "Monday",
-                        "max_completed_day": "Wednesday",
+                        "max_created_day": "Понедельник",
+                        "max_completed_day": "Среда",
                     },
                     response_only=True,
                 )
@@ -490,13 +490,24 @@ class TodoStatsView(APIView):
             )
             max_completed_day = completed_by_day.first()
 
+            # Словарь для перевода дней недели
+            days_translation = {
+                'Monday': 'Понедельник',
+                'Tuesday': 'Вторник', 
+                'Wednesday': 'Среда',
+                'Thursday': 'Четверг',
+                'Friday': 'Пятница',
+                'Saturday': 'Суббота',
+                'Sunday': 'Воскресенье'
+            }
+
             # Статистика
             stats = {
                 'total_created': total_created,
                 'total_completed': total_completed,
                 'total_deleted': total_deleted,
-                'max_created_day': max_created_day['day'].strftime('%A') if max_created_day else 'No data',
-                'max_completed_day': max_completed_day['day'].strftime('%A') if max_completed_day else 'No data',
+                'max_created_day': days_translation[max_created_day['day'].strftime('%A')] if max_created_day else 'Нет данных',
+                'max_completed_day': days_translation[max_completed_day['day'].strftime('%A')] if max_completed_day else 'Нет данных',
             }
 
             return Response(stats, status=status.HTTP_200_OK)
@@ -1064,7 +1075,7 @@ class CandidateInvitationUpdateView(APIView):
             "Пример статистики за 2023 год",
             value=[
                 {
-                    "month": "January 2023",
+                    "month": "Январь 2023",
                     "issued": 50,
                     "subtracted": 20,
                     "invited": 30,
@@ -1072,7 +1083,7 @@ class CandidateInvitationUpdateView(APIView):
                     "rejected": 5
                 },
                 {
-                    "month": "February 2023",
+                    "month": "Февраль 2023",
                     "issued": 60,
                     "subtracted": 25,
                     "invited": 40,
@@ -1103,6 +1114,22 @@ class AdminMonthlyStatisticView(APIView):
 
         statistics = []
 
+        # Словарь для перевода месяцев
+        months_translation = {
+            'January': 'Январь',
+            'February': 'Февраль',
+            'March': 'Март',
+            'April': 'Апрель',
+            'May': 'Май',
+            'June': 'Июнь',
+            'July': 'Июль',
+            'August': 'Август',
+            'September': 'Сентябрь',
+            'October': 'Октябрь',
+            'November': 'Ноябрь',
+            'December': 'Декабрь'
+        }
+
         # Генерация статистики по месяцам
         current_date = start_date
         while current_date <= end_date:
@@ -1116,8 +1143,11 @@ class AdminMonthlyStatisticView(APIView):
                 created_at__month=current_date.month,
             )
 
+            month_eng = current_date.strftime('%B')
+            month_rus = months_translation[month_eng]
+            
             statistics.append({
-                'month': current_date.strftime('%B %Y'),
+                'month': f"{month_rus} {current_date.year}",
                 'issued': transactions.filter(operation='add').count(),
                 "subtracted": transactions.filter(operation='subtract').count(),
                 'invited': invitations.filter(status='invited').count(),
