@@ -11,6 +11,7 @@ from rest_framework.views import APIView
 from rest_framework.viewsets import ModelViewSet
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
+from rest_framework.exceptions import ValidationError
 
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
@@ -134,13 +135,7 @@ class GetUserInfoView(APIView):
         description="Возвращает список задач текущего пользователя. Поддерживается фильтрация по `status` и `due_date`.",
         parameters=[
             OpenApiParameter(
-                name="status",
-                description="Фильтр по статусу задачи (e.g., 'completed', 'pending')",
-                required=False,
-                type=str,
-            ),
-            OpenApiParameter(
-                name="due_date",
+                name="due_date", 
                 description="Фильтр задач по дате выполнения (в формате 'YYYY-MM-DD')",
                 required=False,
                 type=str,
@@ -153,7 +148,7 @@ class GetUserInfoView(APIView):
             ),
             400: OpenApiResponse(
                 response={"error": "str"},
-                description="Ошибка в фильтрах запроса",
+                description="Ошибка в фильтрах запроса", 
             ),
         },
         examples=[
@@ -169,7 +164,7 @@ class GetUserInfoView(APIView):
                     },
                     {
                         "id": 2,
-                        "title": "Прочитать книгу",
+                        "title": "Прочитать книгу", 
                         "description": "Дочитать книгу по программированию.",
                         "status": "completed",
                         "due_date": "2025-01-20",
@@ -195,7 +190,17 @@ class TodoViewSet(ModelViewSet):
         """
         Переопределяем метод для фильтрации задач по текущему пользователю.
         """
-        return models.Todo.objects.filter(user=self.request.user, is_visible=True)
+        queryset = models.Todo.objects.filter(user=self.request.user, is_visible=True)
+        due_date = self.request.query_params.get('due_date')
+        
+        if due_date:
+            try:
+                date_obj = datetime.strptime(due_date, '%Y-%m-%d').date()
+                queryset = queryset.filter(due_date__date=date_obj)
+            except ValueError:
+                raise ValidationError({'error': 'Неверный формат даты. Используйте YYYY-MM-DD'})
+            
+        return queryset
 
     def perform_create(self, serializer):
         """
