@@ -1,32 +1,35 @@
-from django.utils import timezone
-
-from django.db.models.functions import TruncDay
-from django.db.models import Count
-from django.db.models import Q
-
-from rest_framework import status
-
-from rest_framework.generics import ListAPIView
-from rest_framework.views import APIView
-from rest_framework.viewsets import ModelViewSet
-from rest_framework.permissions import IsAuthenticated
-from rest_framework.response import Response
-from rest_framework.exceptions import ValidationError
-
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 
-from . import models
-from . import serializers
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDay
+from django.utils import timezone
 
-from .permissions import IsAdministrator, IsSupervisor
-from .utils import (restore_archived_candidates, 
-                    update_all_candidate_statuses, 
-                    update_one_status, write_off_the_quota)
+from rest_framework import status
+from rest_framework.exceptions import ValidationError
+from rest_framework.generics import ListAPIView
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.viewsets import ModelViewSet
 
-from drf_spectacular.utils import extend_schema,extend_schema_view, OpenApiResponse, OpenApiExample, OpenApiParameter
 from drf_spectacular.types import OpenApiTypes
+from drf_spectacular.utils import (
+    OpenApiExample,
+    OpenApiParameter,
+    OpenApiResponse,
+    extend_schema,
+    extend_schema_view,
+)
 
+from . import models, serializers
+from .permissions import IsAdministrator, IsSupervisor
+from .utils import (
+    restore_archived_candidates,
+    update_all_candidate_statuses,
+    update_one_status,
+    write_off_the_quota,
+)
 
 @extend_schema(
     summary="Получение полной информации о пользователе",
