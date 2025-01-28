@@ -62,22 +62,22 @@ class Candidate(models.Model):
         updated_at (datetime): Дата и время последнего обновления записи (обновляется автоматически).
     """
 
-    is_archive = models.BooleanField(default=False)
-    name = models.CharField(max_length=16)
-    surname = models.CharField(max_length=64)
-    patronymic = models.CharField(max_length=32, null=True, blank=True)
-    birth = models.DateField(null=True, blank=True)
-    education = models.CharField(max_length=128, null=True, blank=True)
-    photo = models.ImageField(upload_to='avatars/candidates/', null=True, blank=True)
+    is_archive = models.BooleanField(default=False,  verbose_name="в архиве")
+    name = models.CharField(max_length=16, verbose_name="имя")
+    surname = models.CharField(max_length=64, verbose_name="фамилия")
+    patronymic = models.CharField(max_length=32, null=True, blank=True, verbose_name="отчество")
+    birth = models.DateField(null=True, blank=True, verbose_name="дата рождения")
+    education = models.CharField(max_length=128, null=True, blank=True, verbose_name="образование")
+    photo = models.ImageField(upload_to='avatars/candidates/', null=True, blank=True, verbose_name="фото")
 
-    country = models.CharField(max_length=32, default="Россия")
-    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=32, default="Россия", verbose_name="страна")
+    city = models.CharField(max_length=32, verbose_name="город")
 
-    email = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=16)
-    resume = models.CharField(max_length=128, null=True, blank=True)
+    email = models.EmailField(null=True, blank=True, verbose_name="почта")
+    phone = models.CharField(max_length=16, verbose_name="телефон")
+    resume = models.CharField(max_length=128, null=True, blank=True, verbose_name="резюме")
 
-    is_free = models.BooleanField(default=True)
+    is_free = models.BooleanField(default=True, verbose_name="свободен")
     office = models.ForeignKey(
         "hr.Office",
         on_delete=models.CASCADE,
@@ -129,8 +129,8 @@ class Candidate(models.Model):
     completed_objects = models.PositiveIntegerField(default=0, verbose_name="Объекты")
     clients = models.PositiveIntegerField(default=0, verbose_name="клиенты")
 
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="создан")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обнавлён")
 
     def __str__(self):
         return f"{self.name} {self.surname}"
@@ -191,11 +191,12 @@ class Invitation(models.Model):
             ("accepted", "Принят"),
             ("rejected", "Отклонён"),
         ],
-        default="invited",
+        default="invited", 
+        verbose_name="статус"
     )
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="отправлено")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлено")
 
     def __str__(self):
         return f"Приглашение {self.candidate} в {self.office}"
@@ -223,7 +224,7 @@ class Office(models.Model):
 
     name = models.CharField(max_length=255, verbose_name="Название офиса")
     location = models.CharField(max_length=255, verbose_name="Местоположение")
-    phone = models.CharField(max_length=15, null=True, blank=True)
+    phone = models.CharField(max_length=15, null=True, blank=True, verbose_name="телефон")
     quota = models.PositiveIntegerField(verbose_name="Базовая квота")  # Стартовая квота
     used_quota = models.PositiveIntegerField(default=0, verbose_name="Использованная квота")
     
@@ -241,6 +242,18 @@ class Office(models.Model):
         """
         self.quota = 0
         self.save()
+        
+    def change_quota(self, operation, count):
+        if operation == 'add':
+            self.quota += count
+            self.save()
+            return True, self.quota
+        elif operation == 'subtract':
+            if self.quota > count:
+                return False, 'Недостаточно квот для снятия'
+            self.quota -= count
+            self.save()
+            return True, self.quota
 
     def __str__(self):
         return f"{self.name} ({self.location})"
@@ -271,7 +284,7 @@ class Transaction(models.Model):
         choices=OPERATION_CHOICES,
         verbose_name="Операция"
     )
-    cause = models.CharField(max_length=128)
+    cause = models.CharField(max_length=128, verbose_name='причина')
     
     office = models.ForeignKey(
         "Office",
@@ -467,8 +480,10 @@ class ChatLink(models.Model):
         choices=PLATFORM_CHOICES,
         verbose_name="Платформа"
     )
+    
+    is_active = models.BooleanField(verbose_name='активна',default=True)
     link = models.CharField(max_length=512, verbose_name='Ссылка')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Добавлено в избранное")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="добавлена")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Стала неактивной")
 
     def __str__(self):

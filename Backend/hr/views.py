@@ -1341,7 +1341,7 @@ class LinkInfoView(APIView):
         ]
     )
     def get(self, request, *args, **kwargs):
-        link = models.ChatLink.objects.filter().first()
+        link = models.ChatLink.objects.filter(is_active = True).first()
         if not link:
             return Response({"detail": "ссылка не найдена"}, status=status.HTTP_404_NOT_FOUND)
         return Response({"link": link.link}, status=status.HTTP_200_OK)
