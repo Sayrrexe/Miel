@@ -11,11 +11,10 @@ import { cn } from "@/lib/utils";
 import { quotesData } from "../../consts/data";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
-import { useCTokenStore } from "@/store/context";
 
 export const QuotesTable = () => {
   const [quotes, setQuotes] = useState([]);
-  const token = useCTokenStore((state) => state.token);
+  const token = localStorage.getItem("token") || "";
 
   useEffect(() => {
     (async () => {

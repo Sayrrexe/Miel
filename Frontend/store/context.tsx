@@ -1,4 +1,7 @@
+/* global localStorage, */
+"use client";
 import { create } from "zustand";
+import { useEffect } from "react";
 
 interface user {
   data: {
@@ -35,16 +38,30 @@ interface token {
 }
 
 export const useCTokenStore = create<token>()((set) => ({
-  token: localStorage.getItem("token") || "",
+  token: "", // Изначально пустой токен
   setToken: (token: string) => set({ token }),
 }));
 
+// Используем useEffect для установки токена из localStorage
+export const useSyncTokenFromLocalStorage = () => {
+  const setToken = useCTokenStore((state) => state.setToken);
+
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const token = localStorage.getItem("token");
+      if (token) {
+        setToken(token);
+      }
+    }
+  }, [setToken]);
+};
+
 export const useCategoryStore = create<user>()((set) => ({
   data: {
-    username: localStorage.getItem("username") || "",
+    username: "",
     password: "",
-    role: localStorage.getItem("role") || "",
-    full_name: localStorage.getItem("full_name") || "",
+    role: "",
+    full_name: "",
     email: "",
     phone: "",
     office_name: "",
@@ -82,16 +99,18 @@ interface employee {
     course_taxation: string;
     created_at: string;
     education: string;
-    email: string;
+    email?: string;
     is_archive: boolean;
     is_free: boolean;
+    id?: number;
     name: string;
-    office: string;
+    office?: number;
     patronymic: string;
     phone: string;
-    photo: string;
+    photo?: string;
     resume: string;
     surname: string;
+    office_name: string;
   };
   setEmployee: (data: {
     age: number;
@@ -106,43 +125,44 @@ interface employee {
     course_taxation: string;
     created_at: string;
     education: string;
-    email: string;
+    email?: string;
     is_archive: boolean;
     is_free: boolean;
     name: string;
-    office: string;
+    office?: number;
     patronymic: string;
     phone: string;
-    photo: string;
+    photo?: string;
     resume: string;
     surname: string;
+    id?: number;
+    office_name: string;
   }) => void;
 }
 
 export const useEmployee = create<employee>()((set) => ({
   data: {
     age: 0,
-    basic_legal_course: "",
+    basic_legal_course: "not_started",
     birth: "",
     city: "",
     clients: 0,
     completed_objects: 0,
     country: "",
-    course_mortgage: "",
-    course_rieltor_join: "",
-    course_taxation: "",
+    course_mortgage: "not_started",
+    course_rieltor_join: "not_started",
+    course_taxation: "not_started",
     created_at: "",
     education: "",
     email: "",
     is_archive: false,
-    is_free: false,
+    is_free: true,
     name: "",
-    office: "",
     patronymic: "",
     phone: "",
-    photo: "",
-    resume: "",
     surname: "",
+    resume: "",
+    office_name: "",
   },
   setEmployee: (data: {
     age: number;
@@ -157,15 +177,53 @@ export const useEmployee = create<employee>()((set) => ({
     course_taxation: string;
     created_at: string;
     education: string;
-    email: string;
+    email?: string;
     is_archive: boolean;
     is_free: boolean;
     name: string;
-    office: string;
+    office?: number;
     patronymic: string;
     phone: string;
-    photo: string;
+    photo?: string;
     resume: string;
     surname: string;
+    id?: number;
+    office_name: string;
   }) => set({ data }),
+}));
+interface Candidate {
+  age: number;
+  basic_legal_course: string;
+  birth: string;
+  city: string;
+  clients: number;
+  completed_objects: number;
+  country: string;
+  course_mortgage: string;
+  course_rieltor_join: string;
+  course_taxation: string;
+  created_at: string;
+  education: string;
+  email?: string;
+  is_archive: boolean;
+  is_free: boolean;
+  id?: number;
+  name: string;
+  office?: number;
+  patronymic: string;
+  phone: string;
+  photo?: string;
+  resume: string;
+  surname: string;
+  office_name: string;
+}
+
+interface CandidatesState {
+  data: Candidate[];
+  setCandidates: (data: Candidate[]) => void;
+}
+
+export const useCandidates = create<CandidatesState>((set) => ({
+  data: [],
+  setCandidates: (data) => set({ data }),
 }));

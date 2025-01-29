@@ -5,11 +5,10 @@ import { candidatObject } from "../../consts/data";
 import { Candidate } from "../../candidate";
 import fetchGetEndpoint from "../../../../lib/candidates";
 import { useEffect, useState } from "react";
-import { useCTokenStore } from "@/store/context";
 
 export const DashboardBossCandidates = () => {
   const [candidates, setCandidates] = useState<candidatObject[]>([]);
-  const token = useCTokenStore((state) => state.token);
+  const token = localStorage.getItem("token") || "";
   useEffect(() => {
     (async () => {
       const endpointToCall = "/api/supervisor/candidates/";

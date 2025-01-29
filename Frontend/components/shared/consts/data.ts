@@ -578,3 +578,30 @@ export const messageData: chatters[] = [
     index: 4,
   },
 ];
+
+export interface data {
+  age: number;
+  basic_legal_course: string;
+  birth: string;
+  city: string;
+  clients: number;
+  completed_objects: number;
+  country: string;
+  course_mortgage: string;
+  course_rieltor_join: string;
+  course_taxation: string;
+  created_at: string;
+  education: string;
+  email?: string;
+  is_archive: boolean;
+  is_free: boolean;
+  id?: number;
+  name: string;
+  office?: number;
+  patronymic: string;
+  phone: string;
+  photo?: string;
+  resume: string;
+  surname: string;
+  office_name: string;
+}

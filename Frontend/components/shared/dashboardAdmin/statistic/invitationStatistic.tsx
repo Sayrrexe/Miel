@@ -10,11 +10,54 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui";
-import { useEffect, useState } from "react";
-import fetchGetEndpoint from "@/lib/candidates";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
-export const HistoryTable = () => {
+import { useEffect, useState } from "react";
+import fetchGetEndpoint from "@/lib/candidates";
+
+type ValuePiece = Date | null;
+
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+
+interface PersonalInfoProps {
+  start_date: Value;
+  end_date: Value;
+}
+
+export const InvitationStatistic = ({
+  start_date,
+  end_date,
+}: PersonalInfoProps) => {
+  const token = localStorage.getItem("token") || "";
+  interface Invitings {
+    full_name: string;
+    photo: string;
+    age: number;
+    city: string;
+    status: string;
+    updated_at: string;
+  }
+  const [invitings, setInvitings] = useState<Invitings[]>([]);
+  useEffect(() => {
+    console.log(token);
+    (async () => {
+      const endpointToCall = "/api/admin/statistic/invitations";
+      const response = await fetchGetEndpoint(
+        endpointToCall,
+        token,
+        start_date,
+        end_date
+      );
+
+      // Проверяем, что ответ успешный и содержит данные
+      if ("data" in response && Array.isArray(response.data)) {
+        setInvitings(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+      } else {
+        // Обработка ошибки, если response не содержит data или data не является массивом
+        console.error("Error fetching candidates:", response);
+      }
+    })();
+  }, [end_date, start_date, token]);
   const statusColor: string[] = [
     "invited",
     "#FF7B2F",
@@ -31,42 +74,23 @@ export const HistoryTable = () => {
     "rejected",
     "Отказ",
   ];
-  interface Users {
-    index: number;
-    photo: string;
-    name: string;
-    city: string;
-    age: number;
-    status: string;
-    data: string;
-  }
-  const [users, setUsers] = useState<Users[]>([]);
-  const token = localStorage.getItem("token") || "";
-  useEffect(() => {
-    console.log(token);
-    (async () => {
-      const endpointToCall = "/api/admin/supervisors/";
-      const response = await fetchGetEndpoint(endpointToCall, token);
-
-      // Проверяем, что ответ успешный и содержит данные
-      if ("data" in response && Array.isArray(response.data)) {
-        setUsers(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
-      } else {
-        // Обработка ошибки, если response не содержит data или data не является массивом
-        console.error("Error fetching candidates:", response);
-      }
-    })();
-  }, [token]);
-
+  const users = [
+    {
+      photo: "",
+      index: 0,
+      name: "fdsfs",
+      city: "fdsfsdf",
+      age: 21,
+      status: "invited",
+      data: "01.03.2006",
+    },
+  ];
   return (
     <div
       className={cn("flex flex-col justify-between")}
       onClick={() => console.log(users)}
     >
       <div className="flex gap-[92px] mt-10 text-xl">
-        <p className="whitespace-nowrap text-xl">
-          Данные с 01.02.2024 - 30.10. 2024
-        </p>
         <div className="flex gap-11">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-[#FF7B2F]" />
@@ -93,8 +117,8 @@ export const HistoryTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((objectData) => (
-            <TableRow key={objectData.index}>
+          {invitings.map((objectData, index) => (
+            <TableRow key={index}>
               <TableCell className="flex items-center gap-3 justify-center">
                 {objectData.photo ? (
                   <img
@@ -114,7 +138,7 @@ export const HistoryTable = () => {
                   />
                 )}
 
-                <p>{objectData.name}</p>
+                <p>{objectData.full_name}</p>
               </TableCell>
               <TableCell>{objectData.city}</TableCell>
               <TableCell>{objectData.age} года</TableCell>
@@ -127,7 +151,9 @@ export const HistoryTable = () => {
                 {statusPosition[statusPosition.indexOf(objectData.status) + 1]}
               </TableCell>
               <TableCell>
-                {objectData.data ? objectData.data : "Не указана"}
+                {objectData.updated_at
+                  ? objectData.updated_at.split("T")[0]
+                  : "Не указана"}
               </TableCell>
             </TableRow>
           ))}

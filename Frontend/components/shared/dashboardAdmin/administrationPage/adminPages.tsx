@@ -18,7 +18,15 @@ import { useCategoryStore } from "@/store/context";
 
 export const AdminPages = () => {
   const [activeCategorie, setActiveCategorie] = useState(
-    location.pathname == "/dashboardCandidatesAdmin" ? 2 : 0
+    location.pathname == "/main1"
+      ? 0
+      : location.pathname == "/plans"
+      ? 1
+      : location.pathname == "/statisticAdmin"
+      ? 3
+      : location.pathname == "/archive"
+      ? 4
+      : 2
   );
   const data = useCategoryStore((state) => state.data);
   return (
@@ -34,8 +42,14 @@ export const AdminPages = () => {
           className="mb-2"
         />
         <div>
-          <p className="text-xs font-bold">Привет, {data.username} 👋</p>
-          <p className="text-sm">{data.full_name}</p>
+          {data.username && data.full_name ? (
+            <div>
+              <p className="text-xs font-bold">{data.username}</p>
+              <p className="text-sm">{data.full_name}</p>
+            </div>
+          ) : (
+            <p>user</p>
+          )}
         </div>
       </div>
 
@@ -50,12 +64,18 @@ export const AdminPages = () => {
           <FileSliders />
           Администрирование
         </Link>
-        <p className="flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300">
+        <Link
+          href={"/plans"}
+          onClick={() => setActiveCategorie(1)}
+          className={`${
+            activeCategorie == 1 && "bg-gray-300"
+          } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300`}
+        >
           <List />
           Планирование
-        </p>
+        </Link>
         <Link
-          href={"./candidates"}
+          href={"/candidates"}
           onClick={() => setActiveCategorie(2)}
           className={`${
             activeCategorie == 2 && "bg-gray-300"
@@ -63,14 +83,26 @@ export const AdminPages = () => {
         >
           <UsersRound /> Витрина кандидатов
         </Link>
-        <p className="flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300">
+        <Link
+          href={"/statisticAdmin"}
+          onClick={() => setActiveCategorie(3)}
+          className={`${
+            activeCategorie == 3 && "bg-gray-300"
+          } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300`}
+        >
           <ChartNoAxesColumnIncreasing />
           Статистика
-        </p>
-        <p className="flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300">
+        </Link>
+        <Link
+          href={"/archive"}
+          onClick={() => setActiveCategorie(4)}
+          className={`${
+            activeCategorie == 4 && "bg-gray-300"
+          } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300`}
+        >
           <ArchiveRestore />
           Архив
-        </p>
+        </Link>
       </div>
       <div className="flex justify-center flex-col gap-0 mt-12">
         <p className="flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300">

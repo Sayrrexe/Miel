@@ -2,7 +2,6 @@
 import { PT_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/shared";
-import { BossPages } from "@/components/shared/dashboardBoss/candidatesPage";
 import { BrowserRouter } from "react-router-dom";
 
 const PTSans = PT_Sans({
@@ -29,8 +28,10 @@ export default function RootLayout({
         <BrowserRouter>
           <Header />
           <main className="flex ">
-            <BossPages />
-            {children}
+            <p>
+              Вы переходите на страницу босса, у вас нету профиля в этой
+              категории, вернитесь на страницу администратора
+            </p>
           </main>
         </BrowserRouter>
       </body>
