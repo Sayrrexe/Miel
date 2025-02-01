@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
@@ -14,6 +15,8 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
     office_location = serializers.CharField(source='office.location', read_only=True)
     office_quota = serializers.CharField(source='office.quota', read_only=True)
     office_used_quota = serializers.CharField(source='office.used_quota', read_only=True)
+    
+    month = serializers.SerializerMethodField(read_only = True)
 
     class Meta:
         model = Supervisor
@@ -28,11 +31,30 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
             'department',   
             'office_quota',
             'office_used_quota', 
+            'month',
         ]
 
     @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
         return obj.user.get_full_name()
+    
+    @extend_schema_field(serializers.CharField)
+    def get_month(self, obj):
+        MONTHS_RU = {
+            1: "Январь",
+            2: "Февраль",
+            3: "Март",
+            4: "Апрель",
+            5: "Май",
+            6: "Июнь",
+            7: "Июль",
+            8: "Август",
+            9: "Сентябрь",
+            10: "Октябрь",
+            11: "Ноябрь",
+            12: "Декабрь",
+        }
+        return str(MONTHS_RU[datetime.now().month])
     
 class InfoAboutAdmin(serializers.ModelSerializer):
     role = serializers.CharField(default="1", read_only=True)
