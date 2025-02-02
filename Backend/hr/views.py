@@ -272,7 +272,7 @@ class InvitationAPIView(APIView):
         elif end_date:
             queryset = queryset.filter(updated_at__lte=end_date)
         
-        serializer = serializers.InvitationSerializer(queryset, many=True)
+        serializer = serializers.InvitationSerializer(queryset, many=True, context={'request': request})
         return Response(serializer.data)
     
     @extend_schema(

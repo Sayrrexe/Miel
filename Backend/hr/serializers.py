@@ -101,6 +101,7 @@ class InvitationSerializer(serializers.ModelSerializer):
     patronymic = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField(read_only=True)
     status = serializers.CharField(read_only=True) 
     updated_at = serializers.CharField(read_only=True)
 
@@ -113,6 +114,7 @@ class InvitationSerializer(serializers.ModelSerializer):
             'patronymic',
             'city',
             'age',
+            'photo',
             'status',
             'updated_at',
         ]
@@ -137,6 +139,13 @@ class InvitationSerializer(serializers.ModelSerializer):
     def get_age(self, obj):
         return obj.candidate.calculate_age()
     
+    @extend_schema_field(serializers.CharField)
+    def get_photo(self, obj):
+        request = self.context.get('request')  
+        candidate = obj.candidate
+        if candidate.photo and candidate.photo.name:
+            return request.build_absolute_uri(candidate.photo.url) 
+        return None
         
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)  
