@@ -42,13 +42,37 @@ interface SuccessResponse {
   max_completed_day: string;
 }
 
-type ValuePiece = Date | null;
+// Тип для пользователя
+interface User {
+  first_name: string;
+  username: string;
+  patronymic: string;
+  phone: string;
+  email: string;
+  office: string;
+}
 
-type Value = ValuePiece | [ValuePiece, ValuePiece];
+// Тип для элемента в ответе (кандидат)
+interface Candidate {
+  index: number;
+  photo: string;
+  user: User; // Один пользователь
+}
 
-// Объединенный тип для ответа (успех или ошибка)
-type FetchResponse = AxiosResponse<SuccessResponse> | ErrorResponse;
+// Тип для успешного ответа
+interface SuccessResponse {
+  phone: string;
+  email: string;
+  full_name: string;
+  role: string;
+  data: Candidate[]; // Массив кандидатов
+}
 
+// Тип для ошибки
+interface ErrorResponse {
+  error: string;
+  details?: any;
+}
 function formatDate(date: Date | null): string | null {
   if (!date) return null;
   const year = date.getFullYear();
@@ -244,6 +268,117 @@ export async function fetchPatchEndpoint(
     );
 
     return response.data; // Возвращаем данные из ответа
+  } catch (error) {
+    return handleError(error);
+  }
+}
+
+// Функция для получения кандидатов с параметрами фильтрации
+interface User {
+  first_name: string;
+  username: string;
+  patronymic: string;
+  phone: string;
+  email: string;
+  office: string;
+}
+
+// Тип для элемента в ответе (кандидат)
+interface Candidate {
+  index: number;
+  photo: string;
+  user: User; // Один пользователь
+  // Добавьте остальные поля, если нужно
+}
+
+// Тип для успешного ответа
+interface SuccessResponse {
+  data: Candidate[]; // Массив кандидатов
+}
+
+// Тип для ошибки
+interface ErrorResponse {
+  error: string;
+  details?: any;
+}
+
+// Тип для объединенного ответа (успех или ошибка)
+type FetchResponse = AxiosResponse<SuccessResponse> | ErrorResponse;
+
+// Тип для пользователя
+interface User {
+  first_name: string;
+  username: string;
+  patronymic: string;
+  phone: string;
+  email: string;
+  office: string;
+}
+
+type ValuePiece = Date | null;
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+// Тип для ошибки
+interface ErrorResponse {
+  error: string;
+  details?: any;
+}
+
+export async function fetchGetCandidates(
+  endpoint: string,
+  token: string,
+  age_max?: number,
+  age_min?: number,
+  by_new?: boolean,
+  courses?: string[] // Параметр courses теперь массив строк
+): Promise<FetchResponse> {
+  try {
+    let url = `http://80.85.246.168${endpoint}`;
+    const params: string[] = [];
+
+    // Проверка age_max, добавляем параметр, если он не равен 0
+    if (age_max && age_max !== 0) {
+      params.push(`age_max=${age_max}`);
+    }
+
+    // Проверка age_min, добавляем параметр, если он не равен 0
+    if (age_min && age_min !== 0) {
+      params.push(`age_min=${age_min}`);
+    }
+
+    // Проверка by_new, добавляем параметр, если он не undefined
+    if (by_new !== undefined) {
+      params.push(`by_new=${by_new}`);
+    }
+
+    // Обрабатываем параметр courses, если он есть и не пустой
+    if (courses && courses.length > 0) {
+      // Каждое значение из массива передаем как отдельный параметр
+      courses.forEach((course) => {
+        if (course) {
+          params.push(`courses=${encodeURIComponent(course)}`);
+        }
+      });
+    }
+
+    // Если есть параметры, добавляем их к URL
+    if (params.length > 0) {
+      url += `?${params.join("&")}`;
+    }
+
+    console.log(url); // Логируем финальный URL для отладки
+
+    // Выполнение запроса
+    const response = await axios.get<SuccessResponse>(url, {
+      headers: {
+        Authorization: `Token ${
+          token || "1a5091d623065bdb3722c62b70a473cfe2b1749f"
+        }`,
+      },
+    });
+
+    return response.data
+      ? response
+      : { error: "Unexpected response structure" };
   } catch (error) {
     return handleError(error);
   }

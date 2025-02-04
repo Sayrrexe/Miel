@@ -47,10 +47,17 @@ const Authorisation = () => {
   }
   const router = useRouter();
   useEffect(() => {
-    if (data.role != "") {
-      router.push(`main1`);
+    const storedRole = localStorage.getItem("role");
+    const storedFullName = localStorage.getItem("full_name");
+
+    if (storedRole && storedFullName) {
+      if (storedRole === "1") {
+        router.push("/main1");
+      } else if (storedRole === "2") {
+        router.push("/main2");
+      }
     }
-  }, [data, router]);
+  }, [router, data]);
   return (
     <div className="flex items-center w-[930px] ml-auto mr-auto">
       <div className="flex items-center justify-center h-[100vh] w-[100%]">
@@ -138,20 +145,17 @@ const Authorisation = () => {
                       onClick={() =>
                         (async () => {
                           try {
-                            // Отправка запроса на авторизацию
                             const authResponse = await fetchAuthorisation(
                               "/api/login/",
                               data
                             );
                             console.log(authResponse);
 
-                            // Проверка, что ответ от сервера валиден и содержит токен
-                            if (authResponse && authResponse.token) {
-                              // Если токен получен, сохраняем его и продолжаем выполнение
-                              console.log(1);
+                            // Check if the response is a success response
+                            if ("token" in authResponse) {
+                              // If the response has a token, continue as expected
                               localStorage.setItem("token", authResponse.token);
 
-                              // Запрос данных пользователя
                               const endpointToCall = "/api/info/";
                               const infoResponse = await fetchGetEndpoint(
                                 endpointToCall,
@@ -159,10 +163,15 @@ const Authorisation = () => {
                               );
                               console.log(infoResponse);
 
-                              // Проверка, является ли infoResponse валидным объектом с данными
-                              if ("data" in infoResponse) {
-                                // infoResponse содержит поле 'data'
-                                const info = infoResponse.data;
+                              // Check if the response is of type SuccessResponse
+                              if (
+                                "data" in infoResponse &&
+                                Array.isArray(infoResponse.data) &&
+                                infoResponse.data.length > 0
+                              ) {
+                                const info = infoResponse.data[0]; // Get the first element of the array
+
+                                console.log(info); // Log the first element
 
                                 if (info) {
                                   setUser({
@@ -174,7 +183,6 @@ const Authorisation = () => {
                                     phone: info.phone,
                                   });
 
-                                  // Сохраняем информацию о пользователе в localStorage
                                   localStorage.setItem(
                                     "username",
                                     data.username
@@ -186,19 +194,15 @@ const Authorisation = () => {
                                   localStorage.setItem("role", info.role);
                                 }
                               } else {
-                                // infoResponse не содержит data, вероятно ошибка
                                 console.error(
-                                  "Error fetching data:",
-                                  infoResponse.error
+                                  "No valid user data in response."
                                 );
-                                // Здесь можно добавить обработку ошибки, если infoResponse.error существует
+                                setUserWrong(true);
                               }
                             } else {
-                              // Если данных нет в ответе, обрабатываем ошибку
                               setUserWrong(true);
                             }
                           } catch (error) {
-                            // Обработка ошибки запроса
                             console.log(error);
                             setUserWrong(true);
                           }

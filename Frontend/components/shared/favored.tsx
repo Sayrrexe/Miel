@@ -3,23 +3,20 @@ import { cn } from "@/lib/utils";
 import { Candidate } from "./candidate";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
-import { candidatObject } from "./consts/data";
+import { bossCandidatObject } from "./consts/data";
 
 export const Favored = () => {
-  const [candidates, setCandidates] = useState<Candidates[]>([]);
+  const [candidates, setCandidates] = useState<bossCandidatObject[]>([]);
   const token = localStorage.getItem("token") || "";
-  interface Candidates {
-    candidate: candidatObject;
-    id: number;
-  }
   useEffect(() => {
     console.log(token);
     (async () => {
-      const endpointToCall = "/api/admin/supervisors/";
+      const endpointToCall = "/api/supervisor/favorites/";
       const response = await fetchGetEndpoint(endpointToCall, token);
 
       // Проверяем, что ответ успешный и содержит данные
       if ("data" in response && Array.isArray(response.data)) {
+        console.log(response.data);
         setCandidates(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
       } else {
         // Обработка ошибки, если response не содержит data или data не является массивом
@@ -36,7 +33,7 @@ export const Favored = () => {
         ) : (
           candidates.map((candidatObject) => (
             <Candidate
-              candidate={candidatObject.candidate}
+              candidate={candidatObject.candidate_info}
               key={candidatObject.id}
             />
           ))

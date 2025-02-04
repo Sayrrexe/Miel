@@ -32,20 +32,22 @@ export const HistoryTable = () => {
     "Отказ",
   ];
   interface Users {
-    index: number;
-    photo: string;
+    candidate: number;
     name: string;
+    surname: string;
+    patronymic: string;
     city: string;
     age: number;
     status: string;
-    data: string;
+    updated_at: string;
+    photo: string;
   }
   const [users, setUsers] = useState<Users[]>([]);
   const token = localStorage.getItem("token") || "";
   useEffect(() => {
     console.log(token);
     (async () => {
-      const endpointToCall = "/api/admin/supervisors/";
+      const endpointToCall = "/api/supervisor/invitations/";
       const response = await fetchGetEndpoint(endpointToCall, token);
 
       // Проверяем, что ответ успешный и содержит данные
@@ -93,8 +95,8 @@ export const HistoryTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((objectData) => (
-            <TableRow key={objectData.index}>
+          {users.map((objectData, index) => (
+            <TableRow key={index}>
               <TableCell className="flex items-center gap-3 justify-center">
                 {objectData.photo ? (
                   <img
@@ -127,7 +129,9 @@ export const HistoryTable = () => {
                 {statusPosition[statusPosition.indexOf(objectData.status) + 1]}
               </TableCell>
               <TableCell>
-                {objectData.data ? objectData.data : "Не указана"}
+                {objectData.updated_at
+                  ? objectData.updated_at.split(" ")[0]
+                  : "Не указана"}
               </TableCell>
             </TableRow>
           ))}

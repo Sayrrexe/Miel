@@ -2,59 +2,53 @@
 
 import { cn } from "@/lib/utils";
 import avatar from "../../../../public/assets/Ellipse 190@2x.png";
+import frame from "../../../../public/assets/Frame.png";
 import Image from "next/image";
-import graph from "../../../../public/assets/Frame 738001457.png";
 import { Folder, Grid2X2, Heart, Users } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import { useLocation } from "react-router-dom";
 import { useCategoryStore } from "@/store/context";
-import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 
 export const BossPages = () => {
   const location = useLocation();
   const [activeCategorie, setActiveCategorie] = useState(
-    location.pathname == "/dashboardBossFavored"
+    location.pathname == "/candidatesFavored"
       ? 1
-      : location.pathname == "/dashboardBossInvitingHistory"
+      : location.pathname == "/invitingHistory"
       ? 2
-      : location.pathname == "/dashboardBossQuotes"
+      : location.pathname == "/quotes"
       ? 3
       : 0
   );
   const data = useCategoryStore((state) => state.data);
 
   return (
-    <div className={cn("")}>
-      <div className="float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]">
-        {data.username !== "" ? (
-          <div className="flex items-center ml-6 mt-5 gap-3 ">
-            <Image
-              width={40}
-              height={40}
-              src={avatar}
-              alt="avatar"
-              className="mb-2"
-            />
-            <div>
-              <p className="text-xs font-bold">Привет, Мария 👋</p>
-              <p className="text-sm">Колесникова Мария</p>
-            </div>
+    <div
+      className={cn(
+        "flex justify-between flex-col float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]"
+      )}
+    >
+      <div className="">
+        <div className="flex items-center ml-6 mt-5 gap-3 ">
+          <Image
+            width={40}
+            height={40}
+            src={avatar}
+            alt="avatar"
+            className="mb-2"
+          />
+          <div>
+            {data.username && data.full_name ? (
+              <div>
+                <p className="text-xs font-bold">{data.username}</p>
+                <p className="text-sm">{data.full_name}</p>
+              </div>
+            ) : (
+              <p>user</p>
+            )}
           </div>
-        ) : (
-          <div className="flex items-center ml-6 mt-5 gap-3 ">
-            <Image
-              width={40}
-              height={40}
-              src={user}
-              alt="avatar"
-              className="mb-2"
-            />
-            <Link className="mb-[6px] hover:underline" href={"/authorisation"}>
-              Войти в аккаунт
-            </Link>
-          </div>
-        )}
+        </div>
 
         <div className="mt-12 gap-0 flex flex-col">
           <Link
@@ -98,14 +92,8 @@ export const BossPages = () => {
             Статистика по квотам
           </Link>
         </div>
-        <Image
-          src={graph}
-          width={198}
-          height={243}
-          alt="graph"
-          className="mt-[96px] ml-[39px]"
-        />
       </div>
+      <Image width={280} height={169} src={frame} alt="avatar" />
     </div>
   );
 };

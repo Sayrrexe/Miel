@@ -3,6 +3,7 @@ import { PT_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/shared";
 import { BrowserRouter } from "react-router-dom";
+import { BossPages } from "@/components/shared/dashboardBoss/candidatesPage";
 
 const PTSans = PT_Sans({
   subsets: ["cyrillic"],
@@ -28,10 +29,12 @@ export default function RootLayout({
         <BrowserRouter>
           <Header />
           <main className="flex ">
-            <p>
-              Вы переходите на страницу босса, у вас нету профиля в этой
-              категории, вернитесь на страницу администратора
-            </p>
+            <BossPages />
+            {localStorage.getItem("token") ? (
+              children
+            ) : (
+              <p>Вы не авторизованы</p>
+            )}
           </main>
         </BrowserRouter>
       </body>

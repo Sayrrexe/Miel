@@ -30,8 +30,8 @@ export default function RootLayout({
         <link data-rh="true" rel="icon" href="/logo.png" />
       </head>
       <body className={`${PTSans.variable}`}>
-        <Header />
         <BrowserRouter>
+          <Header />
           <main className="flex ">
             <AdminPages />
             {localStorage.getItem("token") ? (

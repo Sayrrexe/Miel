@@ -6,29 +6,55 @@ export const courseProgresss = [
 ];
 
 export interface candidatObject {
-  basic_legal_course: string;
-  birth: string;
-  city: string;
-  clients: number;
-  completed_objects: number;
-  country: string;
-  course_mortgage: string;
-  course_rieltor_join: string;
-  course_taxation: string;
-  created_at: string;
-  education: string;
-  email: string;
   id: number;
-  is_active: true;
-  is_free: true;
   name: string;
-  office: null;
-  patronymic: string;
-  phone: string;
-  photo: string;
-  resume: string;
   surname: string;
+  patronymic: string;
+  birth: string;
+  age: number;
+  education: string;
+  photo: string;
+  country: string;
+  city: string;
+  resume: string;
+  course_rieltor_join: string;
+  basic_legal_course: string;
+  course_mortgage: string;
+  course_taxation: string;
+  completed_objects: number;
+  clients: number;
   updated_at: string;
+  is_favorite: true;
+  favorite_id: number;
+  is_invited: true;
+}
+
+export interface bossCandidatObject {
+  id: number;
+  candidate: number;
+  candidate_info: {
+    id: number;
+    name: string;
+    surname: string;
+    patronymic: string;
+    birth: string;
+    age: number;
+    education: string;
+    photo: string;
+    country: string;
+    city: string;
+    resume: string;
+    course_rieltor_join: string;
+    basic_legal_course: string;
+    course_mortgage: string;
+    course_taxation: string;
+    completed_objects: number;
+    clients: number;
+    updated_at: string;
+    is_favorite: boolean;
+    favorite_id: number;
+    is_invited: boolean;
+  };
 }
 
 interface adminObject {
