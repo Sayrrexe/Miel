@@ -782,6 +782,21 @@ class MonthlyStatisticView(APIView):
         statistics = []
         # Генерация статистики по месяцам
         current_date = start_date
+        months_translation = {
+            'January': 'Январь',
+            'February': 'Февраль',
+            'March': 'Март',
+            'April': 'Апрель',
+            'May': 'Май',
+            'June': 'Июнь',
+            'July': 'Июль',
+            'August': 'Август',
+            'September': 'Сентябрь',
+            'October': 'Октябрь',
+            'November': 'Ноябрь',
+            'December': 'Декабрь'
+        }
+
         while current_date <= end_date:
             transactions = models.Transaction.objects.filter(
                 office=office,
@@ -794,9 +809,12 @@ class MonthlyStatisticView(APIView):
                 created_at__year=current_date.year,
                 created_at__month=current_date.month,
             )
+            
+            month_eng = current_date.strftime('%B')
+            month_rus = months_translation[month_eng]
 
             statistics.append({
-                'month': current_date.strftime('%B %Y'),
+                'month': f"{month_rus} {current_date.year}",
                 'issued': transactions.filter(operation='add').count(),
                 'invited': invitations.filter(status='invited').count(),
                 "accepted": invitations.filter(status='accepted').count(),
