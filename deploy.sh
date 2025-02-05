@@ -111,12 +111,10 @@ fi
 echo "settings.py обновлён!"
 
 # === Проверка docker-compose.yml ===
-if [ "$USE_POSTGRESQL" == "false" ]; then
-    echo "Файл docker-compose.yml уже существует."
-    echo "Создаём резервную копию..."
-    cp docker-compose.yml docker-compose.yml.bak
-    echo "Резервная копия сохранена как docker-compose.yml.bak"
-fi
+echo "Введите желаемый порт nginx(например: 80)"
+read NGINX_PORT
+echo "Введите желаемый ip nginx(например: localhost)"
+read NGINX_IP
 
 CURRENT_DIR=$(pwd)
 # === Генерация docker-compose.yml ===
@@ -163,7 +161,7 @@ services:
     image: nginx:latest
     container_name: nginx_server
     ports:
-      - "80:80"
+      - "$NGINX_PORT:$NGINX_PORT"
       - "443:443"
     volumes:
       - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
@@ -194,12 +192,119 @@ cd nginx
 
 if [ -n "$SERVER_IP" ]; then
     echo "Обновляем конфигурацию NGINX с использованием IP сервера..."
-    sed -i "s/server_name localhost;/server_name $SERVER_IP;/" nginx.conf
+    sed -i "s/server_name localhost;/server_name $NGINX_IP;/" nginx.conf
+    sed -i "s/listen 80;/listen $NGINX_PORT;/" nginx.conf
     echo "Конфигурация NGINX обновлена с server_name $SERVER_IP."
 else
     echo "Используется конфигурация NGINX по умолчанию (server_name localhost)."
 fi
 cd ..
+
+#!/bin/bash
+
+read -p "Хочешь заполнить БД? (y/n): " confirm
+
+if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
+    echo "Создание структуры management commands..."
+    
+    mkdir -p Backend/hr/management/commands
+    touch Backend/hr/management/__init__.py
+    touch Backend/hr/management/commands/__init__.py
+    
+    cat > Backend/hr/management/commands/populate_db.py <<EOL
+from django.core.management.base import BaseCommand
+from django.contrib.auth import get_user_model
+from hr.models import *
+from datetime import date
+
+User = get_user_model()
+
+def create_users():
+    users = [
+        ("root", "root", "superadmin"),
+        ("supervisor", "supervisor", "supervisor"),
+        ("admin", "admin", "admin"),
+    ]
+    
+    for username, password, role in users:
+        if not User.objects.filter(username=username).exists():
+            user = User.objects.create_user(
+                username=username,
+                password=password,
+                is_staff=True if role != "superadmin" else False,
+                is_superuser=True if role == "superadmin" else False,
+            )
+            print(f"User {username} created.")
+        else:
+            print(f"User {username} already exists.")
+
+def create_offices():
+    offices = [
+        {"name": "Офис Москва", "location": "Москва", "quota": 10},
+        {"name": "Офис СПб", "location": "Санкт-Петербург", "quota": 8},
+    ]
+    for office_data in offices:
+        Office.objects.get_or_create(**office_data)
+    print("Offices created.")
+
+def create_candidates():
+    candidates = [
+        {"name": "Иван", "surname": "Иванов", "birth": date(1990, 5, 15), "phone": "+79001112233"},
+        {"name": "Петр", "surname": "Петров", "birth": date(1985, 7, 20), "phone": "+79005556677"},
+    ]
+    for candidate_data in candidates:
+        Candidate.objects.get_or_create(**candidate_data)
+    print("Candidates created.")
+
+def create_transactions():
+    office = Office.objects.first()
+    if office:
+        transactions = [
+            {"operation": "add", "amount": 5, "office": office, "cause": "Дополнительная квота"},
+            {"operation": "subtract", "amount": 2, "office": office, "cause": "Использование квоты"},
+        ]
+        for transaction_data in transactions:
+            Transaction.objects.get_or_create(**transaction_data)
+        print("Transactions created.")
+
+def create_supervisors():
+    office = Office.objects.first()
+    user = User.objects.filter(username="supervisor").first()
+    if user and office:
+        Supervisor.objects.get_or_create(user=user, office=office, department="Отдел продаж")
+    print("Supervisors created.")
+
+def create_administrators():
+    user = User.objects.filter(username="admin").first()
+    if user:
+        Administrator.objects.get_or_create(user=user)
+    print("Administrators created.")
+
+def create_todos():
+    user = User.objects.filter(username="root").first()
+    if user:
+        Todo.objects.get_or_create(user=user, task="Подготовить отчет", due_date=date(2025, 2, 10))
+        Todo.objects.get_or_create(user=user, task="Собеседование с кандидатом", due_date=date(2025, 2, 15))
+    print("ToDos created.")
+
+class Command(BaseCommand):
+    help = "Заполняет базу тестовыми данными"
+
+    def handle(self, *args, **kwargs):
+        create_users()
+        create_offices()
+        create_candidates()
+        create_transactions()
+        create_supervisors()
+        create_administrators()
+        create_todos()
+        print("Test data populated successfully.")
+EOL
+
+else
+    echo "Отмена операции."
+fi
+
 
 # === Остановка и удаление существующих контейнеров и томов данных ===
 echo "Останавливаем и удаляем существующие контейнеры и тома данных..."
@@ -219,13 +324,17 @@ if [ "$USE_POSTGRESQL" == "true" ]; then
   sleep 30  # Можно увеличить время ожидания при необходимости
 
   # === Применение миграций и создание суперпользователя ===
+  # === Применение миграций и создание суперпользователя ===
   echo "Применяем миграции базы данных..."
-  docker exec -it django_backend python manage.py migrate
+  until docker exec -it django_backend python manage.py migrate; do
+      echo "Ожидание готовности Django-сервера..."
+      sleep 5
+  done
+  if [ "$confirm" == "y" ]; then
+      docker exec -it django_backend python manage.py populate_db
+  fi
   docker exec -it django_backend python manage.py collectstatic --noinput
 
-  echo "Создаём суперпользователя..."
-  docker exec -it django_backend python manage.py createsuperuser
-  echo "Суперпользователь создан успешно!"
 else
   echo "Настраиваем базу данных sqlite..."
   cd Backend
@@ -236,7 +345,9 @@ else
   pip3 install -r requirements.txt
   echo "Применяем миграции..."
   python manage.py migrate
-  python manage.py createsuperuser
+  if [ "$confirm" == "y" ]; then
+    python manage.py populate_db
+  fi
   rm -rf .venv
   cd ..
 fi
