@@ -310,7 +310,7 @@ class InvitationAPIView(APIView):
             return Response({'error': 'Invalid Candidate ID'}, status=status.HTTP_400_BAD_REQUEST)
         
         # Проверяем, приглашали ли уже кандидата
-        existing_invitation = models.Invitation.objects.filter(candidate_id=candidate_id, office=office).first()
+        existing_invitation = models.Invitation.objects.filter(candidate_id=candidate_id, office=office, status='invited').first()
         if existing_invitation:
             return Response(
                 {'error': f'Candidate {candidate_id} has already been invited.'}, 
