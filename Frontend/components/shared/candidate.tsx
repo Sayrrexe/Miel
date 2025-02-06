@@ -1,12 +1,33 @@
 /* eslint-disable @next/next/no-img-element */
 import { cn } from "@/lib/utils";
-import { candidatObject } from "./consts/data";
 import { Button } from "@/components/ui";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import Image from "next/image";
 
 interface Props {
-  candidate: candidatObject;
+  candidate: {
+    id: number;
+    name: string;
+    surname: string;
+    patronymic: string;
+    birth: string;
+    age: number;
+    education: string;
+    photo: string;
+    country: string;
+    city: string;
+    resume: string;
+    course_rieltor_join: string;
+    basic_legal_course: string;
+    course_mortgage: string;
+    course_taxation: string;
+    completed_objects: number;
+    clients: number;
+    updated_at: string;
+    is_favorite: boolean;
+    favorite_id: number;
+    is_invited: boolean;
+  };
 }
 
 export const Candidate: React.FC<Props> = ({ candidate }) => {
@@ -20,10 +41,7 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
   ];
   return (
     <div className={cn("")}>
-      <div
-        className={`w-[476px] h-[596px] shadow-xl mr-12`}
-        onClick={() => console.log(candidate)}
-      >
+      <div className={`w-[476px] h-[596px] shadow-xl mr-12`}>
         <div className="flex pt-[35px] pl-[17px] gap-6">
           {candidate.photo != "-" && candidate.photo ? (
             <img
@@ -32,6 +50,7 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
               width={90}
               height={90}
               alt="photo"
+              onClick={() => console.log(candidate)}
             />
           ) : (
             <Image
@@ -40,6 +59,7 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
               width={90}
               height={90}
               alt="photo"
+              onClick={() => console.log(candidate)}
             />
           )}
 
@@ -58,7 +78,6 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
                 <p>
                   {candidate.education ? candidate.education : "Не указано"}
                 </p>
-                <p>{candidate.education}</p>
                 <a className="text-rose-500" href={`${candidate.resume}`}>
                   Ссылка на резюме
                 </a>

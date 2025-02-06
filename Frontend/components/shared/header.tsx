@@ -3,8 +3,22 @@ import { cn } from "@/lib/utils";
 import { BellIcon, LogOut, MessageSquareText } from "lucide-react";
 import Image from "next/image";
 import logo from "../../public/assets/Vector.png";
+import { useRouter } from "next/navigation";
 
 export const Header = () => {
+  const router = useRouter(); // Инициализация useRouter внутри компонента
+
+  const handleLogout = () => {
+    // Очищаем локальное хранилище
+    localStorage.removeItem("token");
+    localStorage.removeItem("username");
+    localStorage.removeItem("full_name");
+    localStorage.removeItem("role");
+
+    // Перенаправляем пользователя на страницу логина
+    router.push("/login");
+  };
+
   return (
     <header
       className={cn(
@@ -38,6 +52,7 @@ export const Header = () => {
             height={24}
             width={24}
             className="text-white cursor-pointer"
+            onClick={handleLogout} // Вызываем функцию с логикой выхода
           />
         </div>
       </div>

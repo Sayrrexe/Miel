@@ -5,33 +5,80 @@ import { OfficeItem } from ".";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
 import { useRouter } from "next/navigation";
-import { useCTokenStore } from "@/store/context";
 
 export const OfficeItems = () => {
-  const [offices, setOffices] = useState([]);
+  interface Office {
+    location: string;
+    quota: number;
+    used_quota: number;
+    phone: string;
+    name: string;
+    mail: string;
+  }
+  const [offices, setOffices] = useState<Office[]>([]);
   const router = useRouter();
-  const token = useCTokenStore((state) => state.token);
+  const token = localStorage.getItem("token") || "";
+  const [search, setSearch] = useState<string>("");
   useEffect(() => {
+    console.log(token);
     (async () => {
       const endpointToCall = "/api/admin/offices/";
-      setOffices((await fetchGetEndpoint(endpointToCall, token)).data);
+      const response = await fetchGetEndpoint(
+        endpointToCall,
+        token,
+        undefined,
+        undefined,
+        undefined,
+        search
+      );
+
+      // Проверяем, что ответ успешный и содержит данные
+      if ("data" in response && Array.isArray(response.data)) {
+        setOffices(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+      } else {
+        // Обработка ошибки, если response не содержит data или data не является массивом
+        console.error("Error fetching candidates:", response);
+      }
     })();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
   return (
     <div className={cn("")}>
       <div className="pt-8 pl-[-23px] flex gap-4">
         <Input
-          className="rounded-none w-[696px]"
+          className="rounded-lg w-[696px]"
           placeholder="Найти офис"
-          onClick={() => {
-            console.log(offices);
-          }}
+          onChange={(e) => setSearch(e.currentTarget.value)}
         />
-        <Button className="bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-none hover:bg-[#960047]">
+        <Button
+          onClick={() => {
+            console.log(token);
+            (async () => {
+              const endpointToCall = "/api/admin/offices/";
+              const response = await fetchGetEndpoint(
+                endpointToCall,
+                token,
+                undefined,
+                undefined,
+                undefined,
+                search
+              );
+
+              // Проверяем, что ответ успешный и содержит данные
+              if ("data" in response && Array.isArray(response.data)) {
+                setOffices(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+              } else {
+                // Обработка ошибки, если response не содержит data или data не является массивом
+                console.error("Error fetching candidates:", response);
+              }
+            })();
+          }}
+          className="bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] hover:bg-[#960047] rounded-xl"
+        >
           Поиск
         </Button>
         <Button
-          className="bg-[#960047] w-[160px] rounded-none hover:bg-[#960046a9]"
+          className="bg-[#960047] w-[160px] hover:bg-[#960046a9] rounded-xl"
           onClick={async () => {
             router.push("/addingOffice");
           }}

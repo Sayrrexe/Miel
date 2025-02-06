@@ -28,9 +28,10 @@ export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
           colors[index % 4]
         }`}
       >
-        <div className="">
+        <div className="min-h-12">
           <p className="opacity-50 text-base">{candidatObject.location}</p>
           <p className="text-xl font-semibold">{candidatObject.location}</p>
+          <p>{""}</p>
         </div>
         <div className="mt-[36px] flex justify-between">
           <div>

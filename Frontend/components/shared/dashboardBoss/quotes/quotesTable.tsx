@@ -8,21 +8,37 @@ import {
   TableRow,
 } from "@/components/ui";
 import { cn } from "@/lib/utils";
-import { quotesData } from "../../consts/data";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
-import { useCTokenStore } from "@/store/context";
+
+interface Quotes {
+  month: string;
+  issued: number;
+  invited: number;
+  accepted: number;
+  rejected: number;
+  subtracted: number;
+}
 
 export const QuotesTable = () => {
-  const [quotes, setQuotes] = useState([]);
-  const token = useCTokenStore((state) => state.token);
+  const [quotes, setQuotes] = useState<Quotes[]>([]);
+  const token = localStorage.getItem("token") || "";
 
   useEffect(() => {
+    console.log(token);
     (async () => {
-      const endpointToCall = "/api/supervisor/info/quota/";
-      setQuotes((await fetchGetEndpoint(endpointToCall, token)).data);
+      const endpointToCall = "/api/supervisor/statistic/quotas";
+      const response = await fetchGetEndpoint(endpointToCall, token);
+
+      // Проверяем, что ответ успешный и содержит данные
+      if ("data" in response && Array.isArray(response.data)) {
+        setQuotes(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+      } else {
+        // Обработка ошибки, если response не содержит data или data не является массивом
+        console.error("Error fetching candidates:", response);
+      }
     })();
-  }, []);
+  }, [token]);
   return (
     <div className={cn("")}>
       <p onClick={() => console.log(quotes)} className="mt-10 text-xl">
@@ -50,50 +66,52 @@ export const QuotesTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {quotesData.map((objectData, index) => (
+          {quotes.map((objectData, index) => (
             <TableRow
-              key={objectData.index}
+              key={index}
               className={`${index % 2 == 1 && "bg-[#EDEEEE]"}`}
             >
-              <TableCell className="gap-3 pl-12">{objectData.period}</TableCell>
-              <TableCell className="text-center">{objectData.vidano}</TableCell>
+              <TableCell className="gap-3 pl-12">{objectData.month}</TableCell>
               <TableCell className="text-center">
-                {objectData.invitings}
+                {objectData.subtracted}
               </TableCell>
               <TableCell className="text-center">
-                {objectData.employment}
+                {objectData.invited}
               </TableCell>
               <TableCell className="text-center">
-                {objectData.rejections}
+                {objectData.accepted}
               </TableCell>
-              <TableCell className="text-center">{objectData.snyato}</TableCell>
+              <TableCell className="text-center">
+                {objectData.rejected}
+              </TableCell>
+              <TableCell className="text-center">{objectData.issued}</TableCell>
             </TableRow>
           ))}
           <TableRow className="bg-[#E6F9F9]">
             <TableCell className="gap-3 pl-12">Итого</TableCell>
             <TableCell className="text-center">
-              {quotesData.reduce(function (currentSum, currentNumber) {
-                return currentSum + currentNumber.vidano;
+              {quotes.reduce(function (currentSum, currentNumber) {
+                return currentSum + currentNumber.subtracted;
               }, 0)}
             </TableCell>
             <TableCell className="text-center">
-              {quotesData.reduce(function (currentSum, currentNumber) {
-                return currentSum + currentNumber.invitings;
+              {quotes.reduce(function (currentSum, currentNumber) {
+                return currentSum + currentNumber.invited;
               }, 0)}
             </TableCell>
             <TableCell className="text-center">
-              {quotesData.reduce(function (currentSum, currentNumber) {
-                return currentSum + currentNumber.employment;
+              {quotes.reduce(function (currentSum, currentNumber) {
+                return currentSum + currentNumber.accepted;
               }, 0)}
             </TableCell>
             <TableCell className="text-center">
-              {quotesData.reduce(function (currentSum, currentNumber) {
-                return currentSum + currentNumber.rejections;
+              {quotes.reduce(function (currentSum, currentNumber) {
+                return currentSum + currentNumber.rejected;
               }, 0)}
             </TableCell>
             <TableCell className="text-center">
-              {quotesData.reduce(function (currentSum, currentNumber) {
-                return currentSum + currentNumber.snyato;
+              {quotes.reduce(function (currentSum, currentNumber) {
+                return currentSum + currentNumber.issued;
               }, 0)}
             </TableCell>
           </TableRow>

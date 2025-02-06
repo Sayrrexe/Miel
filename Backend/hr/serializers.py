@@ -1,3 +1,4 @@
+from datetime import datetime
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
@@ -14,6 +15,8 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
     office_location = serializers.CharField(source='office.location', read_only=True)
     office_quota = serializers.CharField(source='office.quota', read_only=True)
     office_used_quota = serializers.CharField(source='office.used_quota', read_only=True)
+    
+    month = serializers.SerializerMethodField(read_only = True)
 
     class Meta:
         model = Supervisor
@@ -28,11 +31,31 @@ class InfoAboutSupervisor(serializers.ModelSerializer):
             'department',   
             'office_quota',
             'office_used_quota', 
+            'month',
         ]
 
     @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
-        return obj.user.get_full_name()
+        parts = [obj.user.first_name, obj.user.last_name, obj.user.patronymic]  
+        return " ".join(filter(None, parts)) 
+    
+    @extend_schema_field(serializers.CharField)
+    def get_month(self, obj):
+        MONTHS_RU = {
+            1: "Январь",
+            2: "Февраль",
+            3: "Март",
+            4: "Апрель",
+            5: "Май",
+            6: "Июнь",
+            7: "Июль",
+            8: "Август",
+            9: "Сентябрь",
+            10: "Октябрь",
+            11: "Ноябрь",
+            12: "Декабрь",
+        }
+        return str(MONTHS_RU[datetime.now().month])
     
 class InfoAboutAdmin(serializers.ModelSerializer):
     role = serializers.CharField(default="1", read_only=True)
@@ -54,7 +77,8 @@ class InfoAboutAdmin(serializers.ModelSerializer):
 
     @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
-        return obj.user.get_full_name()
+        parts = [obj.user.first_name, obj.user.last_name, obj.user.patronymic]  # Собираем ФИО
+        return " ".join(filter(None, parts))  # Убираем None и соединяем
     
     @extend_schema_field(serializers.CharField)
     def get_photo(self, obj):
@@ -79,6 +103,7 @@ class InvitationSerializer(serializers.ModelSerializer):
     patronymic = serializers.SerializerMethodField()
     city = serializers.SerializerMethodField()
     age = serializers.SerializerMethodField()
+    photo = serializers.SerializerMethodField(read_only=True)
     status = serializers.CharField(read_only=True) 
     updated_at = serializers.CharField(read_only=True)
 
@@ -91,6 +116,7 @@ class InvitationSerializer(serializers.ModelSerializer):
             'patronymic',
             'city',
             'age',
+            'photo',
             'status',
             'updated_at',
         ]
@@ -115,21 +141,43 @@ class InvitationSerializer(serializers.ModelSerializer):
     def get_age(self, obj):
         return obj.candidate.calculate_age()
     
+    @extend_schema_field(serializers.CharField)
+    def get_photo(self, obj):
+        request = self.context.get('request')  
+        candidate = obj.candidate
+        if candidate.photo and candidate.photo.name:
+            return request.build_absolute_uri(candidate.photo.url) 
+        return None
         
 class UserSerializer(serializers.ModelSerializer):
     password = serializers.CharField(write_only=True, required=False)  
     photo = serializers.ImageField(required=False, allow_null=True)
+    full_name = serializers.SerializerMethodField(read_only = True)
 
     class Meta:
         model = CustomUser
-        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone','photo']
+        fields = ['username', 'password', 'email', 'first_name', 'last_name', 'patronymic', 'phone','photo', 'full_name']
+        
+    @extend_schema_field(serializers.CharField)
+    def get_full_name(self, obj):
+        parts = [obj.first_name, obj.last_name, obj.patronymic]  
+        return " ".join(filter(None, parts))  
+
 
 class SupervisorSerializer(serializers.ModelSerializer):
     user = UserSerializer()
-
+    office_name = serializers.SerializerMethodField(read_only = True)
+    
     class Meta:
         model = Supervisor
-        fields = ['id', 'user', 'office', 'department']
+        fields = ['id', 'user', 'office','office_name', 'department']
+        
+    @extend_schema_field(serializers.CharField)
+    def get_office_name(self, obj):
+        if obj.office:
+            return obj.office.name
+        else:
+            return None
 
     def create(self, validated_data):
         user_data = validated_data.pop('user')
@@ -300,7 +348,9 @@ class InvitationStatisticsSerializer(serializers.ModelSerializer):
     @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
         candidate = obj.candidate
-        return f'{candidate.surname} {candidate.name} {candidate.patronymic}'
+        parts = [candidate.name, candidate.surname, candidate.patronymic] 
+        return " ".join(filter(None, parts))  
+
     
     @extend_schema_field(serializers.CharField)
     def get_photo(self, obj):
@@ -338,7 +388,9 @@ class AdminInvitationSerializer(serializers.ModelSerializer):
                 user = supervisor.user
             except CustomUser.DoesNotExist:
                 return None
-            return user.get_full_name()
+            parts = [user.first_name, user.last_name, user.patronymic]  
+            return " ".join(filter(None, parts))  
+
         except Supervisor.DoesNotExist:
             return "Not Exist"
     
@@ -385,7 +437,9 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
     
     @extend_schema_field(serializers.CharField)
     def get_full_name(self, obj):
-        return f'{obj.surname} {obj.name} {obj.patronymic}'
+        parts = [obj.name, obj.surname, obj.patronymic]  
+        return " ".join(filter(None, parts))  
+
     
     
     

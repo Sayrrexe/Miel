@@ -4,6 +4,7 @@ import "./globals.css";
 import { BrowserRouter } from "react-router-dom";
 import { Header } from "@/components/shared";
 import { AdminPages } from "@/components/shared/dashboardAdmin/administrationPage";
+import { useEffect } from "react";
 
 const PTSans = PT_Sans({
   subsets: ["cyrillic"],
@@ -16,17 +17,28 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  useEffect(() => {
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      const value = key && localStorage.getItem(key);
+      console.log(`${key}: ${value}`);
+    }
+  }, []);
   return (
     <html lang="en">
       <head>
         <link data-rh="true" rel="icon" href="/logo.png" />
       </head>
       <body className={`${PTSans.variable}`}>
-        <Header />
         <BrowserRouter>
+          <Header />
           <main className="flex ">
             <AdminPages />
-            {children}
+            {localStorage.getItem("token") ? (
+              children
+            ) : (
+              <p>Вы не авторизованы</p>
+            )}
           </main>
         </BrowserRouter>
       </body>

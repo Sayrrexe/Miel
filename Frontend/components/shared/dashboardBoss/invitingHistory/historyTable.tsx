@@ -14,8 +14,6 @@ import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
-import { useCTokenStore } from "@/store/context";
-
 export const HistoryTable = () => {
   const statusColor: string[] = [
     "invited",
@@ -33,14 +31,35 @@ export const HistoryTable = () => {
     "rejected",
     "Отказ",
   ];
-  const [users, setUsers] = useState([]);
+  interface Users {
+    candidate: number;
+    name: string;
+    surname: string;
+    patronymic: string;
+    city: string;
+    age: number;
+    status: string;
+    updated_at: string;
+    photo: string;
+  }
+  const [users, setUsers] = useState<Users[]>([]);
+  const token = localStorage.getItem("token") || "";
   useEffect(() => {
+    console.log(token);
     (async () => {
       const endpointToCall = "/api/supervisor/invitations/";
-      setUsers((await fetchGetEndpoint(endpointToCall, token)).data);
+      const response = await fetchGetEndpoint(endpointToCall, token);
+
+      // Проверяем, что ответ успешный и содержит данные
+      if ("data" in response && Array.isArray(response.data)) {
+        setUsers(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+      } else {
+        // Обработка ошибки, если response не содержит data или data не является массивом
+        console.error("Error fetching candidates:", response);
+      }
     })();
-  }, []);
-  const token = useCTokenStore((state) => state.token);
+  }, [token]);
+
   return (
     <div
       className={cn("flex flex-col justify-between")}
@@ -48,7 +67,7 @@ export const HistoryTable = () => {
     >
       <div className="flex gap-[92px] mt-10 text-xl">
         <p className="whitespace-nowrap text-xl">
-          Данные с 01.02.20024 - 30.10. 2024
+          Данные с 01.02.2024 - 30.10. 2024
         </p>
         <div className="flex gap-11">
           <div className="flex items-center gap-2">
@@ -76,8 +95,8 @@ export const HistoryTable = () => {
           </TableRow>
         </TableHeader>
         <TableBody>
-          {users.map((objectData) => (
-            <TableRow key={objectData.index}>
+          {users.map((objectData, index) => (
+            <TableRow key={index}>
               <TableCell className="flex items-center gap-3 justify-center">
                 {objectData.photo ? (
                   <img
@@ -110,7 +129,9 @@ export const HistoryTable = () => {
                 {statusPosition[statusPosition.indexOf(objectData.status) + 1]}
               </TableCell>
               <TableCell>
-                {objectData.data ? objectData.data : "Не указана"}
+                {objectData.updated_at
+                  ? objectData.updated_at.split(" ")[0]
+                  : "Не указана"}
               </TableCell>
             </TableRow>
           ))}

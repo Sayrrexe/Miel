@@ -15,7 +15,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Image from "next/image";
 import baloons from "@/public/assets/Скриншот-06-12-2024 16_52_58.jpg";
-import { useCategoryStore, useCTokenStore } from "@/store/context";
+import { useCategoryStore } from "@/store/context";
 import fetchGetEndpoint, { fetchAuthorisation } from "@/lib/candidates";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -23,14 +23,6 @@ import { useEffect, useState } from "react";
 const Authorisation = () => {
   const setUser = useCategoryStore((state) => state.setUser);
   const data = useCategoryStore((state) => state.data);
-  const setToken = useCTokenStore((state) => state.setToken);
-  const [info, setInfo] = useState({});
-  useEffect(() => {
-    if (data.role != "") {
-      router.push(`main1`);
-    }
-  }, [data]);
-
   const [userWrong, setUserWrong] = useState(false);
   const formSchema = z.object({
     username: z.string().min(2, {
@@ -54,6 +46,18 @@ const Authorisation = () => {
     console.log(values);
   }
   const router = useRouter();
+  useEffect(() => {
+    const storedRole = localStorage.getItem("role");
+    const storedFullName = localStorage.getItem("full_name");
+
+    if (storedRole && storedFullName) {
+      if (storedRole === "1") {
+        router.push("/main1");
+      } else if (storedRole === "2") {
+        router.push("/main2");
+      }
+    }
+  }, [router, data]);
   return (
     <div className="flex items-center w-[930px] ml-auto mr-auto">
       <div className="flex items-center justify-center h-[100vh] w-[100%]">
@@ -138,57 +142,72 @@ const Authorisation = () => {
                     <Button
                       className="bg-orange-600 w-[160px] border- h-[44px] text-white"
                       type="submit"
-                      onClick={async () => {
-                        try {
-                          // Отправка запроса
-                          const response = await fetchAuthorisation(
-                            "/api/login/",
-                            data
-                          );
-                          console.log(response);
-                          // Проверка, что ответ от сервера валиден и содержит данные
-                          if (response && response.token) {
-                            // Если все в порядке, сохраняем токен и переходим на страницу
-                            console.log(1);
-                            setToken(response.token);
-                            localStorage.setItem("token", response.token);
-                            (async () => {
+                      onClick={() =>
+                        (async () => {
+                          try {
+                            const authResponse = await fetchAuthorisation(
+                              "/api/login/",
+                              data
+                            );
+                            console.log(authResponse);
+
+                            // Check if the response is a success response
+                            if ("token" in authResponse) {
+                              // If the response has a token, continue as expected
+                              localStorage.setItem("token", authResponse.token);
+
                               const endpointToCall = "/api/info/";
-                              await setInfo(
-                                (
-                                  await fetchGetEndpoint(
-                                    endpointToCall,
-                                    response.token
-                                  )
-                                ).data
+                              const infoResponse = await fetchGetEndpoint(
+                                endpointToCall,
+                                authResponse.token
                               );
-                              if (info) {
-                                await setUser({
-                                  username: data.username,
-                                  password: data.password,
-                                  role: info.role,
-                                  full_name: info.full_name,
-                                  email: info.email,
-                                  phone: info.phone,
-                                });
-                                localStorage.setItem("username", data.username);
-                                localStorage.setItem(
-                                  "full_name",
-                                  info.full_name
+                              console.log(infoResponse);
+
+                              // Check if the response is of type SuccessResponse
+                              if (
+                                "data" in infoResponse &&
+                                Array.isArray(infoResponse.data) &&
+                                infoResponse.data.length > 0
+                              ) {
+                                const info = infoResponse.data[0]; // Get the first element of the array
+
+                                console.log(info); // Log the first element
+
+                                if (info) {
+                                  setUser({
+                                    username: data.username,
+                                    password: data.password,
+                                    role: info.role,
+                                    full_name: info.full_name,
+                                    email: info.email,
+                                    phone: info.phone,
+                                  });
+
+                                  localStorage.setItem(
+                                    "username",
+                                    data.username
+                                  );
+                                  localStorage.setItem(
+                                    "full_name",
+                                    info.full_name
+                                  );
+                                  localStorage.setItem("role", info.role);
+                                }
+                              } else {
+                                console.error(
+                                  "No valid user data in response."
                                 );
-                                localStorage.setItem("role", info.role);
+                                setUserWrong(true);
                               }
-                            })();
-                          } else {
-                            // Если данных нет в ответе, обрабатываем ошибку
+                            } else {
+                              setUserWrong(true);
+                            }
+                          } catch (error) {
+                            console.log(error);
                             setUserWrong(true);
                           }
-                        } catch (error) {
-                          // Обработка ошибки запроса
-                          console.log(error);
-                          setUserWrong(true);
-                        }
-                      }}
+                        })()
+                      }
                     >
                       Войти
                     </Button>

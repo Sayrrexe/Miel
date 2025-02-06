@@ -1,57 +1,56 @@
 "use client";
 /* eslint-disable @next/next/no-img-element */
-import { cn } from "@/lib/utils";
 
-export const AvatarLoading = () => {
-  const avatar = "";
+// Определение типов пропсов
+type AvatarLoadingProps = {
+  photo: string | null; // Accepting null now
+  setPhoto: React.Dispatch<React.SetStateAction<string | null>>;
+};
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-
+export const AvatarLoading = ({ photo, setPhoto }: AvatarLoadingProps) => {
   const triggerFileInput = () => {
     const fileInput = document.createElement("input");
     fileInput.type = "file";
-    fileInput.accept = "image/*";
+    fileInput.accept = "image/*"; // Only images allowed
 
-    // Указываем тип события как Event
+    // Handle file change
     fileInput.onchange = (e: Event) => {
-      // Приводим e.target к HTMLInputElement
       const target = e.target as HTMLInputElement;
       const files = target.files;
       if (files && files.length > 0) {
-        console.log(files);
+        const file = files[0];
+
+        const reader = new FileReader();
+        reader.onloadend = () => {
+          if (reader.result) {
+            setPhoto(reader.result as string);
+          }
+        };
+
+        reader.readAsDataURL(file); // Read the file as a data URL
       }
     };
 
-    fileInput.click();
+    fileInput.click(); // Trigger file input
   };
+
   return (
-    <div className={cn("")}>
-      <div style={{ marginTop: "20px" }}>
-        {avatar ? (
+    <div className="flex justify-center mt-5">
+      <div>
+        {photo ? (
           <img
-            src={avatar}
+            src={photo}
             alt="User Avatar"
-            style={{
-              width: "100px",
-              height: "100px",
-              borderRadius: "50%",
-              objectFit: "cover",
-            }}
+            className="w-[100px] h-[100px] rounded-full object-cover border-2 border-gray-300 cursor-pointer"
+            onClick={triggerFileInput} // Click on image to change it
           />
         ) : (
           <div
             onClick={triggerFileInput}
-            style={{
-              width: "90px",
-              height: "90px",
-              borderRadius: "50%",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-            className="text-3xl border-gray-400 border-solid border-[1px] hover:bg-gray-300 cursor-pointer"
+            className="w-[90px] h-[90px] flex items-center justify-center rounded-full border-2 border-gray-300 cursor-pointer bg-gray-100 hover:bg-gray-300"
+            aria-label="Upload Avatar"
           >
-            <span>+</span>
+            <span className="text-3xl text-gray-500">+</span>
           </div>
         )}
       </div>
