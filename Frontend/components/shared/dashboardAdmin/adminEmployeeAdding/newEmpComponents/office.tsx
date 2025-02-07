@@ -24,6 +24,7 @@ export const Office = ({ data }: PersonalInfoProps) => {
     phone: string;
     name: string;
     mail: string;
+    id: number;
   }
   const [offices, setOffices] = useState<Office[]>([]);
   const [token, setToken] = useState("");
@@ -66,12 +67,11 @@ export const Office = ({ data }: PersonalInfoProps) => {
 
       // Проверяем, что selectedOffice не undefined, прежде чем использовать его
       if (selectedOffice) {
-        console.log(selectedOffice);
         setEmployee({
           ...employee,
           is_free: false,
           office_name: value,
-          office: offices.indexOf(selectedOffice) + 1, // Теперь гарантировано, что selectedOffice определен
+          office: selectedOffice.id, // Теперь гарантировано, что selectedOffice определен
         });
       } else {
         console.error("Офис не найден");
@@ -111,6 +111,7 @@ export const Office = ({ data }: PersonalInfoProps) => {
         className="bg-[#960047] text-lg rounded-xl w-[212px] h-[44px] mr-8 mt-[15%]"
         onClick={async () => {
           try {
+            console.log(employee);
             const result = await fetchPatchEndpoint(
               `/api/admin/candidates/${data.id}`,
               employee,

@@ -46,7 +46,7 @@ export const QuotesTable = ({ start_date, end_date }: PersonalInfoProps) => {
 
       // Проверяем, что ответ успешный и содержит данные
       if ("data" in response && Array.isArray(response.data)) {
-        setQuotes(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+        setQuotes(response.data.reverse()); // Устанавливаем данные в state, это массив объектов типа Candidate
       } else {
         // Обработка ошибки, если response не содержит data или data не является массивом
         console.error("Error fetching candidates:", response);

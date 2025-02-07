@@ -94,7 +94,7 @@ export const AdminCandidates = () => {
             <TableRow>
               <TableHead className="font-bold text-center">ФИО</TableHead>
               <TableHead className="font-bold">Город</TableHead>
-              <TableHead className="font-bold text-center">Телефон</TableHead>
+              <TableHead className="font-bold">Телефон</TableHead>
               <TableHead className="font-bold">Свободен</TableHead>
               <TableHead className="font-bold text-center">Возраст</TableHead>
               <TableHead className="font-bold text-center">Офис</TableHead>
@@ -105,7 +105,8 @@ export const AdminCandidates = () => {
             {candidates.map((objectData, index) => (
               <TableRow key={index}>
                 <Link href={`/addingEmployee/${objectData.id}`}>
-                  <TableCell className="flex items-center gap-3 justify-center">
+                  <TableCell className="flex items-center gap-3">
+                    <span className="w-6">{""}</span>
                     {objectData.photo && objectData.photo != "-" ? (
                       <img
                         src={objectData.photo}
@@ -128,7 +129,8 @@ export const AdminCandidates = () => {
                   </TableCell>
                 </Link>
                 <TableCell>{objectData.city}</TableCell>
-                <TableCell className="text-center">
+                <TableCell>
+                  <span className="w-6">{""}</span>
                   {objectData.phone}
                 </TableCell>
                 <TableCell>

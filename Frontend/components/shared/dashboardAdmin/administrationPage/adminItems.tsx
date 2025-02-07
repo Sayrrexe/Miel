@@ -33,6 +33,7 @@ export const AdminItems = () => {
     office: number;
     user: User;
     photo: string;
+    office_name: string;
   }
 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
@@ -68,12 +69,31 @@ export const AdminItems = () => {
 
       if ("data" in response && Array.isArray(response.data)) {
         setCandidates(response.data);
+        console.log(response.data);
       } else {
         console.error("Error fetching candidates:", response);
       }
     })();
   }, [token]);
+  useEffect(() => {
+    const handleKeyPress = (event: KeyboardEvent) => {
+      if (event.key === "Enter") {
+        // Находим кнопку по её id или классу
+        const button = document.getElementById("search") as HTMLButtonElement;
+        if (button) {
+          button.click(); // Активируем кнопку
+        }
+      }
+    };
 
+    // Добавляем слушатель события нажатия клавиши
+    window.addEventListener("keydown", handleKeyPress);
+
+    // Очистка слушателя при размонтировании компонента
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, []);
   return (
     <div className={cn("")}>
       <div className="pt-8 pl-[-23px] flex gap-4">
@@ -84,6 +104,7 @@ export const AdminItems = () => {
           onChange={(e) => setInputValue(e.target.value)}
         />
         <Button
+          type="submit"
           onClick={async () => {
             const endpointToCall = "/api/admin/supervisors/";
             const response = await fetchGetEndpoint(
@@ -101,6 +122,7 @@ export const AdminItems = () => {
               console.error("Error fetching candidates:", response);
             }
           }}
+          id="search"
           className="bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047]"
         >
           Поиск
@@ -112,10 +134,12 @@ export const AdminItems = () => {
           Добавить руководителя
         </Button>
       </div>
-      <Table className="border-solid border-[#CACBCD] border-2">
+      <Table className="border-solid border-[#CACBCD] border-2 w-[1048px]">
         <TableHeader>
           <TableRow>
-            <TableHead className="font-bold text-center">ФИО</TableHead>
+            <TableHead className="font-bold text-center w-[326px]">
+              ФИО
+            </TableHead>
             <TableHead className="font-bold">Город</TableHead>
             <TableHead className="font-bold">Телефон</TableHead>
             <TableHead className="font-bold ">Email</TableHead>
@@ -126,13 +150,14 @@ export const AdminItems = () => {
         <TableBody>
           {candidates.map((objectData) => (
             <TableRow key={objectData.id}>
-              <TableCell className="flex items-center gap-3 justify-center">
+              <TableCell className="flex items-center gap-3">
+                <span className="w-6">{""}</span>
                 {objectData.photo ? (
                   <img
                     src={objectData.photo}
                     width={39}
                     height={39}
-                    className="rounded-3xl"
+                    className="rounded-3xl pl-[40vw]"
                     alt="avatar"
                   />
                 ) : (
@@ -145,12 +170,14 @@ export const AdminItems = () => {
                   />
                 )}
 
-                <p>{`${objectData.user.first_name} ${objectData.user.username} ${objectData.user.patronymic}`}</p>
+                <p>{`${objectData.user.first_name || ""} ${
+                  objectData.user.username || ""
+                } ${objectData.user.patronymic || ""}`}</p>
               </TableCell>
               <TableCell>Москва</TableCell>
-              <TableCell>{objectData.user.phone}</TableCell>
-              <TableCell>{objectData.user.email}</TableCell>
-              <TableCell>{objectData.office}</TableCell>
+              <TableCell>{objectData.user.phone || "Не указан"}</TableCell>
+              <TableCell>{objectData.user.email || "Не указан"}</TableCell>
+              <TableCell>{objectData.office_name || "Не указан"}</TableCell>
               <TableCell onClick={() => openModal(objectData)}>
                 <Trash
                   className="opacity-50 cursor-pointer"
@@ -259,9 +286,32 @@ export const AdminItems = () => {
 
                     if (result && "error" in result) {
                       console.log(result.error);
+                      closeModal();
                     } else {
                       console.log(result);
-                      router.push("/candidates");
+                      closeModal();
+                      {
+                        (async () => {
+                          const endpointToCall = "/api/admin/supervisors/";
+                          const response = await fetchGetEndpoint(
+                            endpointToCall,
+                            token
+                          );
+
+                          if (
+                            "data" in response &&
+                            Array.isArray(response.data)
+                          ) {
+                            setCandidates(response.data);
+                            console.log(response.data);
+                          } else {
+                            console.error(
+                              "Error fetching candidates:",
+                              response
+                            );
+                          }
+                        })();
+                      }
                     }
                   }}
                   className="w-40 h-11 rounded-xl text-white bg-[#960047]"

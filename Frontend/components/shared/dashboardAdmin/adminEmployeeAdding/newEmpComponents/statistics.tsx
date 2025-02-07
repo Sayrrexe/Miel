@@ -104,8 +104,11 @@ export const Statistics = ({ data }: PersonalInfoProps) => {
               <TableCell className="text-center flex items-center gap-3 justify-center">
                 <Select
                   onValueChange={(value: string) => {
+                    console.log(
+                      statusPosition[statusPosition.indexOf(value) + 1]
+                    );
                     const newStatus =
-                      statusPosition[statusPosition.indexOf(value) - 1];
+                      statusPosition[statusPosition.indexOf(value) + 1];
                     // Убедитесь, что значение не является неопределенным
                     if (newStatus) {
                       setToChange([
@@ -113,6 +116,15 @@ export const Statistics = ({ data }: PersonalInfoProps) => {
                         {
                           id: office.id,
                           toChangeId: newStatus, // сохраняем статус
+                        },
+                      ]);
+                    }
+                    if (newStatus == "Трудоустроен(а)") {
+                      setToChange([
+                        ...toChange,
+                        {
+                          id: office.id,
+                          toChangeId: "rejected", // сохраняем статус
                         },
                       ]);
                     }
