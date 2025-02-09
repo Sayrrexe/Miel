@@ -1457,6 +1457,12 @@ class QuotaRequestViewSet(ModelViewSet):
     queryset = models.QuotaRequest.objects.filter(status='waited')
     serializer_class = serializers.QuotaRequestSerializer    
     
+    
+    def perform_create(self, serializer):
+        supervisor = self.request.user.supervisor  
+        serializer.save(office=supervisor.office)
+    
+    
     def get_permissions(self):
         if self.action == 'create':  # Только для создания
             return [IsSupervisor()]
@@ -1481,6 +1487,7 @@ class QuotaRequestViewSet(ModelViewSet):
     )
     def create(self, request, *args, **kwargs):
         return super().create(request, *args, **kwargs)
+
 
     @extend_schema(
         summary="Получить информацию о конкретном запросе на квоту",
