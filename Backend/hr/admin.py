@@ -4,6 +4,7 @@ from unfold.admin import ModelAdmin
 from .models import (
     ChatLink,
     CustomUser,
+    QuotaRequest,
     Supervisor,
     Administrator,
     Candidate,
@@ -166,6 +167,14 @@ class FavoritesAdmin(ModelAdmin):
         full_name = f'{candidate.surname} {candidate.name}' 
         return full_name
     get_full_name.short_description = "кандидат"
+    
+class QuotaRequestsAdmin(ModelAdmin):
+    list_filter = ('office__name', 'status','created_at', 'updated_at')
+    list_display = ('id', 'office__name','amount', 'status', 'updated_at')
+    search_fields = ('amount','office__name')
+    readonly_fields = ("created_at", "updated_at")
+    ordering = ('-id',)
+    
         
 
 # Регистрация моделей
@@ -179,3 +188,4 @@ admin.site.register(Invitation, InvitationsAdmin)
 admin.site.register(Transaction, TransactionsAdmin)
 admin.site.register(ChatLink, ChatLinkAdmin)
 admin.site.register(Favorite, FavoritesAdmin)
+admin.site.register(QuotaRequest, QuotaRequestsAdmin)

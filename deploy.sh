@@ -46,6 +46,9 @@ fi
 echo "введите iP вашего сервера ( как в ssh )?"
 read SERVER_IP
 
+echo "Введите ip для CORS, если необоходимо"
+read CSRF_IP
+
 # === Выбор базы данных ===
 echo "Выберите базу данных (по умолчанию PostgreSQL):"
 echo "1. PostgreSQL (по умолчанию)"
@@ -74,6 +77,7 @@ if [ "$USE_POSTGRESQL" == "true" ]; then
     cat <<EOL > Backend/Miel/.env
 DJANGO_SECRET_KEY=$DJANGO_SECRET_KEY
 DJANGO_DEBUG=$DJANGO_DEBUG
+CSRF_TRUSTED_ORIGINS=$CSRF_IP
 
 DJANGO_ALLOWED_HOSTS=$DJANGO_ALLOWED_HOSTS,$SERVER_IP
 DATABASE_NAME=$POSTGRES_DB

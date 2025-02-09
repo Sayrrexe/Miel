@@ -16,7 +16,7 @@ export const Header = () => {
     localStorage.removeItem("role");
 
     // Перенаправляем пользователя на страницу логина
-    router.push("/login");
+    router.push("/");
   };
 
   return (

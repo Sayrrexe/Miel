@@ -11,6 +11,7 @@ router.register(r'supervisor/favorites', views.FavoriteViewSet, basename='favori
 router.register(r'admin/supervisors', views.SupervisorViewSet)  # CRUD для рук-лей ( от лица админа )
 router.register(r'admin/candidates', views.CandidateViewSet, basename='candidate')
 router.register(r'admin/offices', views.OfficeViewSet, basename='office')#CRUD для офисов ( От лица админа )
+router.register(r'admin/requests', views.QuotaRequestViewSet, basename='request')
 
 urlpatterns = [
     # подключение CRUD

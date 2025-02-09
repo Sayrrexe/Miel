@@ -157,6 +157,9 @@ REST_FRAMEWORK = {
     ],
 }
 
+# CSRF ip settings
+CSRF_TRUSTED_ORIGINS = os.getenv("CSRF_TRUSTED_ORIGINS", "").split(",")
+
 # drf-spectacular settings
 SPECTACULAR_SETTINGS = {
     'TITLE': 'Miel API',  

@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from .models import ChatLink
+from .models import ChatLink, QuotaRequest, Office
 
 @receiver(pre_save, sender=ChatLink)
 def ensure_single_active_link(sender, instance, **kwargs):
@@ -16,3 +16,21 @@ def ensure_single_active_link(sender, instance, **kwargs):
         ChatLink.objects.filter().exclude(pk=instance.pk).update(is_active=False)
 
     
+    
+@receiver(pre_save, sender=QuotaRequest)
+def added_quota_to_office(sender, instance, **kwargs):
+    '''
+    Сигнал для добавления квот в случае принятия запроса
+    '''
+
+    if instance.pk: 
+        try:
+            previous = QuotaRequest.objects.get(pk=instance.pk)
+        except QuotaRequest.DoesNotExist:
+            return  
+
+        if previous.status != "accepted" and instance.status == "accepted":
+            office = instance.office 
+            
+            office.quota += instance.amount  # Добавляем квоту
+            office.save()

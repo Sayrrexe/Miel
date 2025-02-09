@@ -11,6 +11,7 @@ from rest_framework.generics import ListAPIView
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from rest_framework.decorators import action
 from rest_framework.viewsets import ModelViewSet
 
 from drf_spectacular.types import OpenApiTypes
@@ -1444,3 +1445,115 @@ class LinkInfoView(APIView):
         )
 
         return Response({"detail": "Ссылка успешно обновлена."}, status=status.HTTP_200_OK)
+
+
+
+@extend_schema(
+    summary="Управление запросами на квоты",
+    description="API для работы с запросами на квоты (создание, просмотр, обновление, удаление). Доступно только администраторам.",
+    tags=["Quota Requests"],
+)
+class QuotaRequestViewSet(ModelViewSet):
+    queryset = models.QuotaRequest.objects.filter(status='waited')
+    serializer_class = serializers.QuotaRequestSerializer    
+    
+    
+    def perform_create(self, serializer):
+        supervisor = self.request.user.supervisor  
+        serializer.save(office=supervisor.office)
+    
+    
+    def get_permissions(self):
+        if self.action == 'create':  # Только для создания
+            return [IsSupervisor()]
+        return [IsAdministrator()]
+
+    @extend_schema(
+        summary="Получить список запросов на квоты",
+        description="Возвращает список квот со статусом `waited`. Доступно только администраторам.",
+        responses={200: serializers.QuotaRequestSerializer(many=True)},
+    )
+    def list(self, request, *args, **kwargs):
+        return super().list(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Создать новый запрос на квоту",
+        description="Создаёт новый запрос на квоту. Требуются данные о офисе и сумме.",
+        request=serializers.QuotaRequestSerializer,
+        responses={
+            201: serializers.QuotaRequestSerializer,
+            400: OpenApiResponse(description="Ошибка валидации данных"),
+        },
+    )
+    def create(self, request, *args, **kwargs):
+        return super().create(request, *args, **kwargs)
+
+
+    @extend_schema(
+        summary="Получить информацию о конкретном запросе на квоту",
+        description="Возвращает детальную информацию о запросе на квоту по его ID.",
+        responses={200: serializers.QuotaRequestSerializer},
+    )
+    def retrieve(self, request, *args, **kwargs):
+        return super().retrieve(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Обновить данные запроса на квоту",
+        description="Полностью обновляет данные запроса на квоту по его ID.",
+        request=serializers.QuotaRequestSerializer,
+        responses={
+            200: serializers.QuotaRequestSerializer,
+            400: OpenApiResponse(description="Ошибка валидации данных"),
+        },
+    )
+    def update(self, request, *args, **kwargs):
+        return super().update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Частично обновить запрос на квоту",
+        description="Позволяет обновить отдельные поля запроса на квоту.",
+        request=serializers.QuotaRequestSerializer,
+        responses={
+            200: serializers.QuotaRequestSerializer,
+            400: OpenApiResponse(description="Ошибка валидации данных"),
+        },
+    )
+    def partial_update(self, request, *args, **kwargs):
+        return super().partial_update(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Удалить запрос на квоту",
+        description="Удаляет запрос на квоту по его ID.",
+        responses={204: OpenApiResponse(description="Запрос успешно удалён")},
+    )
+    def destroy(self, request, *args, **kwargs):
+        return super().destroy(request, *args, **kwargs)
+
+    @extend_schema(
+        summary="Получить детальную информацию о квоте",
+        description="Возвращает детальную информацию о конкретной квоте, включая историю последних 5 запросов.",
+        responses={
+            200: OpenApiResponse(response=serializers.QuotaRequestDetailSerializer, description="Детальная информация успешно получена."),
+            404: OpenApiResponse(response={"detail": "Квота не найдена."}, description="Ошибка, если квота с указанным ID не существует."),
+        },
+        examples=[
+            OpenApiExample(
+                "Пример ответа",
+                value={
+                    "id": 1,
+                    "office_info": {"id": 3, "name": "Офис №3"},
+                    "history": [
+                        {"id": 10, "amount": 500, "status": "accepted", "created_at": "2024-02-01T12:00:00Z"},
+                        {"id": 11, "amount": 700, "status": "waited", "created_at": "2024-02-05T15:30:00Z"},
+                    ],
+                },
+                response_only=True,
+                status_codes=["200"],
+            ),
+        ],
+    )
+    @action(detail=True, methods=['get'], )
+    def details(self, request, pk=None):
+        quota = self.get_object()
+        serializer = serializers.QuotaRequestDetailSerializer(quota)
+        return Response(serializer.data)
