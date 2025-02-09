@@ -225,7 +225,7 @@ class Office(models.Model):
     name = models.CharField(max_length=255, verbose_name="Название офиса")
     location = models.CharField(max_length=255, verbose_name="Местоположение")
     phone = models.CharField(max_length=15, null=True, blank=True, verbose_name="телефон")
-    quota = models.PositiveIntegerField(verbose_name="Базовая квота")  # Стартовая квота
+    quota = models.PositiveIntegerField(verbose_name="Базовая квота")  
     used_quota = models.PositiveIntegerField(default=0, verbose_name="Использованная квота")
     
     created_at = models.DateTimeField(auto_now_add=True)
@@ -492,3 +492,25 @@ class ChatLink(models.Model):
     class Meta:
         verbose_name = "Активная ссылка"
         verbose_name_plural = "Ссылки"
+
+class QuotaRequest(models.Model):
+    STATUS_CHOICES = [
+        ('waited', 'ожидание'),
+        ('accepted', 'Принято'),
+        ('rejected', 'Отклонено')
+    ]
+    
+    office = models.ForeignKey(Office, verbose_name='оффис', on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField()
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='waited', verbose_name='статус')
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="созданно")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлено")
+    
+    def __str__(self):
+        return f'запрос {self.amount} квот для {self.office.name}'
+
+
+    class Meta:
+        verbose_name = "Запрос"
+        verbose_name_plural = "Запросы"

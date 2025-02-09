@@ -1,8 +1,9 @@
 from datetime import datetime
+from typing import Self
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
-from .models import Favorite, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
+from .models import Favorite, QuotaRequest, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
 
 class InfoAboutSupervisor(serializers.ModelSerializer):
     role = serializers.CharField(default="2", read_only=True)
@@ -440,8 +441,46 @@ class ArchiveCandidateSerializer(serializers.ModelSerializer):
         parts = [obj.name, obj.surname, obj.patronymic]  
         return " ".join(filter(None, parts))  
 
+class QuotaRequestSerializer(serializers.ModelSerializer):
+    office_name = serializers.SerializerMethodField(read_only=True)
+    
+    class Meta:
+        model = QuotaRequest
+        fields = ['id',
+                  'office',
+                  'office_name',
+                  'amount',
+                  'status',
+                  'created_at',
+                  'updated_at',
+                  ]
+        
+        read_only_fields = ['id', 'created_at', 'updated_at']
     
     
+    @extend_schema_field(serializers.CharField)
+    def get_office_name(Self, obj):
+        return obj.office.name
     
+class QuotaRequestHistorySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = QuotaRequest
+        fields = ['id', 'amount', 'status', 'created_at']  
+        
+class QuotaRequestDetailSerializer(serializers.ModelSerializer):
+    office_info = OfficeSerializer(source='office', read_only=True)
+    history = serializers.SerializerMethodField()
+    
+    class Meta:
+        model = QuotaRequest
+        fields = ['id', 'office_info', 'history']
+        
+    def get_history(self, obj):
+        office = obj.office
+        requests = QuotaRequest.objects.filter(office=office).order_by('-created_at')[1:6]
+        return QuotaRequestHistorySerializer(requests, many=True).data
+
+
+
 
     
