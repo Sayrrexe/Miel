@@ -1555,5 +1555,5 @@ class QuotaRequestViewSet(ModelViewSet):
     @action(detail=True, methods=['get'], )
     def details(self, request, pk=None):
         quota = self.get_object()
-        serializer = QuotaRequestDetailSerializer(quota)
+        serializer = serializers.QuotaRequestDetailSerializer(quota)
         return Response(serializer.data)
