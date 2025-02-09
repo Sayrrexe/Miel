@@ -1454,7 +1454,7 @@ class LinkInfoView(APIView):
     tags=["Quota Requests"],
 )
 class QuotaRequestViewSet(ModelViewSet):
-    queryset = models.QuotaRequest.objects.filter(status='WAITED')
+    queryset = models.QuotaRequest.objects.filter(status='waited')
     serializer_class = serializers.QuotaRequestSerializer    
     
     def get_permissions(self):
@@ -1464,7 +1464,7 @@ class QuotaRequestViewSet(ModelViewSet):
 
     @extend_schema(
         summary="Получить список запросов на квоты",
-        description="Возвращает список квот со статусом `WAITED`. Доступно только администраторам.",
+        description="Возвращает список квот со статусом `waited`. Доступно только администраторам.",
         responses={200: serializers.QuotaRequestSerializer(many=True)},
     )
     def list(self, request, *args, **kwargs):
@@ -1536,8 +1536,8 @@ class QuotaRequestViewSet(ModelViewSet):
                     "id": 1,
                     "office_info": {"id": 3, "name": "Офис №3"},
                     "history": [
-                        {"id": 10, "amount": 500, "status": "APPROVED", "created_at": "2024-02-01T12:00:00Z"},
-                        {"id": 11, "amount": 700, "status": "WAITED", "created_at": "2024-02-05T15:30:00Z"},
+                        {"id": 10, "amount": 500, "status": "accepted", "created_at": "2024-02-01T12:00:00Z"},
+                        {"id": 11, "amount": 700, "status": "waited", "created_at": "2024-02-05T15:30:00Z"},
                     ],
                 },
                 response_only=True,
