@@ -1,7 +1,7 @@
 from django.core.exceptions import ValidationError
 from django.db.models.signals import pre_save
 from django.dispatch import receiver
-from .models import ChatLink, QuotaRequest, Office
+from .models import ChatLink, QuotaRequest, Transaction
 
 @receiver(pre_save, sender=ChatLink)
 def ensure_single_active_link(sender, instance, **kwargs):
@@ -34,3 +34,6 @@ def added_quota_to_office(sender, instance, **kwargs):
             
             office.quota += instance.amount  # Добавляем квоту
             office.save()
+            
+            trans = Transaction.objects.create(operation = 'add', cause = f'Принятие запроса №{instance.id} на {instance.amount} квот', amount = instance.amount, office = office)
+            trans.save()
