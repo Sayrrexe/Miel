@@ -18,12 +18,16 @@ export const CandidateNewAdd = () => {
   const employee = useEmployee((state) => state.data);
   const setEmployee = useEmployee((state) => state.setEmployee);
   const token = localStorage.getItem("token") || "";
+
   const checkoutFormSchema = z.object({
     data: z.string().date("Введите корректную дату"),
+    email: z.string().email("Введите корректный email"), // Валидация email
   });
+
   const candidates = useCandidates((state) => state.data);
   const setCandidates = useCandidates((state) => state.setCandidates);
   type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
+
   useEffect(
     () =>
       setEmployee({
@@ -47,6 +51,7 @@ export const CandidateNewAdd = () => {
         resume: "",
         surname: "",
         office_name: "",
+        email: "", // Добавлено поле для email
       }),
     [setEmployee]
   );
@@ -55,11 +60,14 @@ export const CandidateNewAdd = () => {
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
       data: "",
+      email: "", // Значение по умолчанию для email
     },
   });
+
   const onSubmit = (data: CheckoutFormValues) => {
     console.log(data);
   };
+
   return (
     <div className={cn("mt-[52px] ml-10")}>
       <FormProvider {...form}>
@@ -73,6 +81,7 @@ export const CandidateNewAdd = () => {
           </Link>
           <div className="mt-[29px]">
             <div className="flex flex-col gap-5">
+              {/* Фамилия */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Фамилия</p>
                 <Input
@@ -84,6 +93,8 @@ export const CandidateNewAdd = () => {
                   }
                 />
               </div>
+
+              {/* Имя */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Имя</p>
                 <Input
@@ -98,6 +109,8 @@ export const CandidateNewAdd = () => {
                   className="w-[450px] rounded-xl"
                 />
               </div>
+
+              {/* Отчество */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Отчество</p>
                 <Input
@@ -113,6 +126,8 @@ export const CandidateNewAdd = () => {
                   }
                 />
               </div>
+
+              {/* Телефон */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Телефон</p>
                 <Input
@@ -127,6 +142,8 @@ export const CandidateNewAdd = () => {
                   }
                 />
               </div>
+
+              {/* Дата рождения */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Дата рождения</p>
                 <MailInput
@@ -142,6 +159,8 @@ export const CandidateNewAdd = () => {
                   }
                 />
               </div>
+
+              {/* Страна */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Страна</p>
                 <Input
@@ -156,6 +175,8 @@ export const CandidateNewAdd = () => {
                   }
                 />
               </div>
+
+              {/* Город */}
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Город</p>
                 <Input
@@ -170,29 +191,54 @@ export const CandidateNewAdd = () => {
                   }
                 />
               </div>
+
+              {/* Email */}
+              <div className="flex gap-5 items-center">
+                <p className="min-w-[134px]">Email</p>
+                <Input
+                  {...form.register("email")} // Привязка поля к react-hook-form
+                  value={employee.email}
+                  className={`w-[450px] rounded-xl ${
+                    form.formState.errors.email ? "border-red-500" : ""
+                  }`} // Красная рамка при ошибке
+                  placeholder="Email"
+                  onInput={(e) =>
+                    setEmployee({
+                      ...employee,
+                      email: e.currentTarget.value, // Обновление email
+                    })
+                  }
+                />
+              </div>
+
+              {/* Отображение ошибки с красным текстом */}
+              {form.formState.errors.email && (
+                <p className="text-red-500 text-sm mt-1">
+                  {form.formState.errors.email.message}
+                </p>
+              )}
             </div>
+
             <Button
               className="mt-8 bg-[#960047] w-[160px] h-[44px] rounded-xl"
               onClick={async () => {
-                console.log("Sending data:", employee);
+                console.log("Отправка данных:", employee);
                 try {
                   const response = await fetchPostEndpoint(
                     "/api/admin/candidates/",
                     employee,
                     token
                   );
-                  console.log("Response:", response);
+                  console.log("Ответ:", response);
                   if (response.error) {
-                    // Если в ответе есть ошибка, выбрасываем исключение
                     throw new Error(response.error);
                   } else {
-                    // Если ошибки нет, значит запрос успешен
                     toast.success("Кандидат добавлен!");
                     setCandidates([...candidates, employee]);
                     router.push(`/addingEmployee/${candidates.length}`);
                   }
                 } catch (error) {
-                  console.error("Request failed:", error);
+                  console.error("Ошибка запроса:", error);
                   toast.error("Кандидат не добавлен");
                 }
               }}

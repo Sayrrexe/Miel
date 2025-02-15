@@ -130,7 +130,7 @@ export const AddingEmployee = ({ id }: AddingEmployeeProps) => {
             <p>{userInfo.name}</p>
             <p className="py-[6px] px-2 bg-[#CACBCD] rounded-xl">Стажер</p>
           </div>
-        </div>
+        </div>  
         <div className="flex gap-4 items-center pr-9">
           <p className="flex gap-2 items-center border-[#960047] border-solid border-[2px] px-4 py-[10px] cursor-pointer hover:bg-[#96004675]">
             <Mail />

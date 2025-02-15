@@ -1,7 +1,7 @@
 "use client";
 
 import { cn } from "@/lib/utils";
-import avatar from "../../../../public/assets/Ellipse 190@2x.png";
+import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import frame from "../../../../public/assets/Frame.png";
 import Image from "next/image";
 import { Folder, Grid2X2, Heart, Users } from "lucide-react";
@@ -34,9 +34,15 @@ export const BossPages = () => {
           <Image
             width={40}
             height={40}
-            src={avatar}
+            src={
+              localStorage.getItem("photo") &&
+              localStorage.getItem("photo") !== "null"
+                ? (localStorage.getItem("photo") as string) // если фото есть, используем его
+                : user // если нет фото, используем дефолтное изображение
+            }
             alt="avatar"
-            className="mb-2"
+            className="mb-2 rounded-full"
+            onClick={() => console.log(data)}
           />
           <div>
             {data.username && data.full_name ? (

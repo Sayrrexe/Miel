@@ -13,6 +13,9 @@ const config = {
       },
     ];
   },
+  images: {
+    domains: ["80.85.246.168"], // Add this line to allow images from this domain
+  },
 };
 
 export default config;

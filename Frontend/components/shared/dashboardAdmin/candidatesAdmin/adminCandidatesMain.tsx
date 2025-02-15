@@ -117,7 +117,7 @@ export const AdminCandidates = () => {
                       />
                     ) : (
                       <Image
-                        className="max-w-[90px] max-h-[90px]"
+                        className="max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px]"
                         src={user}
                         width={39}
                         height={39}

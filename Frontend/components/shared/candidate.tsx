@@ -3,6 +3,8 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import Image from "next/image";
+import { fetchPostEndpoint } from "@/lib/candidates";
+import toast, { Toaster } from "react-hot-toast";
 
 interface Props {
   candidate: {
@@ -39,6 +41,7 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
     "in_progress",
     "в процессе",
   ];
+  const token = localStorage.getItem("token") || "";
   return (
     <div className={cn("")}>
       <div className={`w-[476px] h-[596px] shadow-xl mr-12`}>
@@ -78,7 +81,11 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
                 <p>
                   {candidate.education ? candidate.education : "Не указано"}
                 </p>
-                <a className="text-rose-500" href={`${candidate.resume}`}>
+                <a
+                  className="text-rose-500"
+                  target="_blank"
+                  href={`${candidate.resume}`}
+                >
                   Ссылка на резюме
                 </a>
               </div>
@@ -180,9 +187,33 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
           <Button className="bg-[#960047] rounded-none hover:bg-[#960046a9]">
             Пригласить
           </Button>
-          <Button className="bg-white text-black border-[#960047] border-solid border-[1px] rounded-none hover:bg-[#960047]">
+          <Button
+            onClick={async () => {
+              console.log("Sending data:", { candidate: candidate.id });
+              try {
+                const response = await fetchPostEndpoint(
+                  "/api/supervisor/favorites/",
+                  { candidate: candidate.id },
+                  token
+                );
+                console.log("Response:", response);
+                if (response.error) {
+                  // Если в ответе есть ошибка, выбрасываем исключение
+                  throw new Error(response.error);
+                } else {
+                  // Если ошибки нет, значит запрос успешен
+                  toast.success("Кандидат отправлен в избранное!");
+                }
+              } catch (error) {
+                console.error("Request failed:", error);
+                toast.error("Произошла ошибка при добавлении в избранное");
+              }
+            }}
+            className="bg-white text-black border-[#960047] border-solid border-[1px] rounded-none hover:bg-[#960047]"
+          >
             В избранное
           </Button>
+          <Toaster />
         </div>
       </div>
     </div>

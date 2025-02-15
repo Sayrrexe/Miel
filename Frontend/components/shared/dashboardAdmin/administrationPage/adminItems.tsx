@@ -25,6 +25,7 @@ export const AdminItems = () => {
     patronymic: string | null;
     phone: string | null;
     email: string;
+    full_name: string;
   }
 
   interface Candidate {
@@ -170,9 +171,7 @@ export const AdminItems = () => {
                   />
                 )}
 
-                <p>{`${objectData.user.first_name || ""} ${
-                  objectData.user.username || ""
-                } ${objectData.user.patronymic || ""}`}</p>
+                <p>{`${objectData.user.full_name || ""}`}</p>
               </TableCell>
               <TableCell>Москва</TableCell>
               <TableCell>{objectData.user.phone || "Не указан"}</TableCell>

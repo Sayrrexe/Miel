@@ -10,11 +10,10 @@ import {
   UsersRound,
 } from "lucide-react";
 import Image from "next/image";
-import avatar from "../../../../public/assets/Ellipse 190@2x.png";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
 import { useState } from "react";
-import { useCategoryStore } from "@/store/context";
+import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 
 export const AdminPages = () => {
   const [activeCategorie, setActiveCategorie] = useState(
@@ -28,7 +27,6 @@ export const AdminPages = () => {
       ? 4
       : 2
   );
-  const data = useCategoryStore((state) => state.data);
   return (
     <div
       className={cn("float-left bg-gray-200 h-[calc(100vh-71px)] w-[277px]")}
@@ -37,15 +35,22 @@ export const AdminPages = () => {
         <Image
           width={40}
           height={40}
-          src={avatar}
+          src={
+            localStorage.getItem("photo") &&
+            localStorage.getItem("photo") !== "null"
+              ? (localStorage.getItem("photo") as string) // если фото есть, используем его
+              : user // если нет фото, используем дефолтное изображение
+          }
           alt="avatar"
           className="mb-2"
         />
+
         <div>
-          {data.username && data.full_name ? (
+          {localStorage.getItem("username") ? (
             <div>
-              <p className="text-xs font-bold">{data.username}</p>
-              <p className="text-sm">{data.full_name}</p>
+              <p className="text-xs font-bold">
+                {localStorage.getItem("username")}
+              </p>
             </div>
           ) : (
             <p>user</p>
