@@ -473,7 +473,7 @@ class QuotaRequestDetailSerializer(serializers.ModelSerializer):
     
     class Meta:
         model = QuotaRequest
-        fields = ['id', 'office_info', 'history']
+        fields = ['id', 'amount','created_at','status','office_info', 'history']
         
     def get_history(self, obj):
         office = obj.office
