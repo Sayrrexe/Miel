@@ -34,4 +34,5 @@ urlpatterns = [
     path('admin/statistic/quotas/', views.AdminMonthlyStatisticView.as_view(), name = 'admin-quotas-statistic'),
     path('admin/archive/', views.ArchiveCandidateInfoView.as_view(), name = 'archive'),
     path('admin/archive/restore/', views.ArchiveBatchRestoreView.as_view(), name='archive-batch-restore'),
+    path('admin/quotas/update/', views.BulkQuotaUpdateView.as_view(), name='getquotass')
 ]
