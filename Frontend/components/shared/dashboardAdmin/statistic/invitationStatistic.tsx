@@ -106,7 +106,7 @@ export const InvitationStatistic = ({
               <TableHead className="font-bold">Дата</TableHead>
             </TableRow>
           </TableHeader>
-          <TableBody>
+          <TableBody className="[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
             {invitings.map((objectData, index) => (
               <TableRow className="max-h-12" key={index}>
                 <TableCell className="flex items-center gap-3 pl-[24px]">

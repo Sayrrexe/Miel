@@ -5,6 +5,7 @@ import { OfficeItem } from ".";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
 import { useRouter } from "next/navigation";
+import css from "./main.module.css";
 
 export const OfficeItems = () => {
   interface Office {
@@ -62,10 +63,12 @@ export const OfficeItems = () => {
   }, []);
 
   return (
-    <div className={cn("")}>
-      <div className="pt-8 flex flex-col md:flex-row gap-4 md:gap-6">
+    <div className={cn(css.officeItemsContainer)}>
+      <div
+        className={`pt-8 flex flex-col md:flex-row gap-4 md:gap-6 ${css.otherButtons}`}
+      >
         <Input
-          className="rounded-lg w-full md:w-[696px]"
+          className={`rounded-lg w-full md:w-[696px] ${css.officeItemsSearchInput}`}
           placeholder="Найти офис"
           id="search"
           onChange={(e) => setSearch(e.currentTarget.value)}
@@ -91,21 +94,23 @@ export const OfficeItems = () => {
               }
             })();
           }}
-          className="bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] hover:bg-[#960047] rounded-xl md:mr-4"
+          className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] hover:bg-[#960047] rounded-xl md:mr-4 ${css.officeItemsSearchButton}`}
         >
-          Поиск
+          {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
-          className="bg-[#960047] w-full md:w-[160px] hover:bg-[#960046a9] rounded-xl md:mr-4"
+          className={`bg-[#960047] w-full md:w-[160px] hover:bg-[#960046a9] rounded-xl md:mr-4 ${css.officeItemsAddButton}`}
           onClick={async () => {
             router.push("/addingOffice");
           }}
         >
-          Добавить офис
+          {window.innerWidth < 1000 ? "+" : "Добавить офис"}
         </Button>
       </div>
 
-      <div className="flex flex-wrap gap-4 mt-7 overflow-y-scroll w-full md:w-[70vw] h-[720px] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
+      <div
+        className={`flex flex-wrap gap-4 mt-7 overflow-y-scroll w-full md:w-[70vw] h-[720px] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100 ${css.officeItemsList}`}
+      >
         {offices.map((candidatObject, index) => (
           <OfficeItem
             key={index}

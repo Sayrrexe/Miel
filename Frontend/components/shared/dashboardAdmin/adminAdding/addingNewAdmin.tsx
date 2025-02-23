@@ -17,6 +17,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { MailInput } from "../../formInputs/mailInput";
+import css from "./main.module.css";
 import toast, { Toaster } from "react-hot-toast";
 
 export const AddingNewAdmin = () => {
@@ -134,7 +135,7 @@ export const AddingNewAdmin = () => {
           </Link>
           <div className="mt-[29px]">
             <div className="flex flex-col gap-5">
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Фамилия</p>
                 <Input
                   value={officeData.user.last_name}
@@ -151,7 +152,7 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Имя</p>
                 <Input
                   value={officeData.user.first_name}
@@ -168,7 +169,7 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Отчество</p>
                 <Input
                   value={officeData.user.patronymic}
@@ -185,7 +186,7 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Телефон</p>
                 <Input
                   value={officeData.user.phone}
@@ -202,7 +203,7 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Email</p>
                 <MailInput
                   name="email"
@@ -220,7 +221,7 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p
                   onClick={() => console.log(officeData)}
                   className="min-w-[134px]"
@@ -248,7 +249,7 @@ export const AddingNewAdmin = () => {
                   </SelectContent>
                 </Select>
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Подразделение</p>
                 <Input
                   value={officeData.department}
@@ -262,7 +263,7 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Логин</p>
                 <Input
                   value={officeData.user.username}
@@ -287,7 +288,7 @@ export const AddingNewAdmin = () => {
                 )}{" "}
                 {/* Сообщение об ошибке */}
               </div>
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Пароль</p>
                 <Input className="w-[450px] rounded-xl" placeholder="Пароль" />
               </div>

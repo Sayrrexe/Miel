@@ -12,6 +12,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useEffect } from "react";
+import css from "./main.module.css";
 
 export const CandidateNewAdd = () => {
   const router = useRouter();
@@ -82,7 +83,7 @@ export const CandidateNewAdd = () => {
           <div className="mt-[29px]">
             <div className="flex flex-col gap-5">
               {/* Фамилия */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Фамилия</p>
                 <Input
                   value={employee.surname}
@@ -95,7 +96,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Имя */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Имя</p>
                 <Input
                   onInput={(e) =>
@@ -111,7 +112,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Отчество */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Отчество</p>
                 <Input
                   type="phone"
@@ -128,7 +129,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Телефон */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Телефон</p>
                 <Input
                   value={employee.phone}
@@ -144,7 +145,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Дата рождения */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Дата рождения</p>
                 <MailInput
                   name="data"
@@ -161,7 +162,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Страна */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Страна</p>
                 <Input
                   value={employee.country}
@@ -177,7 +178,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Город */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Город</p>
                 <Input
                   value={employee.city}
@@ -193,7 +194,7 @@ export const CandidateNewAdd = () => {
               </div>
 
               {/* Email */}
-              <div className="flex gap-5 items-center">
+              <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Email</p>
                 <Input
                   {...form.register("email")} // Привязка поля к react-hook-form

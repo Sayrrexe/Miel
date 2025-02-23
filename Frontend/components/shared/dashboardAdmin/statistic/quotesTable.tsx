@@ -85,7 +85,7 @@ export const QuotesTable = ({ start_date, end_date }: PersonalInfoProps) => {
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>
+        <TableBody className="[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
           {quotes.map((objectData, index) => (
             <TableRow key={index}>
               <TableCell className="gap-3 w-[56px]">

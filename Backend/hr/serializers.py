@@ -479,9 +479,3 @@ class QuotaRequestDetailSerializer(serializers.ModelSerializer):
         office = obj.office
         requests = QuotaRequest.objects.filter(office=office).order_by('-created_at')[1:6]
         return QuotaRequestHistorySerializer(requests, many=True).data
-
-
-
-
-
-    

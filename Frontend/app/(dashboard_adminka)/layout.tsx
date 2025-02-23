@@ -5,6 +5,7 @@ import { BrowserRouter } from "react-router-dom";
 import { Header } from "@/components/shared";
 import { AdminPages } from "@/components/shared/dashboardAdmin/administrationPage";
 import { useEffect } from "react";
+import css from "./main.module.css";
 
 const PTSans = PT_Sans({
   subsets: ["cyrillic"],
@@ -32,7 +33,7 @@ export default function RootLayout({
       <body className={`${PTSans.variable}`}>
         <BrowserRouter>
           <Header />
-          <main className="flex ">
+          <main className={`flex ${css.main}`}>
             <AdminPages />
             {localStorage.getItem("token") ? (
               children
