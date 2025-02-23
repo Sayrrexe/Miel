@@ -1616,31 +1616,45 @@ class BulkQuotaUpdateView(APIView):
     )
     def post(self, request):
         quotas_data = request.data.get("quotas", [])
-        
+
+        if not isinstance(quotas_data, list):
+            return Response({"error": "Неверный формат данных. Ожидается список."}, status=status.HTTP_400_BAD_REQUEST)
+
+        updated_offices = []
 
         for data in quotas_data:
             office_id = data.get("office_id")
             amount = data.get("amount")
-            
+
+            if not isinstance(office_id, int) or not isinstance(amount, int) or amount < 0:
+                continue  
+
             try:
                 office = models.Office.objects.get(id=office_id)
                 office_quota = office.quota
+                operation = None
+                change_amount = 0
+
                 if amount > office_quota:
-                    amount = amount - office_quota
+                    change_amount = amount - office_quota
                     operation = 'add'
-                    office.quota += amount
-                elif amount == office_quota:
-                    continue
+                    office.quota += change_amount
                 elif amount < office_quota:
-                    amount = office_quota - amount
+                    change_amount = office_quota - amount
                     operation = 'subtract'
-                    office.quota -= amount
-                office.save()
-                
-                models.Transaction.objects.create(office=office,operation=operation,amount=amount, cause = f'Выдача администратором {request.user.username}')
-            except:
-                continue
+                    office.quota -= change_amount
 
-            
+                if operation:
+                    office.save()
+                    models.Transaction.objects.create(
+                        office=office,
+                        operation=operation,
+                        amount=change_amount,
+                        cause=f'Выдача администратором {request.user.username}'
+                    )
+                    updated_offices.append({"office_id": office_id, "operation": operation, "amount": change_amount})
 
-        return Response(status=status.HTTP_200_OK)
+            except models.Office.DoesNotExist:
+                continue  # Пропускаем офисы, которых нет
+
+        return Response({"message": "Квоты успешно обновлены", "updated_offices": updated_offices}, status=status.HTTP_200_OK)
