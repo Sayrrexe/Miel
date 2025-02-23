@@ -61,6 +61,25 @@ export const AddingOffice = () => {
               className="w-[450px] rounded-xl"
             />
           </div>
+
+          <div className="flex gap-5 items-center">
+            <p className="min-w-[134px] w-[210px]">Номер телефона</p>
+            <Input
+              value={officeData.phone}
+              className="w-[450px] rounded-xl"
+              placeholder="Номер телефона"
+              onInput={(e) =>
+                setOfficeData({
+                  location: officeData.location,
+                  quota: officeData.quota,
+                  used_quota: officeData.used_quota,
+                  phone: e.currentTarget.value,
+                  name: officeData.name,
+                  mail: officeData.mail,
+                })
+              }
+            />
+          </div>
           <div className="flex gap-5 items-center">
             <p className="min-w-[134px] w-[210px]">Стартовые квоты</p>
             <Input
@@ -74,24 +93,6 @@ export const AddingOffice = () => {
                   quota: Number(e.currentTarget.value),
                   used_quota: officeData.used_quota,
                   phone: officeData.phone,
-                  name: officeData.name,
-                  mail: officeData.mail,
-                })
-              }
-            />
-          </div>
-          <div className="flex gap-5 items-center">
-            <p className="min-w-[134px] w-[210px]">Номер телефона</p>
-            <Input
-              value={officeData.phone}
-              className="w-[450px] rounded-xl"
-              placeholder="Номер телефона"
-              onInput={(e) =>
-                setOfficeData({
-                  location: officeData.location,
-                  quota: officeData.quota,
-                  used_quota: officeData.used_quota,
-                  phone: e.currentTarget.value,
                   name: officeData.name,
                   mail: officeData.mail,
                 })

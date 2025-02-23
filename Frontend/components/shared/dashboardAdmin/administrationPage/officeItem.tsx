@@ -30,8 +30,8 @@ export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
         }`}
       >
         <div>
-          <p className="opacity-50 text-base">{candidatObject.location}</p>
-          <p className="text-xl font-semibold">{candidatObject.name}</p>
+          <p className="opacity-50 text-base">{candidatObject.name}</p>
+          <p className="text-xl font-semibold">{candidatObject.location}</p>
         </div>
         <div className="mt-9 sm:mt-10 flex flex-col sm:flex-row justify-between">
           <div>

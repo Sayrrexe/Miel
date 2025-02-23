@@ -1,10 +1,18 @@
 "use client";
-import { Button, Input } from "@/components/ui";
-import { fetchPostEndpoint } from "@/lib/candidates";
+import {
+  Button,
+  Input,
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui";
+import fetchGetEndpoint, { fetchPostEndpoint } from "@/lib/candidates";
 import { cn } from "@/lib/utils";
 import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -15,10 +23,34 @@ export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
     email: z.string().email({ message: "Введите корректную почту" }),
   });
+  interface Office {
+    location: string;
+    quota: number;
+    used_quota: number;
+    phone: string;
+    name: string;
+    mail: string;
+    id: number;
+  }
+  const [offices, setOffices] = useState<Office[]>([]);
+  const token = localStorage.getItem("token") || "";
+  useEffect(() => {
+    console.log(token);
+    (async () => {
+      const endpointToCall = "/api/admin/offices/";
+      const response = await fetchGetEndpoint(endpointToCall, token);
+
+      // Проверяем, что ответ успешный и содержит данные
+      if ("data" in response && Array.isArray(response.data)) {
+        setOffices(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+      } else {
+        // Обработка ошибки, если response не содержит data или data не является массивом
+        console.error("Error fetching candidates:", response);
+      }
+    })();
+  }, [token]);
 
   type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
-
-  const token = localStorage.getItem("token") || "";
   const [officeData, setOfficeData] = useState({
     department: "",
     office: "",
@@ -189,21 +221,32 @@ export const AddingNewAdmin = () => {
                 />
               </div>
               <div className="flex gap-5 items-center">
-                <p className="min-w-[134px]">Офис</p>
-                <Input
-                  value={officeData.user.office}
-                  className="w-[450px] rounded-xl"
-                  placeholder="Офис"
-                  onInput={(e) =>
-                    setOfficeData({
-                      ...officeData,
-                      user: {
-                        ...officeData.user,
-                        office: e.currentTarget.value,
-                      },
-                    })
-                  }
-                />
+                <p
+                  onClick={() => console.log(officeData)}
+                  className="min-w-[134px]"
+                >
+                  Офис
+                </p>
+                <Select
+                  onValueChange={(value: string) => {
+                    setOfficeData({ ...officeData, office: value });
+                  }}
+                >
+                  <SelectTrigger className="z-10 border-solid border-opacity-40 border-[1px] w-[450px] rounded-xl">
+                    <SelectValue className="opacity-40" placeholder="Офис" />
+                  </SelectTrigger>
+                  <SelectContent className="flex justify-between z-10">
+                    {offices.map((office, index) => (
+                      <SelectItem
+                        value={`${office.name}`}
+                        className="ml-3 z-10 bg-white"
+                        key={index}
+                      >
+                        {office.name}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="flex gap-5 items-center">
                 <p className="min-w-[134px]">Подразделение</p>

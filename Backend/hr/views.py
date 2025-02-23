@@ -1557,3 +1557,104 @@ class QuotaRequestViewSet(ModelViewSet):
         quota = self.get_object()
         serializer = serializers.QuotaRequestDetailSerializer(quota)
         return Response(serializer.data)
+    
+    
+class BulkQuotaUpdateView(APIView):
+    permission_classes = [IsAdministrator]
+    @extend_schema(
+        summary="Массовое обновление квот офисов",
+        description=(
+            "Позволяет администратору изменить квоты нескольких офисов сразу. "
+            "Если новое значение квоты больше текущего, происходит увеличение, если меньше — уменьшение. "
+            "Для каждой операции создается транзакция."
+        ),
+        request={
+            "application/json": {
+                "example": {
+                    "quotas": [
+                        {"office_id": 1, "amount": 10},
+                        {"office_id": 2, "amount": 5}
+                    ]
+                }
+            }
+        },
+        responses={
+            200: OpenApiResponse(
+                description="Квоты успешно обновлены."
+            ),
+            400: OpenApiResponse(
+                description="Ошибка валидации данных."
+            ),
+            403: OpenApiResponse(
+                description="Нет прав доступа."
+            ),
+        },
+        examples=[
+            OpenApiExample(
+                "Пример запроса",
+                value={
+                    "quotas": [
+                        {"office_id": 1, "amount": 10},
+                        {"office_id": 2, "amount": 5}
+                    ]
+                },
+                request_only=True
+            ),
+            OpenApiExample(
+                "Пример успешного ответа",
+                value={"message": "Квоты успешно обновлены"},
+                response_only=True,
+                status_codes=["200"],
+            ),
+            OpenApiExample(
+                "Пример ошибки (неверные данные)",
+                value={"error": "Некорректные данные"},
+                response_only=True,
+                status_codes=["400"],
+            ),
+        ],
+    )
+    def post(self, request):
+        quotas_data = request.data.get("quotas", [])
+
+        if not isinstance(quotas_data, list):
+            return Response({"error": "Неверный формат данных. Ожидается список."}, status=status.HTTP_400_BAD_REQUEST)
+
+        updated_offices = []
+
+        for data in quotas_data:
+            office_id = data.get("office_id")
+            amount = data.get("amount")
+
+            if not isinstance(office_id, int) or not isinstance(amount, int) or amount < 0:
+                continue  
+
+            try:
+                office = models.Office.objects.get(id=office_id)
+                office_quota = office.quota
+                operation = None
+                change_amount = 0
+
+                if amount > office_quota:
+                    change_amount = amount - office_quota
+                    operation = 'add'
+                    office.quota += change_amount
+                elif amount < office_quota:
+                    change_amount = office_quota - amount
+                    operation = 'subtract'
+                    office.quota -= change_amount
+
+                if operation:
+                    office.save()
+                    models.Transaction.objects.create(
+                        office=office,
+                        operation=operation,
+                        amount=change_amount,
+                        cause=f'Выдача администратором {request.user.username}'
+                    )
+                    updated_offices.append({"office_id": office_id, "operation": operation, "amount": change_amount})
+
+            except models.Office.DoesNotExist:
+                continue  # Пропускаем офисы, которых нет
+
+        return Response({"message": "Квоты успешно обновлены", "updated_offices": updated_offices}, status=status.HTTP_200_OK)

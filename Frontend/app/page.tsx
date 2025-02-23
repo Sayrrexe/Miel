@@ -49,9 +49,11 @@ const Authorisation = () => {
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
     const storedFullName = localStorage.getItem("full_name");
-
-    if (storedRole && storedFullName) {
+    console.log(storedRole, storedFullName);
+    if (storedRole) {
+      console.log(storedRole);
       if (storedRole === "1") {
+        console.log(231);
         router.push("/main1");
       } else if (storedRole === "2") {
         router.push("/main2");
@@ -192,6 +194,7 @@ const Authorisation = () => {
                                     info.full_name
                                   );
                                   localStorage.setItem("role", info.role);
+                                  localStorage.setItem("photo", info.photo);
                                 }
                               } else {
                                 console.error(
