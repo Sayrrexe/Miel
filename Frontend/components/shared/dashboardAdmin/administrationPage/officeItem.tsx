@@ -22,7 +22,10 @@ export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
   ];
 
   return (
-    <div className={cn("")} onClick={() => console.log(candidatObject)}>
+    <div
+      className={cn("min-w-[388px]")}
+      onClick={() => console.log(candidatObject)}
+    >
       <div
         key={index}
         className={`border-solid border-[1px] border-gray-300 w-full sm:w-[416px] p-5 border-b-4 ${
@@ -33,12 +36,12 @@ export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
           <p className="opacity-50 text-base">{candidatObject.name}</p>
           <p className="text-xl font-semibold">{candidatObject.location}</p>
         </div>
-        <div className="mt-9 sm:mt-10 flex flex-col sm:flex-row justify-between">
+        <div className="mt-9 sm:mt-10 flex sm:flex-row justify-between ">
           <div>
             <p>Количество квот всего</p>
             <p>Количество квот свободно</p>
           </div>
-          <div className="flex flex-col sm:items-end">
+          <div className="flex flex-col sm:items-end text-right">
             <p>{candidatObject.quota}</p>
             <p>{candidatObject.used_quota}</p>
           </div>

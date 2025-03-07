@@ -19,10 +19,12 @@ import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import { useCandidates } from "@/store/context";
 import fetchGetEndpoint from "@/lib/candidates";
+import css from "./main.module.css";
 
 export const AdminCandidates = () => {
   const router = useRouter();
   const [search, setSearch] = useState<string>("");
+
   const token = localStorage.getItem("token") || "";
   const setCandidates = useCandidates((state) => state.setCandidates);
   const candidates = useCandidates((state) => state.data);
@@ -43,11 +45,12 @@ export const AdminCandidates = () => {
       }
     })();
   }, [setCandidates, token]);
+
   return (
-    <div className={cn("")}>
+    <div className={cn(css.container)}>
       <div className="pt-8 pl-[-23px] flex gap-4">
         <Input
-          className="rounded-xl w-[696px] ml-10"
+          className={`rounded-xl w-[696px] ml-10 ${css.searchInput}`}
           placeholder="Найти кандидата"
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
@@ -75,49 +78,67 @@ export const AdminCandidates = () => {
               }
             })();
           }}
-          className="bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047]"
+          className={`bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047] ${css.searchButton}`}
         >
-          Поиск
+          {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
-          className="bg-[#960047] w-[226px] rounded-xl hover:bg-[#960046a9] text-lg"
+          className={`bg-[#960047] w-[226px] rounded-xl hover:bg-[#960046a9] text-lg ${css.addButton}`}
           onClick={async () => {
             router.push("/addingCandidate");
           }}
         >
-          Добавить кандидата
+          {window.innerWidth < 1000 ? "+" : "Добавить кандидата"}
         </Button>
       </div>
-      <div className={cn("")}>
-        <Table className="border-solid border-[#CACBCD] border-2 ml-10 w-[60vw]">
+      <div className={cn(css.tableContainer)}>
+        <Table
+          className={`border-solid border-[#CACBCD] border-2 ml-10 w-[60vw] ${css.table}`}
+        >
           <TableHeader>
             <TableRow>
-              <TableHead className="font-bold text-center">ФИО</TableHead>
-              <TableHead className="font-bold">Город</TableHead>
-              <TableHead className="font-bold">Телефон</TableHead>
-              <TableHead className="font-bold">Свободен</TableHead>
-              <TableHead className="font-bold text-center">Возраст</TableHead>
-              <TableHead className="font-bold text-center">Офис</TableHead>
-              <TableHead className="font-bold">Выбрать</TableHead>
+              <TableHead className={`font-bold text-center ${css.tableHead}`}>
+                ФИО
+              </TableHead>
+              <TableHead className={`font-bold ${css.tableHead}`}>
+                Город
+              </TableHead>
+              <TableHead className={`font-bold ${css.tableHead}`}>
+                Телефон
+              </TableHead>
+              <TableHead className={`font-bold ${css.tableHead}`}>
+                Свободен
+              </TableHead>
+              <TableHead className={`font-bold text-center ${css.tableHead}`}>
+                Возраст
+              </TableHead>
+              <TableHead className={`font-bold text-center ${css.tableHead}`}>
+                Офис
+              </TableHead>
+              <TableHead className={`font-bold ${css.tableHead}`}>
+                Выбрать
+              </TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
             {candidates.map((objectData, index) => (
-              <TableRow key={index}>
+              <TableRow className={css.rowT} key={index}>
                 <Link href={`/addingEmployee/${objectData.id}`}>
-                  <TableCell className="flex items-center gap-3">
+                  <TableCell
+                    className={`flex items-center gap-3 ${css.tableCell}`}
+                  >
                     <span className="w-6">{""}</span>
                     {objectData.photo && objectData.photo != "-" ? (
                       <img
                         src={objectData.photo}
                         width={39}
                         height={39}
-                        className="rounded-3xl max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px]"
+                        className={`rounded-3xl max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px] ${css.candidatePhoto}`}
                         alt="avatar"
                       />
                     ) : (
                       <Image
-                        className="max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px]"
+                        className={`max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px] ${css.candidatePhoto}`}
                         src={user}
                         width={39}
                         height={39}
@@ -125,24 +146,26 @@ export const AdminCandidates = () => {
                       />
                     )}
 
-                    <p>{objectData.name}</p>
+                    <p className={css.candidateName}>{objectData.name}</p>
                   </TableCell>
                 </Link>
-                <TableCell>{objectData.city}</TableCell>
-                <TableCell>
+                <TableCell className={css.tableCell}>
+                  {objectData.city}
+                </TableCell>
+                <TableCell className={css.tableCell}>
                   <span className="w-6">{""}</span>
                   {objectData.phone}
                 </TableCell>
-                <TableCell>
-                  <Checkbox className="ml-5" checked={objectData.is_free} />
+                <TableCell className={css.tableCellCheck}>
+                  <Checkbox className="ml-5" checked={false} />
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className={`text-center ${css.tableCellAge}`}>
                   {objectData.age} лет
                 </TableCell>
-                <TableCell className="text-center">
+                <TableCell className={`text-center ${css.tableCellCheck}`}>
                   {objectData.office ? objectData.office : "нету"}
                 </TableCell>
-                <TableCell>
+                <TableCell className={css.tableCellCheck}>
                   <Checkbox className="ml-5" />
                 </TableCell>
               </TableRow>

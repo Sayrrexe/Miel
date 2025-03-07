@@ -1,0 +1,10 @@
+@media (max-width: 1200px) {
+  .headertext {
+    font-size: small;
+  }
+}
+@media (max-width: 1000px) {
+  .header {
+    display: none;
+  }
+}

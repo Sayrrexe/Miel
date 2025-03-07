@@ -7,6 +7,7 @@ import "../../dataPicker/Calendar.css";
 import { Button, Checkbox } from "@/components/ui";
 import { Ellipsis, Pen, Trash2 } from "lucide-react";
 import fetchGetEndpoint from "@/lib/candidates"; // Импортируем функцию для запроса
+import css from "./main.module.css";
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -90,7 +91,7 @@ export const NewPlans = () => {
   }, [token]);
 
   return (
-    <div className={cn("m-[52px]")}>
+    <div className={cn("m-[52px] overflow-x-visible")}>
       <p>Выберите дату или период</p>
       <div>
         <DatePicker
@@ -217,12 +218,14 @@ export const NewPlans = () => {
           </div>
         </div>
         <div className="flex flex-col gap-[148px]">
-          <div className="border-solid border-[1px] border-[#CACBCD] h-[208px] p-5">
+          <div
+            className={`border-solid border-[1px] border-[#CACBCD] h-[208px] p-5 ${css.mainCircleDiv}`}
+          >
             <div className="w-full flex justify-between text-center">
               <p className="text-[#960047]">Успехи за неделю</p>
               <Ellipsis className="text-[#798087]" />
             </div>
-            <div className="flex mt-5">
+            <div className={`flex mt-5 gap-[6px] ${css.circleDiv}`}>
               <div className="text-center">
                 <p className="text-sm font-bold mb-[10px]">Создано</p>
                 <div className="border-[#960047] border-solid border-[1px] h-[100px] w-[100px] rounded-full items-center flex flex-col">

@@ -6,6 +6,7 @@ import { ArrowLeft } from "lucide-react";
 import Link from "next/link";
 import { useState } from "react";
 import toast, { Toaster } from "react-hot-toast";
+import css from "./main.module.css";
 
 export const AddingOffice = () => {
   const [officeData, setOfficeData] = useState({
@@ -25,7 +26,7 @@ export const AddingOffice = () => {
       </Link>
       <div className="mt-[29px]">
         <div className="flex flex-col gap-5">
-          <div className="flex gap-5 items-center">
+          <div className={`flex gap-5 items-center ${css.inputDiv}`}>
             <p className="min-w-[134px] w-[210px]">Локация офиса</p>
             <Input
               value={officeData.location}
@@ -43,7 +44,7 @@ export const AddingOffice = () => {
               }
             />
           </div>
-          <div className="flex gap-5 items-center">
+          <div className={`flex gap-5 items-center ${css.inputDiv}`}>
             <p className="min-w-[134px] w-[210px]">Название офиса</p>
             <Input
               onInput={(e) =>
@@ -62,7 +63,7 @@ export const AddingOffice = () => {
             />
           </div>
 
-          <div className="flex gap-5 items-center">
+          <div className={`flex gap-5 items-center ${css.inputDiv}`}>
             <p className="min-w-[134px] w-[210px]">Номер телефона</p>
             <Input
               value={officeData.phone}
@@ -80,7 +81,7 @@ export const AddingOffice = () => {
               }
             />
           </div>
-          <div className="flex gap-5 items-center">
+          <div className={`flex gap-5 items-center ${css.inputDiv}`}>
             <p className="min-w-[134px] w-[210px]">Стартовые квоты</p>
             <Input
               type="phone"

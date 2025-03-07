@@ -17,6 +17,7 @@ import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import { useRouter } from "next/navigation";
 import { Trash } from "lucide-react";
+import css from "./main.module.css";
 
 export const AdminItems = () => {
   interface User {
@@ -38,6 +39,7 @@ export const AdminItems = () => {
   }
 
   const [candidates, setCandidates] = useState<Candidate[]>([]);
+
   const [inputValue, setInputValue] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedCandidate, setSelectedCandidate] = useState<Candidate | null>(
@@ -124,15 +126,15 @@ export const AdminItems = () => {
             }
           }}
           id="search"
-          className="bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047]"
+          className={`bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047] ${css.officeItemsSearchButton}`}
         >
-          Поиск
+          {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
           onClick={() => router.push("addingAdmin")}
-          className="bg-[#960047] w-[226px] rounded-xl hover:bg-[#960046a9]"
+          className={`bg-[#960047] w-[226px] rounded-xl hover:bg-[#960046a9] ${css.officeItemsAddButton}`}
         >
-          Добавить руководителя
+          {window.innerWidth < 1000 ? "+" : "Добавить руководителя"}
         </Button>
       </div>
       <Table className="border-solid border-[#CACBCD] border-2 w-[1048px]">

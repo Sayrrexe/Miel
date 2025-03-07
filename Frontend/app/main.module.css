@@ -1,0 +1,13 @@
+@media (max-width: 1000px) {
+  .baloonsImage {
+    display: none;
+  }
+
+  .formBox {
+    border: 0px;
+    padding: 10px;
+  }
+  .loginButton {
+    width: 100%;
+  }
+}

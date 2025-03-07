@@ -35,44 +35,17 @@ interface ErrorResponse {
 }
 
 interface SuccessResponse {
-  total_created: number;
-  total_completed: number;
-  total_deleted: number;
-  max_created_day: string;
-  max_completed_day: string;
-}
-
-// Тип для пользователя
-interface User {
-  first_name: string;
-  username: string;
-  patronymic: string;
-  phone: string;
-  email: string;
-  office: string;
-}
-
-// Тип для элемента в ответе (кандидат)
-interface Candidate {
-  index: number;
-  photo: string;
-  user: User; // Один пользователь
-}
-
-// Тип для успешного ответа
-interface SuccessResponse {
   phone: string;
   email: string;
   full_name: string;
   role: string;
-  data: Candidate[]; // Массив кандидатов
+  data: Candidate[];
 }
 
-// Тип для ошибки
-interface ErrorResponse {
-  error: string;
-  details?: any;
-}
+type ValuePiece = Date | null;
+type Value = ValuePiece | [ValuePiece, ValuePiece];
+
+// Функция для форматирования даты
 function formatDate(date: Date | null): string | null {
   if (!date) return null;
   const year = date.getFullYear();
@@ -80,6 +53,8 @@ function formatDate(date: Date | null): string | null {
   const day = String(date.getDate()).padStart(2, "0"); // Добавляем ведущий ноль для дней
   return `${year}-${month}-${day}`;
 }
+
+type FetchResponse = AxiosResponse<SuccessResponse> | ErrorResponse;
 
 export default async function fetchGetEndpoint(
   endpoint: string,
@@ -232,7 +207,6 @@ export async function fetchDelete(
   endpoint: string,
   token: string // Добавим параметр для токена
 ): Promise<any | { error: string }> {
-  // Возвращаем объект с ошибкой
   try {
     const response = await axios.delete(`http://80.85.246.168${endpoint}`, {
       headers: {
@@ -248,6 +222,7 @@ export async function fetchDelete(
     return { error: error.message || "Unknown error" }; // Обрабатываем ошибку и возвращаем объект с полем error
   }
 }
+
 export async function fetchPatchEndpoint(
   endpoint: string,
   body: Record<string, any>,
@@ -274,55 +249,6 @@ export async function fetchPatchEndpoint(
 }
 
 // Функция для получения кандидатов с параметрами фильтрации
-interface User {
-  first_name: string;
-  username: string;
-  patronymic: string;
-  phone: string;
-  email: string;
-  office: string;
-}
-
-// Тип для элемента в ответе (кандидат)
-interface Candidate {
-  index: number;
-  photo: string;
-  user: User; // Один пользователь
-  // Добавьте остальные поля, если нужно
-}
-
-// Тип для успешного ответа
-interface SuccessResponse {
-  data: Candidate[]; // Массив кандидатов
-}
-
-// Тип для ошибки
-interface ErrorResponse {
-  error: string;
-  details?: any;
-}
-
-// Тип для объединенного ответа (успех или ошибка)
-type FetchResponse = AxiosResponse<SuccessResponse> | ErrorResponse;
-
-// Тип для пользователя
-interface User {
-  first_name: string;
-  username: string;
-  patronymic: string;
-  phone: string;
-  email: string;
-  office: string;
-}
-
-type ValuePiece = Date | null;
-type Value = ValuePiece | [ValuePiece, ValuePiece];
-// Тип для ошибки
-interface ErrorResponse {
-  error: string;
-  details?: any;
-}
-
 export async function fetchGetCandidates(
   endpoint: string,
   token: string,
@@ -352,7 +278,6 @@ export async function fetchGetCandidates(
 
     // Обрабатываем параметр courses, если он есть и не пустой
     if (courses && courses.length > 0) {
-      // Каждое значение из массива передаем как отдельный параметр
       courses.forEach((course) => {
         if (course) {
           params.push(`courses=${encodeURIComponent(course)}`);

@@ -19,6 +19,7 @@ import { useCategoryStore } from "@/store/context";
 import fetchGetEndpoint, { fetchAuthorisation } from "@/lib/candidates";
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
+import css from "./main.module.css";
 
 const Authorisation = () => {
   const setUser = useCategoryStore((state) => state.setUser);
@@ -60,35 +61,46 @@ const Authorisation = () => {
       }
     }
   }, [router, data]);
+
   return (
-    <div className="flex items-center w-[930px] ml-auto mr-auto">
-      <div className="flex items-center justify-center h-[100vh] w-[100%]">
-        <div className="border-solid w-[456px] border-black border-[1px] h-[552px]">
-          <p className="text-3xl pt-10 pl-16 pb-[18px]">Войти</p>
+    <div
+      className={`ml-auto mr-auto flex items-center gap-[144px] justify-center ${css.container}`}
+    >
+      <div
+        className={`flex items-center justify-center h-[100vh] ${css.formWrapper}`}
+      >
+        <div
+          className={`border-solid border-black border-[1px] h-[552px] py-10 px-[66px] ${css.formBox}`}
+        >
+          <p className={`text-3xl pb-9 ${css.title}`}>Войти</p>
           {userWrong ? (
-            <p className="text-1xl pl-16 pb-[18px] text-red-500">
+            <p
+              className={`text-1xl pl-16 pb-[18px] text-red-500 ${css.errorMessage}`}
+            >
               Логин или пароль введен неверно
             </p>
           ) : (
             ""
           )}
 
-          <div className="flex items-center justify-center w-[100%]">
+          <div
+            className={`flex items-center justify-center w-[100%] ${css.formContent}`}
+          >
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(onSubmit)}
-                className="space-y-8"
+                className={`space-y-8 ${css.formInner}`}
               >
-                <div className="flex gap-[14px] flex-col items-center justify-center w-[100%]">
+                <div className={`flex gap-[14px] flex-col ${css.formFields}`}>
                   <FormField
                     control={form.control}
                     name="username"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Логин</FormLabel>
+                        <FormLabel className={css.formLabel}>Логин</FormLabel>
                         <FormControl>
                           <Input
-                            className="w-[324px]"
+                            className={`w-[324px] ${css.input}`}
                             placeholder="Логин"
                             {...field}
                             value={data.username}
@@ -113,10 +125,10 @@ const Authorisation = () => {
                     name="password"
                     render={({ field }) => (
                       <FormItem>
-                        <FormLabel>Пароль</FormLabel>
+                        <FormLabel className={css.formLabel}>Пароль</FormLabel>
                         <FormControl>
                           <Input
-                            className="w-[324px]"
+                            className={`w-[324px] ${css.input}`}
                             placeholder="Пароль"
                             type="password"
                             {...field}
@@ -137,12 +149,16 @@ const Authorisation = () => {
                       </FormItem>
                     )}
                   />
-                  <div className="flex items-center flex-col gap-[33px]">
-                    <p className="mt-[14px] text-sm cursor-pointer hover:text-orange-400">
+                  <div
+                    className={`flex items-center flex-col gap-[33px] ${css.actionsWrapper}`}
+                  >
+                    <p
+                      className={`mt-[14px] text-sm cursor-pointer hover:text-orange-400 ${css.forgotPassword}`}
+                    >
                       Забыли пароль?
                     </p>
                     <Button
-                      className="bg-orange-600 w-[160px] border- h-[44px] text-white"
+                      className={`bg-orange-600 w-[160px] border- h-[44px] text-white ${css.loginButton}`}
                       type="submit"
                       onClick={() =>
                         (async () => {
@@ -216,7 +232,9 @@ const Authorisation = () => {
                     </Button>
                   </div>
                 </div>
-                <p className="w-[391px] text-sm text-gray-400">
+                <p
+                  className={` w-[324px] break-words text-sm text-gray-400 ${css.privacyPolicyText}`}
+                >
                   Нажимая кнопку “Войти”, вы автоматически соглашаетесь с
                   политикой конфиденциальности сайта
                 </p>
@@ -226,7 +244,7 @@ const Authorisation = () => {
         </div>
       </div>
       <Image
-        className="max-w-[311px] max-h-[322px]"
+        className={`max-w-[311px] max-h-[322px] ${css.baloonsImage}`}
         src={baloons}
         alt="baloons"
         width={311}
