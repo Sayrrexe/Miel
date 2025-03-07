@@ -82,7 +82,7 @@ export const BossFilters = ({
           }
         }}
       >
-        <SelectTrigger className="border-black border-opacity-40 border-[1px] h-[34px] w-[196px] rounded-md">
+        <SelectTrigger className="border-black border-opacity-40 border-[1px] h-[34px] rounded-md w-[220px]">
           <SelectValue placeholder={`Новые`} />
         </SelectTrigger>
         <SelectContent>
@@ -97,7 +97,7 @@ export const BossFilters = ({
           value={age_max === 0 ? "" : age_max}
           placeholder="Макс. возраст"
           onChange={handleAgeMaxChange}
-          className="border-black border-opacity-40 border-[1px] h-[34px] rounded-md placeholder:text-sm placeholder:text-gray-500"
+          className="border-black border-opacity-40 border-[1px] h-[34px] rounded-md placeholder:text-sm placeholder:text-gray-500 w-[220px]"
         />
       </div>
 
@@ -107,14 +107,14 @@ export const BossFilters = ({
           value={age_min === 0 ? "" : age_min}
           placeholder="Мин. возраст"
           onChange={handleAgeMinChange}
-          className="border-black border-opacity-40 border-[1px] h-[34px] rounded-md placeholder:text-sm placeholder:text-gray-500"
+          className="border-black border-opacity-40 border-[1px] h-[34px] rounded-md placeholder:text-sm placeholder:text-gray-500 w-[220px]"
         />
       </div>
 
       {/* Фильтр для курсов с предотвращением закрытия Dropdown */}
       <DropdownMenu open={isDropdownOpen} onOpenChange={setIsDropdownOpen}>
         <DropdownMenuTrigger
-          className="border-black border-opacity-40 w-[220px] border-[1px] h-[34px] flex justify-between items-center rounded-md p-3"
+          className="border-black border-opacity-40 w-[220px] border-[1px] h-[34px] flex justify-between items-center rounded-md p-3 w-[220px]"
           onClick={(e) => {
             e.stopPropagation();
             toggleDropdown(); // Открытие/закрытие меню
