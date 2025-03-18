@@ -14,7 +14,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 import Image from "next/image";
-import baloons from "@/public/assets/Скриншот-06-12-2024 16_52_58.jpg";
+import baloons from "@/public/assets/Group (3).png";
 import { useCategoryStore } from "@/store/context";
 import fetchGetEndpoint, { fetchAuthorisation } from "@/lib/candidates";
 import { useRouter } from "next/navigation";
@@ -66,6 +66,13 @@ const Authorisation = () => {
     <div
       className={`ml-auto mr-auto flex items-center gap-[144px] justify-center ${css.container}`}
     >
+      <Image
+        className={`max-w-[311px] max-h-[322px] ${css.baloonsImage}`}
+        src={baloons}
+        alt="baloons"
+        width={311}
+        height={409}
+      />
       <div
         className={`flex items-center justify-center h-[100vh] ${css.formWrapper}`}
       >
@@ -243,13 +250,6 @@ const Authorisation = () => {
           </div>
         </div>
       </div>
-      <Image
-        className={`max-w-[311px] max-h-[322px] ${css.baloonsImage}`}
-        src={baloons}
-        alt="baloons"
-        width={311}
-        height={322}
-      />
     </div>
   );
 };
