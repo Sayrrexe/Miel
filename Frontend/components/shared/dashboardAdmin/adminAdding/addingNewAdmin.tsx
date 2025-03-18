@@ -61,7 +61,7 @@ export const AddingNewAdmin = () => {
       phone: "",
       first_name: "",
       patronymic: "",
-      office: "",
+      office: 0,
       username: "",
     },
   });
@@ -111,7 +111,7 @@ export const AddingNewAdmin = () => {
             phone: "",
             first_name: "",
             patronymic: "",
-            office: "",
+            office: 0,
             username: "",
           },
         }); // Сбрасываем форму после успешного добавления
@@ -230,7 +230,15 @@ export const AddingNewAdmin = () => {
                 </p>
                 <Select
                   onValueChange={(value: string) => {
-                    setOfficeData({ ...officeData, office: value });
+                    const selectedOffice = offices.find(
+                      (office) => office.name === value
+                    );
+                    if (selectedOffice) {
+                      setOfficeData({
+                        ...officeData,
+                        office: String(selectedOffice.id),
+                      });
+                    }
                   }}
                 >
                   <SelectTrigger className="z-10 border-solid border-opacity-40 border-[1px] w-[450px] rounded-xl">

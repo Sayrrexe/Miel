@@ -43,6 +43,8 @@ export const AdminPages = () => {
       ? 4
       : location.pathname == "/notifications"
       ? 5
+      : location.pathname == "/settings"
+      ? 6
       : 2
   );
   const [headerScreen, setHeaderScreen] = useState<boolean>(
@@ -91,13 +93,13 @@ export const AdminPages = () => {
           ) : (
             ""
           )}
-          <div className={`gap-0 flex flex-col ${css.menuHeaderBurger}`}>
+          <div className={`gap-0 flex flex-col  ${css.menuHeaderBurger}`}>
             <Link
               href={"./main1"}
               onClick={() => setActiveCategorie(0)}
               className={`${activeCategorie == 0 && "bg-gray-300"} ${
                 headerScreen && "inline"
-              } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
+              } flex pr-8 pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
                 headerScreen == true && css.linkItem
               }`}
             >
@@ -179,12 +181,18 @@ export const AdminPages = () => {
           <BellDot />
           Уведомления
         </Link>
-        <p
-          className={`flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${css.settingsLink}`}
+        <Link
+          href={"/settings"}
+          onClick={() => setActiveCategorie(6)}
+          className={`${
+            activeCategorie == 6 && "bg-gray-300"
+          } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
+            headerScreen == true && css.linkItem
+          }`}
         >
           <Settings />
           Настройки
-        </p>
+        </Link>
       </div>
       <Image
         src={officeWoman}

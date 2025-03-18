@@ -217,7 +217,9 @@ export const OfficeItems = () => {
               <div>
                 {offices.map((office, index) => (
                   <div className="flex gap-5 items-center" key={index}>
-                    <p>{office.name}</p>
+                    <p className="min-w-[100px] max-w-[100px] text-left overflow-hidden">
+                      {office.name}
+                    </p>
                     <Input
                       className="min-h-11 rounded-xl w-[70px]"
                       placeholder="0"
