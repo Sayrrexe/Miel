@@ -43,11 +43,10 @@ class CandidateAdmin(ModelAdmin):
         "surname",
         "email",
         "phone",
-        "city",
         "is_free",
         "created_at",
     )
-    list_filter = ("is_free", "city", "created_at")
+    list_filter = ("is_free", "created_at")
     search_fields = ("name", "surname", "email", "phone")
     ordering = ("created_at",)
     actions = ["archive_candidates"]

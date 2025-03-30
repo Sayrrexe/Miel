@@ -71,7 +71,7 @@ class Candidate(models.Model):
     photo = models.ImageField(upload_to='avatars/candidates/', null=True, blank=True, verbose_name="фото")
 
     country = models.CharField(max_length=32, default="Россия", verbose_name="страна")
-    city = models.CharField(max_length=32, verbose_name="город")
+    city = models.CharField(max_length=32, verbose_name="город", blank=True, null=True)
 
     email = models.EmailField(null=True, blank=True, verbose_name="почта")
     phone = models.CharField(max_length=16, verbose_name="телефон")
