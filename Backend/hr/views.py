@@ -225,7 +225,7 @@ class InvitationAPIView(APIView):
                 name="status",
                 type=str,
                 location=OpenApiParameter.QUERY,
-                description="Фильтр по статусу приглашений (invited, accepted, rejected)."
+                description="Фильтр по статусу приглашений (invited, accepted, rejected, self_rejected)."
             ),
             OpenApiParameter(
                 name="start_date",
@@ -878,6 +878,12 @@ class OfficeViewSet(ModelViewSet):
                 location=OpenApiParameter.QUERY,
                 description="Конечная дата в формате YYYY-MM-DDTHH:MM:SSZ."
             ),
+            OpenApiParameter(
+                name="office_id",
+                type=str,
+                location=OpenApiParameter.QUERY,
+                description="id фильтруемого оффиса"
+            ),
         ],
     )    
 class InvitationStatisticsViewSet(ListAPIView):
@@ -902,6 +908,11 @@ class InvitationStatisticsViewSet(ListAPIView):
             queryset = queryset.filter(updated_at__gte=start_date)
         elif end_date:
             queryset = queryset.filter(updated_at__lte=end_date)  
+            
+        office = self.request.query_params.get('office_id')
+        
+        if office:
+            queryset = queryset.filter(office=office)
 
         return queryset
     
@@ -982,7 +993,7 @@ class CandidateInvitationUpdateView(APIView):
         summary="Обновление статуса приглашения",
         description=(
             "Позволяет обновить статус конкретного приглашения кандидата.\n "
-            "Поддерживаемые статусы: 'accepted', 'invited', 'rejected'."
+            "Поддерживаемые статусы: 'accepted', 'invited', 'rejected', 'self_rejected'."
             "в случае, если передан accepted все остальные приглашения кандидата будут отклонены"
         ),
         parameters=[

@@ -74,8 +74,9 @@ class Candidate(models.Model):
     city = models.CharField(max_length=32, verbose_name="город", blank=True, null=True)
 
     email = models.EmailField(null=True, blank=True, verbose_name="почта")
-    phone = models.CharField(max_length=16, verbose_name="телефон")
+    phone = models.CharField(max_length=16, verbose_name="телефон", blank=True)
     resume = models.CharField(max_length=128, null=True, blank=True, verbose_name="резюме")
+    agreement = models.FileField(null=True, blank= True, verbose_name='Согласие на ОПД')
 
     is_free = models.BooleanField(default=True, verbose_name="свободен")
     office = models.ForeignKey(
@@ -153,6 +154,7 @@ class Invitation(models.Model):
             ("invited", "Приглашён"),
             ("accepted", "Принят"),
             ("rejected", "Отклонён"),
+            ('self_rejected', "Отказ Кандидата"),
         ],
         default="invited", 
         verbose_name="статус"

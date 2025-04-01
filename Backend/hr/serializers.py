@@ -12,13 +12,13 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = ('id', 'name')
         
 class CandidateAchievementSerializer(serializers.ModelSerializer):
+    achievement_name = serializers.CharField(source='achievement.name', read_only=True)
     achievement = serializers.PrimaryKeyRelatedField(queryset=Achievement.objects.all())
     count = serializers.IntegerField()
 
     class Meta:
         model = CandidateAchievement
-        fields = ('achievement', 'count')
-
+        fields = ('achievement', 'achievement_name', 'count')
 class InfoAboutSupervisor(serializers.ModelSerializer):
     role = serializers.CharField(default="2", read_only=True)
     full_name = serializers.SerializerMethodField()
@@ -234,17 +234,22 @@ class CandidateSerializer(serializers.ModelSerializer):
         source='courses',
         required=False,
     )
+    birth = serializers.DateField(format='%d.%m.%Y')
     
     class Meta:
         model = Candidate
         fields = "__all__"
         
     def create(self, validated_data):
+        courses_data = validated_data.pop('courses', None)  # данные для courses из courses_ids
         achievements_data = validated_data.pop('candidateachievement_set', [])
         candidate = Candidate.objects.create(**validated_data)
+        if courses_data is not None:
+            candidate.courses.set(courses_data)
         for item in achievements_data:
             CandidateAchievement.objects.create(candidate=candidate, **item)
         return candidate
+
     
     @extend_schema_field(serializers.IntegerField)
     def get_age(self, obj):
@@ -281,6 +286,7 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
     is_favorite = serializers.SerializerMethodField()
     favorite_id = serializers.SerializerMethodField()
     is_invited = serializers.SerializerMethodField()
+    birth = serializers.DateField(format='%d.%m.%Y')
     
     class Meta:
         model = Candidate
