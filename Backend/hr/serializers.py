@@ -3,8 +3,22 @@ from typing import Self
 from rest_framework import serializers
 from drf_spectacular.utils import extend_schema_field
 
-from .models import Favorite, QuotaRequest, Supervisor, Todo, Candidate, Invitation,Office, CustomUser
+from .models import Favorite, QuotaRequest, Supervisor, Todo, Candidate, Invitation,Office, CustomUser, Achievement, Course, CandidateAchievement
 
+
+class CourseSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Course
+        fields = ('id', 'name')
+        
+class CandidateAchievementSerializer(serializers.ModelSerializer):
+    achievement_name = serializers.CharField(source='achievement.name', read_only=True)
+    achievement = serializers.PrimaryKeyRelatedField(queryset=Achievement.objects.all())
+    count = serializers.IntegerField()
+
+    class Meta:
+        model = CandidateAchievement
+        fields = ('achievement', 'achievement_name', 'count')
 class InfoAboutSupervisor(serializers.ModelSerializer):
     role = serializers.CharField(default="2", read_only=True)
     full_name = serializers.SerializerMethodField()
@@ -211,10 +225,31 @@ class SupervisorSerializer(serializers.ModelSerializer):
 class CandidateSerializer(serializers.ModelSerializer):
     age = serializers.SerializerMethodField()
     office_name = serializers.SerializerMethodField()
+    courses = CourseSerializer(many=True, read_only=True)
+    candidate_achievements = CandidateAchievementSerializer(many=True, required=False,      source='candidateachievement_set')
+    courses_ids = serializers.PrimaryKeyRelatedField(
+        many=True,
+        queryset=Course.objects.all(),
+        write_only=True,
+        source='courses',
+        required=False,
+    )
+    birth = serializers.DateField(format='%d.%m.%Y')
     
     class Meta:
         model = Candidate
-        fields = '__all__'
+        fields = "__all__"
+        
+    def create(self, validated_data):
+        courses_data = validated_data.pop('courses', None)  # данные для courses из courses_ids
+        achievements_data = validated_data.pop('candidateachievement_set', [])
+        candidate = Candidate.objects.create(**validated_data)
+        if courses_data is not None:
+            candidate.courses.set(courses_data)
+        for item in achievements_data:
+            CandidateAchievement.objects.create(candidate=candidate, **item)
+        return candidate
+
     
     @extend_schema_field(serializers.IntegerField)
     def get_age(self, obj):
@@ -243,10 +278,15 @@ class CandidateSerializer(serializers.ModelSerializer):
     
     
 class CandidateInfoSerializer(serializers.ModelSerializer):
+    candidate_achievements = CandidateAchievementSerializer(
+        many=True, read_only=True, source='candidateachievement_set'
+    )
+    courses = CourseSerializer(many=True, read_only=True)
     age = serializers.SerializerMethodField()
     is_favorite = serializers.SerializerMethodField()
     favorite_id = serializers.SerializerMethodField()
     is_invited = serializers.SerializerMethodField()
+    birth = serializers.DateField(format='%d.%m.%Y')
     
     class Meta:
         model = Candidate
@@ -262,12 +302,8 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'country',
             'city',
             'resume',
-            'course_rieltor_join',
-            'basic_legal_course',
-            'course_mortgage',
-            'course_taxation',
-            'completed_objects',
-            'clients',
+            'candidate_achievements',
+            'courses',
             'updated_at',
             'is_favorite',
             'favorite_id',
@@ -459,7 +495,7 @@ class QuotaRequestSerializer(serializers.ModelSerializer):
     
     
     @extend_schema_field(serializers.CharField)
-    def get_office_name(Self, obj):
+    def get_office_name(self, obj):
         return obj.office.name
     
 class QuotaRequestHistorySerializer(serializers.ModelSerializer):

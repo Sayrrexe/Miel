@@ -50,8 +50,8 @@ class Candidate(models.Model):
         resume (str): Ссылка на резюме кандидата (максимальная длина: 128 символов).
         is_free (bool): Указывает, доступен ли кандидат для работы (по умолчанию True).
         office (ForeignKey, optional): Офис, к которому привязан кандидат.
-            * Если `is_free` = False, это поле обязательно.
-            * Если `is_free` = True, это поле должно быть пустым.
+            * Если is_free = False, это поле обязательно.
+            * Если is_free = True, это поле должно быть пустым.
         course_rieltor_join (str): Статус курса "Введение в профессию риэлтор".
         basic_legal_course (str): Статус "Базовый юридический курс".
         course_mortgage (str): Статус курса "Ипотека".
@@ -74,8 +74,9 @@ class Candidate(models.Model):
     city = models.CharField(max_length=32, verbose_name="город", blank=True, null=True)
 
     email = models.EmailField(null=True, blank=True, verbose_name="почта")
-    phone = models.CharField(max_length=16, verbose_name="телефон")
+    phone = models.CharField(max_length=16, verbose_name="телефон", blank=True)
     resume = models.CharField(max_length=128, null=True, blank=True, verbose_name="резюме")
+    agreement = models.FileField(null=True, blank= True, verbose_name='Согласие на ОПД')
 
     is_free = models.BooleanField(default=True, verbose_name="свободен")
     office = models.ForeignKey(
@@ -85,52 +86,15 @@ class Candidate(models.Model):
         blank=True
     )
 
-    course_rieltor_join = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не сдан"),
-        ],
-        default="completed",
-        verbose_name="Введение в профессию риэлтор"
+    courses = models.ManyToManyField("Course",related_name="candidates", blank=True, null=True )
+    candidate_achievements = models.ManyToManyField(
+        "CandidateAchievement",
+        related_name='candidate_achievements',
+        blank=True
     )
-    basic_legal_course = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не начат"),
-        ],
-        default="not_started",
-        verbose_name="Базовый юридический курс"
-    )
-    course_mortgage = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не начат"),
-        ],
-        default="not_started",
-        verbose_name='Курс "ипотека"'
-    )
-    course_taxation = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не начат"),
-        ],
-        default="not_started",
-        verbose_name='Курс "налогообложение"'
-    )
-
-    completed_objects = models.PositiveIntegerField(default=0, verbose_name="Объекты")
-    clients = models.PositiveIntegerField(default=0, verbose_name="клиенты")
-
+    
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="создан")
-    updated_at = models.DateTimeField(auto_now=True, verbose_name="обнавлён")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлён")
 
     def __str__(self):
         return f"{self.name} {self.surname}"
@@ -190,6 +154,7 @@ class Invitation(models.Model):
             ("invited", "Приглашён"),
             ("accepted", "Принят"),
             ("rejected", "Отклонён"),
+            ('self_rejected', "Отказ Кандидата"),
         ],
         default="invited", 
         verbose_name="статус"
@@ -218,8 +183,8 @@ class Office(models.Model):
         used_quota (int): Количество использованных квот (по умолчанию 0).
 
     Методы:
-        - `__str__`: Возвращает название офиса.
-        - `available_quota`: Возвращает количество оставшихся доступных квот.
+        - __str__: Возвращает название офиса.
+        - available_quota: Возвращает количество оставшихся доступных квот.
     """
 
     name = models.CharField(max_length=255, verbose_name="Название офиса")
@@ -374,7 +339,7 @@ class Todo(models.Model):
         check_visibility(): Проверяет, прошло ли 12 часов с момента выполнения задачи.
                             Если прошло, скрывает задачу (is_visible=False).
         save(): Переопределённый метод сохранения для автоматического заполнения
-               поля `complete_at`, если задача была помечена как выполненная.
+               поля complete_at, если задача была помечена как выполненная.
     """
 
     user = models.ForeignKey(
@@ -396,9 +361,9 @@ class Todo(models.Model):
     def check_visibility(self):
         """
         Проверяет и обновляет видимость задачи:
-        - Если задача выполнена (`is_complete=True`) и видима (`is_visible=True`),
-        - Проверяет, прошло ли 12 часов с момента обновления записи (`date_update`).
-        - Если прошло, устанавливает `is_visible=False` и сохраняет запись.
+        - Если задача выполнена (is_complete=True) и видима (is_visible=True),
+        - Проверяет, прошло ли 12 часов с момента обновления записи (date_update).
+        - Если прошло, устанавливает is_visible=False и сохраняет запись.
         """
         if self.is_complete and self.is_visible:
             elapsed_time = now() - self.update_at
@@ -505,7 +470,7 @@ class QuotaRequest(models.Model):
     amount = models.PositiveIntegerField()
     status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='waited', verbose_name='статус')
     
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="созданно")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="создано")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлено")
     
     def __str__(self):
@@ -515,3 +480,36 @@ class QuotaRequest(models.Model):
     class Meta:
         verbose_name = "Запрос"
         verbose_name_plural = "Запросы"
+        
+class Course(models.Model):
+    name = models.CharField(max_length=32, verbose_name='Название')
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Курс"
+        verbose_name_plural = "Курсы"
+    
+class Achievement(models.Model):
+    name = models.CharField(max_length=32, verbose_name='Название')
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Достижение"
+        verbose_name_plural = "Достижения"
+    
+class CandidateAchievement(models.Model):
+    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
+    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
+    count = models.PositiveIntegerField(default=1, verbose_name="Индивидуальное количество")
+
+    class Meta:
+        unique_together = ('candidate', 'achievement')
+        verbose_name = 'Кандидат-Достижение'
+        verbose_name_plural = 'Кандидат-Достижения'
+
+    def __str__(self):
+        return f"{self.candidate} - {self.achievement} (Кол-во: {self.count})"

@@ -13,6 +13,8 @@ from .models import (
     Todo,
     Invitation,
     Transaction,
+    Achievement,
+    Course
 )
 
 class CustomUserAdmin(ModelAdmin):
@@ -174,6 +176,11 @@ class QuotaRequestsAdmin(ModelAdmin):
     readonly_fields = ("created_at", "updated_at")
     ordering = ('-id',)
     
+class CoursesAdmin(ModelAdmin):
+    list_display = ('id', 'name')
+    
+class AchievementsAdmin(ModelAdmin):
+    list_display = ('id', 'name')
         
 
 # Регистрация моделей
@@ -188,3 +195,5 @@ admin.site.register(Transaction, TransactionsAdmin)
 admin.site.register(ChatLink, ChatLinkAdmin)
 admin.site.register(Favorite, FavoritesAdmin)
 admin.site.register(QuotaRequest, QuotaRequestsAdmin)
+admin.site.register(Course, CoursesAdmin)
+admin.site.register(Achievement, AchievementsAdmin)
