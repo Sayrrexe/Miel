@@ -2,10 +2,19 @@
 
 # === Проверка зависимостей ===
 
-clear
-echo "Добавляем юзера в группу докера..."
-sudo usermod -aG docker $USER
-newgrp docker
+echo "Для корректной работы скрипта необходимо обеспечить работу команд docker без root прав ( sudo ), для этого вам нужно ввести "
+echo "sudo usermod -aG docker $USER"
+echo "newgrp docker"
+echo "Если у вас нет такой настройки нажмите 2 и выполните указанные операции, если нет - продолжайте"
+echo "1. да (по умолчанию)"
+echo "2. нет"
+read CHOICE_HOSTS
+if [ "$CHOICE_HOSTS" == "1" ]; then
+    echo "Продолжаем..."
+    clear
+else
+    exit
+fi
 
 clear
 echo "Проверяем наличие необходимых инструментов..."
