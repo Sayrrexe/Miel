@@ -131,8 +131,10 @@ else
     sed -i "/'PORT': os.getenv('DATABASE_PORT'),/d" Backend/Miel/settings.py
 fi
 echo "settings.py обновлён!"
+sleep 1
 
 # === Проверка docker-compose.yml ===
+clear
 echo "Введите желаемый порт nginx(например: 80)"
 read NGINX_PORT
 echo "Введите желаемый ip nginx(например: localhost)"
@@ -288,6 +290,7 @@ else
     echo "Используется конфигурация NGINX по умолчанию (server_name localhost)."
 fi
 cd ..
+sleep 1
 
 clear
 read -p "Хочешь заполнить БД? (y/n): " confirm
@@ -388,6 +391,8 @@ class Command(BaseCommand):
         create_todos()
         print("Test data populated successfully.")
 EOL
+echo "Скрипт Создан."
+sleep 1
 clear
 else
     clear
@@ -395,10 +400,13 @@ fi
 # === Остановка и удаление существующих контейнеров и томов данных ===
 echo "Останавливаем и удаляем существующие контейнеры и тома данных..."
 docker-compose down -v
+sleep 1
 
 # === Запуск Docker ===
+clear
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
+sleep 1
 
 clear
 echo "Контейнеры запущены!"
