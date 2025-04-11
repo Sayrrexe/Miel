@@ -1,6 +1,13 @@
 #!/bin/bash
 
 # === Проверка зависимостей ===
+
+clear
+echo "Добавляем юзера в группу докера..."
+sudo usermod -aG docker $USER
+newgrp docker
+
+clear
 echo "Проверяем наличие необходимых инструментов..."
 
 # Проверка Docker
@@ -20,6 +27,8 @@ if ! [ -x "$(command -v python3)" ]; then
     echo "Ошибка: Python3 не установлен. Установите Python3 и повторите попытку." >&2
     exit 1
 fi
+
+clear
 
 echo "Все необходимые инструменты установлены."
 
@@ -124,7 +133,74 @@ CURRENT_DIR=$(pwd)
 # === Генерация docker-compose.yml ===
 
 if [ "$USE_POSTGRESQL" == "true" ]; then
-echo "docker-compose верный!"
+echo "Генерируем docker-compose.yml..."
+    cat <<EOL > docker-compose.yml
+version: '3.8'
+
+services:
+  backend:
+    build:
+      context: ./Backend
+    container_name: django_backend
+    command: gunicorn Miel.wsgi:application --bind 0.0.0.0:8000
+    volumes:
+      - ./Backend:/app
+      - static_volume:/app/static  
+      - media_volume:/app/media
+      - ./Backend/logs/app.log:/app/logs/app.log
+    env_file:
+      - ./Backend/Miel/.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    restart: unless-stopped
+
+  frontend:
+    build:
+      context: ./Frontend
+      dockerfile: Dockerfile
+    container_name: nextjs_frontend
+    environment:
+      - NODE_ENV=development
+    ports:
+      - "3000:3000"
+    depends_on:
+      - backend
+    restart: unless-stopped
+
+  db:
+    image: postgres:15
+    container_name: postgres_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./Backend/Miel/db.env
+    ports:
+      - "5432:5432"
+    restart: unless-stopped
+
+  nginx:
+    image: nginx:latest
+    container_name: nginx_server
+    ports:
+      - "$NGINX_PORT:$NGINX_PORT"
+      - "443:443"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/blockips.conf:/etc/nginx/blockips.conf:ro
+      - static_volume:/app/static  
+      - media_volume:/app/media    
+    depends_on:
+      - frontend
+      - backend
+    restart: unless-stopped
+
+volumes:
+  postgres_data:
+  static_volume:
+  media_volume:
+EOL
 else
 echo "Генерируем docker-compose.yml..."
     cat <<EOL > docker-compose.yml
@@ -204,8 +280,7 @@ else
 fi
 cd ..
 
-#!/bin/bash
-
+clear
 read -p "Хочешь заполнить БД? (y/n): " confirm
 
 if [[ "$confirm" == "y" || "$confirm" == "Y" ]]; then
@@ -304,12 +379,10 @@ class Command(BaseCommand):
         create_todos()
         print("Test data populated successfully.")
 EOL
-
+clear
 else
-    echo "Отмена операции."
+    clear
 fi
-
-
 # === Остановка и удаление существующих контейнеров и томов данных ===
 echo "Останавливаем и удаляем существующие контейнеры и тома данных..."
 docker-compose down -v
@@ -318,6 +391,7 @@ docker-compose down -v
 echo "Запуск Docker контейнеров..."
 docker-compose up -d --build
 
+clear
 echo "Контейнеры запущены!"
 
 # === Развёртывание базы данных ===
@@ -325,7 +399,7 @@ echo "Обновляем настраиваем базу данных..."
 if [ "$USE_POSTGRESQL" == "true" ]; then
   # === Ожидание готовности приложения ===
   echo "Ожидаем, пока бэкенд станет доступен..."
-  sleep 30  # Можно увеличить время ожидания при необходимости
+  sleep 15  # Можно увеличить время ожидания при необходимости
 
   # === Применение миграций и создание суперпользователя ===
   # === Применение миграций и создание суперпользователя ===
@@ -350,11 +424,12 @@ else
   echo "Применяем миграции..."
   python manage.py migrate
   if [ "$confirm" == "y" ]; then
-    python manage.py populate_db
+    docker exec -it django_backend python manage.py populate_db
   fi
   rm -rf .venv
   cd ..
 fi
+
 
 # === Конец ===
 
