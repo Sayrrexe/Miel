@@ -425,8 +425,10 @@ if [ "$USE_POSTGRESQL" == "true" ]; then
       sleep 5
   done
   if [ "$confirm" == "y" ]; then
+      echo "заполняем базу данных"
       docker exec -it django_backend python manage.py populate_db
   fi
+  echo "Собираем статику"
   docker exec -it django_backend python manage.py collectstatic --noinput
 
 else
@@ -440,13 +442,15 @@ else
   echo "Применяем миграции..."
   python manage.py migrate
   if [ "$confirm" == "y" ]; then
+    echo "заполняем базу данных"
     docker exec -it django_backend python manage.py populate_db
   fi
+  echo "Удаляем кеш"
   rm -rf .venv
   cd ..
 fi
 
-
 # === Конец ===
-
+clear
+sleep 3
 echo "Развёртывание завершено!"
