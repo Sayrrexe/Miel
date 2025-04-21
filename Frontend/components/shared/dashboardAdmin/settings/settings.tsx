@@ -10,23 +10,28 @@ import { Checkbox } from "@/components/ui";
 
 export const Settings = () => {
   return (
-    <div className={cn("")}>
+    <div className={cn("w-[77.5vw] h-[875px]")}>
       <Image
-        className={`w-[1117px] ml-[10%] mr-auto absolute pb-[-20px] ${css.image}`}
+        className={`ml-[10%] mr-auto absolute pb-[-20px] ${css.image}`}
         src={user}
+        style={{ objectFit: "contain" }}
         alt="baloons"
-        width={1117}
-        height={322}
       />
-      <div className="absolute ml-[29%] mt-[16%] flex flex-col gap-10">
-        <div className="flex border-[#CACBCD] border-solid border-[1px] rounded-3xl py-3 px-4 items-center">
+      <div
+        className={`absolute left-[590px] ml-[10%] mt-[250px] flex flex-col gap-10 ${css.bigDiv}`}
+      >
+        <div
+          className={`flex border-[#CACBCD] border-solid border-[1px] rounded-3xl py-3 px-4 items-center ${css.divWords}`}
+        >
           <Image src={tg} alt="baloons" width={16} height={16} />
-          <p className="ml-3">Использовать Telegram</p>
+          <p className={`ml-3 ${css.words}`}>Использовать Telegram</p>
           <Checkbox className="ml-[39px]" />
         </div>
-        <div className="flex border-[#CACBCD] border-solid border-[1px] rounded-3xl py-3 px-4 items-center">
+        <div
+          className={`flex border-[#CACBCD] border-solid border-[1px] rounded-3xl py-3 px-4 items-center ${css.divWords}`}
+        >
           <Image src={ws} alt="baloons" width={16} height={16} />
-          <p className="ml-3">Использовать WhatsApp</p>
+          <p className={`ml-3 ${css.words}`}>Использовать WhatsApp</p>
           <Checkbox className="ml-[33px]" />
         </div>
       </div>

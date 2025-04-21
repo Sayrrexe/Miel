@@ -65,7 +65,7 @@ export default async function fetchGetEndpoint(
   search?: string // Новый необязательный параметр
 ): Promise<FetchResponse> {
   try {
-    let url = `https://miel.sayrx.lol${endpoint}`;
+    let url = `https://miel.sayrrx.cfd${endpoint}`;
     const params: string[] = [];
 
     // Обработка start_date
@@ -171,7 +171,7 @@ export async function fetchPostEndpoint(
 ): Promise<any | ErrorResponse> {
   try {
     const response = await axios.post(
-      `https://miel.sayrx.lol${endpoint}`,
+      `https://miel.sayrrx.cfd${endpoint}`,
       body,
       {
         headers: {
@@ -196,7 +196,7 @@ export async function fetchAuthorisation(
 ): Promise<any | ErrorResponse> {
   try {
     const response = await axios.post(
-      `https://miel.sayrx.lol${endpoint}`,
+      `https://miel.sayrrx.cfd${endpoint}`,
       body,
       {
         headers: {
@@ -216,7 +216,7 @@ export async function fetchDelete(
   token: string // Добавим параметр для токена
 ): Promise<any | { error: string }> {
   try {
-    const response = await axios.delete(`https://miel.sayrx.lol${endpoint}`, {
+    const response = await axios.delete(`https://miel.sayrrx.cfd${endpoint}`, {
       headers: {
         Authorization: `Token ${
           token || "1a5091d623065bdb3722c62b70a473cfe2b1749f"
@@ -238,7 +238,7 @@ export async function fetchPatchEndpoint(
 ): Promise<SuccessResponse | ErrorResponse> {
   try {
     const response = await axios.patch<SuccessResponse>(
-      `https://miel.sayrx.lol${endpoint}`,
+      `https://miel.sayrrx.cfd${endpoint}`,
       body,
       {
         headers: {
@@ -266,7 +266,7 @@ export async function fetchGetCandidates(
   courses?: string[] // Параметр courses теперь массив строк
 ): Promise<FetchResponse> {
   try {
-    let url = `https://miel.sayrx.lol${endpoint}`;
+    let url = `https://miel.sayrrx.cfd${endpoint}`;
     const params: string[] = [];
 
     // Проверка age_max, добавляем параметр, если он не равен 0
