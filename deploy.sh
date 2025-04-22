@@ -322,7 +322,7 @@ def create_users():
             user = User.objects.create_user(
                 username=username,
                 password=password,
-                is_staff=True if role != "superadmin" else False,
+                is_staff=True if role == "superadmin" else False,
                 is_superuser=True if role == "superadmin" else False,
             )
             print(f"User {username} created.")
