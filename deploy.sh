@@ -372,7 +372,7 @@ def create_administrators():
     print("Administrators created.")
 
 def create_todos():
-    user = User.objects.filter(username="root").first()
+    user = User.objects.filter(username="admin").first()
     if user:
         Todo.objects.get_or_create(user=user, task="Подготовить отчет", due_date=date(2025, 2, 10))
         Todo.objects.get_or_create(user=user, task="Собеседование с кандидатом", due_date=date(2025, 2, 15))
