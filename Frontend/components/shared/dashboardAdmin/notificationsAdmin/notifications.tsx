@@ -42,7 +42,7 @@ export const Notifications = () => {
   const [selectedRequest, setSelectedRequest] = useState<Requests | null>(null); // Состояние для выбранного запроса
   const token = localStorage.getItem("token") || "";
   const [history, setHistory] = useState<boolean>(false);
-  const status = ["waited", "Отклонено", "accepted", "Предоставлено"];
+  const status = ["rejected", "Отклонено", "accepted", "Предоставлено"];
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   useEffect(() => {
@@ -277,18 +277,22 @@ export const Notifications = () => {
               <div className="border-[#CACBCD] rounded-xl border-solid border-r-[1px] border-b-[1px] border-t-[1px]">
                 {details.history.map((detailElement, index) => (
                   <div
-                    className={`text-lg py-[10px] px-4 border-[#F6F6F7] rounded-xl border-solid border-[1px] flex justify-between border-l-[4px] ${
+                    className={`text-lg py-[10px] px-4 border-[#F6F6F7] rounded-xl border-solid border-[1px] flex border-l-[4px] ${
                       detailElement.status == "Предоставлено"
                         ? "border-l-[#00AAAD]"
                         : "border-l-[#FF5E01]"
                     }`}
                     key={index}
                   >
-                    <p>{status[status.indexOf(detailElement.status) + 1]}</p>
-                    <p className="text-[#686E74]">
-                      {detailElement.created_at.split("T")[0]}
+                    <p className="min-w-[130px] ">
+                      {status[status.indexOf(detailElement.status) + 1]}
                     </p>
-                    <p>{detailElement.amount}</p>
+                    <div className="flex justify-between ml-9">
+                      <p className="text-[#686E74]">
+                        {detailElement.created_at.split("T")[0]}
+                      </p>
+                      <p className="ml-16 text-right">{detailElement.amount}</p>
+                    </div>
                   </div>
                 ))}
               </div>

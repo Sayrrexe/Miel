@@ -103,12 +103,12 @@ export const HistoryTable = () => {
                     src={objectData.photo}
                     width={39}
                     height={39}
-                    className="rounded-3xl"
+                    className="rounded-3xl max-w-[39px] max-h-[39px] min-w-[39px] min-h-[39px]"
                     alt="avatar"
                   />
                 ) : (
                   <Image
-                    className="max-w-[90px] max-h-[90px]"
+                    className="max-w-[39px] max-h-[39px] min-w-[39px] min-h-[39px]"
                     src={user}
                     width={39}
                     height={39}
