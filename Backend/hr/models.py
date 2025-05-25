@@ -87,12 +87,13 @@ class Candidate(models.Model):
     )
 
     courses = models.ManyToManyField("Course",related_name="candidates", blank=True, null=True )
-    candidate_achievements = models.ManyToManyField(
-        "CandidateAchievement",
-        related_name='candidate_achievements',
-        blank=True
-    )
     
+    achivment_objects = models.PositiveIntegerField(default=0, verbose_name="Объекты")
+    achivment_clients = models.PositiveIntegerField(default=0, verbose_name="Клиенты")
+    achivment_leads = models.PositiveIntegerField(default=0, verbose_name="Лиды")
+    achivment_exclusives = models.PositiveIntegerField(default=0, verbose_name="Эксклюзивы")
+    achivment_deals = models.PositiveIntegerField(default=0, verbose_name="Cделки")
+
     created_at = models.DateTimeField(auto_now_add=True, verbose_name="создан")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлён")
 
@@ -490,26 +491,3 @@ class Course(models.Model):
     class Meta:
         verbose_name = "Курс"
         verbose_name_plural = "Курсы"
-    
-class Achievement(models.Model):
-    name = models.CharField(max_length=32, verbose_name='Название')
-    
-    def __str__(self):
-        return self.name
-    
-    class Meta:
-        verbose_name = "Достижение"
-        verbose_name_plural = "Достижения"
-    
-class CandidateAchievement(models.Model):
-    candidate = models.ForeignKey(Candidate, on_delete=models.CASCADE)
-    achievement = models.ForeignKey(Achievement, on_delete=models.CASCADE)
-    count = models.PositiveIntegerField(default=1, verbose_name="Индивидуальное количество")
-
-    class Meta:
-        unique_together = ('candidate', 'achievement')
-        verbose_name = 'Кандидат-Достижение'
-        verbose_name_plural = 'Кандидат-Достижения'
-
-    def __str__(self):
-        return f"{self.candidate} - {self.achievement} (Кол-во: {self.count})"
