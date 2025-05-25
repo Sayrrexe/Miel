@@ -13,7 +13,6 @@ from .models import (
     Todo,
     Invitation,
     Transaction,
-    Achievement,
     Course
 )
 
@@ -179,10 +178,6 @@ class QuotaRequestsAdmin(ModelAdmin):
 class CoursesAdmin(ModelAdmin):
     list_display = ('id', 'name')
     
-class AchievementsAdmin(ModelAdmin):
-    list_display = ('id', 'name')
-        
-
 # Регистрация моделей
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Candidate, CandidateAdmin)
@@ -196,4 +191,3 @@ admin.site.register(ChatLink, ChatLinkAdmin)
 admin.site.register(Favorite, FavoritesAdmin)
 admin.site.register(QuotaRequest, QuotaRequestsAdmin)
 admin.site.register(Course, CoursesAdmin)
-admin.site.register(Achievement, AchievementsAdmin)
