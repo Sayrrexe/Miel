@@ -13,6 +13,9 @@ const config = {
       },
     ];
   },
+  images: {
+    domains: ["miel.sayrx.lol"], // Add this line to allow images from this domain
+  },
 };
 
 export default config;

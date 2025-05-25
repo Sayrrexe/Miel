@@ -11,6 +11,7 @@ router.register(r'supervisor/favorites', views.FavoriteViewSet, basename='favori
 router.register(r'admin/supervisors', views.SupervisorViewSet)  # CRUD для рук-лей ( от лица админа )
 router.register(r'admin/candidates', views.CandidateViewSet, basename='candidate')
 router.register(r'admin/offices', views.OfficeViewSet, basename='office')#CRUD для офисов ( От лица админа )
+router.register(r'admin/requests', views.QuotaRequestViewSet, basename='request')
 
 urlpatterns = [
     # подключение CRUD
@@ -22,15 +23,16 @@ urlpatterns = [
     # Рук-ли
     path('supervisor/candidates/', views.CandidateInfoView.as_view()), # список всех кандидатов
     path("supervisor/invitations/", views.InvitationAPIView.as_view()), # приглашен боссом кандидатов
-    path('supervisor/info/quota/', views.MonthlyStatisticView.as_view()),
+    path('supervisor/statistic/quotas/', views.MonthlyStatisticView.as_view()),
     
     
     # Администратор
     path('todo-stats/', views.TodoStatsView.as_view(), name='todo-stats'),
-    path('statistic/invitions/', views.InvitationStatisticsViewSet.as_view(), name='invitions-stats'),
+    path('admin/statistic/invitations/', views.InvitationStatisticsViewSet.as_view(), name='invitations-stats'),
     path('admin/candidates/<int:id>/invitations/', views.CandidateInvitationsView.as_view(), name='candidate-invitations'),
     path('admin/candidates/<int:candidate_id>/invitations/<int:invitation_id>/', views.CandidateInvitationUpdateView.as_view(), name='candidate-invitation-update'),
     path('admin/statistic/quotas/', views.AdminMonthlyStatisticView.as_view(), name = 'admin-quotas-statistic'),
     path('admin/archive/', views.ArchiveCandidateInfoView.as_view(), name = 'archive'),
     path('admin/archive/restore/', views.ArchiveBatchRestoreView.as_view(), name='archive-batch-restore'),
+    path('admin/quotas/update/', views.BulkQuotaUpdateView.as_view(), name='getquotass')
 ]

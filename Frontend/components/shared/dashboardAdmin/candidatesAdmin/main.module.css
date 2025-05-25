@@ -1,0 +1,14 @@
+@media (max-width: 1000px) {
+  .table {
+    border: 0px;
+  }
+  .rowT {
+    border: 0px;
+  }
+  .tableHead {
+    display: none;
+  }
+  .tableCellCheck {
+    display: none;
+  }
+}

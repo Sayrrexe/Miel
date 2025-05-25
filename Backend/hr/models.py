@@ -9,6 +9,7 @@ from datetime import date, timedelta
 class CustomUser(AbstractUser):
     patronymic = models.CharField(max_length=32, verbose_name='Отчество', null=True, blank=True)
     phone = models.CharField(max_length=15, verbose_name="Номер телефона", blank=True, null=True)
+    photo = models.ImageField(upload_to='avatars/users/', null=True, blank=True)
     
     def get_full_name(self):
         return f'{self.last_name} {self.first_name} {self.patronymic}'
@@ -49,8 +50,8 @@ class Candidate(models.Model):
         resume (str): Ссылка на резюме кандидата (максимальная длина: 128 символов).
         is_free (bool): Указывает, доступен ли кандидат для работы (по умолчанию True).
         office (ForeignKey, optional): Офис, к которому привязан кандидат.
-            * Если `is_free` = False, это поле обязательно.
-            * Если `is_free` = True, это поле должно быть пустым.
+            * Если is_free = False, это поле обязательно.
+            * Если is_free = True, это поле должно быть пустым.
         course_rieltor_join (str): Статус курса "Введение в профессию риэлтор".
         basic_legal_course (str): Статус "Базовый юридический курс".
         course_mortgage (str): Статус курса "Ипотека".
@@ -61,22 +62,23 @@ class Candidate(models.Model):
         updated_at (datetime): Дата и время последнего обновления записи (обновляется автоматически).
     """
 
-    is_archive = models.BooleanField(default=False)
-    name = models.CharField(max_length=16)
-    surname = models.CharField(max_length=64)
-    patronymic = models.CharField(max_length=32, null=True, blank=True)
-    birth = models.DateField(null=True, blank=True)
-    education = models.CharField(max_length=128, null=True, blank=True)
-    photo = models.CharField(max_length=128, null=True, blank=True)
+    is_archive = models.BooleanField(default=False,  verbose_name="в архиве")
+    name = models.CharField(max_length=16, verbose_name="имя")
+    surname = models.CharField(max_length=64, verbose_name="фамилия")
+    patronymic = models.CharField(max_length=32, null=True, blank=True, verbose_name="отчество")
+    birth = models.DateField(null=True, blank=True, verbose_name="дата рождения")
+    education = models.CharField(max_length=128, null=True, blank=True, verbose_name="образование")
+    photo = models.ImageField(upload_to='avatars/candidates/', null=True, blank=True, verbose_name="фото")
 
-    country = models.CharField(max_length=32, default="Россия")
-    city = models.CharField(max_length=32)
+    country = models.CharField(max_length=32, default="Россия", verbose_name="страна")
+    city = models.CharField(max_length=32, verbose_name="город", blank=True, null=True)
 
-    email = models.EmailField(null=True, blank=True)
-    phone = models.CharField(max_length=16)
-    resume = models.CharField(max_length=128)
+    email = models.EmailField(null=True, blank=True, verbose_name="почта")
+    phone = models.CharField(max_length=16, verbose_name="телефон", blank=True)
+    resume = models.CharField(max_length=128, null=True, blank=True, verbose_name="резюме")
+    agreement = models.FileField(null=True, blank= True, verbose_name='Согласие на ОПД')
 
-    is_free = models.BooleanField(default=True)
+    is_free = models.BooleanField(default=True, verbose_name="свободен")
     office = models.ForeignKey(
         "hr.Office",
         on_delete=models.CASCADE,
@@ -84,52 +86,16 @@ class Candidate(models.Model):
         blank=True
     )
 
-    course_rieltor_join = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не сдан"),
-        ],
-        default="completed",
-        verbose_name="Введение в профессию риэлтор"
-    )
-    basic_legal_course = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не начат"),
-        ],
-        default="not_started",
-        verbose_name="Базовый юридический курс"
-    )
-    course_mortgage = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не начат"),
-        ],
-        default="not_started",
-        verbose_name='Курс "ипотека"'
-    )
-    course_taxation = models.CharField(
-        max_length=16,
-        choices=[
-            ("in_progress", "В процессе"),
-            ("completed", "Сдан"),
-            ("not_started", "Не начат"),
-        ],
-        default="not_started",
-        verbose_name='Курс "налогообложение"'
-    )
+    courses = models.ManyToManyField("Course",related_name="candidates", blank=True, null=True )
+    
+    achivment_objects = models.PositiveIntegerField(default=0, verbose_name="Объекты")
+    achivment_clients = models.PositiveIntegerField(default=0, verbose_name="Клиенты")
+    achivment_leads = models.PositiveIntegerField(default=0, verbose_name="Лиды")
+    achivment_exclusives = models.PositiveIntegerField(default=0, verbose_name="Эксклюзивы")
+    achivment_deals = models.PositiveIntegerField(default=0, verbose_name="Cделки")
 
-    completed_objects = models.PositiveIntegerField(default=0, verbose_name="Объекты")
-    clients = models.PositiveIntegerField(default=0, verbose_name="клиенты")
-
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="создан")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлён")
 
     def __str__(self):
         return f"{self.name} {self.surname}"
@@ -189,12 +155,14 @@ class Invitation(models.Model):
             ("invited", "Приглашён"),
             ("accepted", "Принят"),
             ("rejected", "Отклонён"),
+            ('self_rejected', "Отказ Кандидата"),
         ],
-        default="invited",
+        default="invited", 
+        verbose_name="статус"
     )
     
-    created_at = models.DateTimeField(auto_now_add=True)
-    updated_at = models.DateTimeField(auto_now=True)
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="отправлено")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлено")
 
     def __str__(self):
         return f"Приглашение {self.candidate} в {self.office}"
@@ -216,14 +184,17 @@ class Office(models.Model):
         used_quota (int): Количество использованных квот (по умолчанию 0).
 
     Методы:
-        - `__str__`: Возвращает название офиса.
-        - `available_quota`: Возвращает количество оставшихся доступных квот.
+        - __str__: Возвращает название офиса.
+        - available_quota: Возвращает количество оставшихся доступных квот.
     """
 
     name = models.CharField(max_length=255, verbose_name="Название офиса")
     location = models.CharField(max_length=255, verbose_name="Местоположение")
-    quota = models.PositiveIntegerField(verbose_name="Базовая квота")  # Стартовая квота
+    phone = models.CharField(max_length=15, null=True, blank=True, verbose_name="телефон")
+    quota = models.PositiveIntegerField(verbose_name="Базовая квота")  
     used_quota = models.PositiveIntegerField(default=0, verbose_name="Использованная квота")
+    
+    created_at = models.DateTimeField(auto_now_add=True)
 
     def available_quota(self):
         """
@@ -237,6 +208,18 @@ class Office(models.Model):
         """
         self.quota = 0
         self.save()
+        
+    def change_quota(self, operation, count):
+        if operation == 'add':
+            self.quota += count
+            self.save()
+            return True, self.quota
+        elif operation == 'subtract':
+            if self.quota > count:
+                return False, 'Недостаточно квот для снятия'
+            self.quota -= count
+            self.save()
+            return True, self.quota
 
     def __str__(self):
         return f"{self.name} ({self.location})"
@@ -254,6 +237,7 @@ class Transaction(models.Model):
         operation (str): Тип операции (например, добавление или снятие квот).
         office (ForeignKey): Ссылка на офис, к которому относится транзакция.
         amount (int): Количество квот, изменяемых в результате транзакции.
+        cause (str): причина
 
     """
 
@@ -267,7 +251,7 @@ class Transaction(models.Model):
         choices=OPERATION_CHOICES,
         verbose_name="Операция"
     )
-    cause = models.CharField(max_length=128)
+    cause = models.CharField(max_length=128, verbose_name='причина')
     
     office = models.ForeignKey(
         "Office",
@@ -350,13 +334,13 @@ class Todo(models.Model):
         is_deleted (BooleanField): Логическое удаление задачи (по умолчанию False).
         date_update (DateTimeField): Дата и время последнего обновления записи.
         date_creation (DateTimeField): Дата создания задачи.
-        date_complete (DateField): Дата завершения задачи (если задача выполнена).
+        complete_at (DateField): Дата завершения задачи (если задача выполнена).
 
     Методы:
         check_visibility(): Проверяет, прошло ли 12 часов с момента выполнения задачи.
                             Если прошло, скрывает задачу (is_visible=False).
         save(): Переопределённый метод сохранения для автоматического заполнения
-               поля `date_complete`, если задача была помечена как выполненная.
+               поля complete_at, если задача была помечена как выполненная.
     """
 
     user = models.ForeignKey(
@@ -371,29 +355,29 @@ class Todo(models.Model):
     is_visible = models.BooleanField(default=True, verbose_name="Видимость")
     is_deleted = models.BooleanField(default=False, verbose_name="Удалена")
     
-    date_update = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
-    date_creation = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
-    date_complete = models.DateField(null = True, blank=True)
+    update_at = models.DateTimeField(auto_now=True, verbose_name="Дата обновления")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name='Дата создания')
+    complete_at = models.DateField(null = True, blank=True)
 
     def check_visibility(self):
         """
         Проверяет и обновляет видимость задачи:
-        - Если задача выполнена (`is_complete=True`) и видима (`is_visible=True`),
-        - Проверяет, прошло ли 12 часов с момента обновления записи (`date_update`).
-        - Если прошло, устанавливает `is_visible=False` и сохраняет запись.
+        - Если задача выполнена (is_complete=True) и видима (is_visible=True),
+        - Проверяет, прошло ли 12 часов с момента обновления записи (date_update).
+        - Если прошло, устанавливает is_visible=False и сохраняет запись.
         """
         if self.is_complete and self.is_visible:
-            elapsed_time = now() - self.date_update
+            elapsed_time = now() - self.update_at
             if elapsed_time >= timedelta(hours=12):
                 self.is_visible = False
                 self.save()
                 
     def save(self, *args, **kwargs):
-        if self.is_complete and not self.date_complete:
+        if self.is_complete and not self.complete_at:
             # Если задача выполнена и дата завершения еще не установлена
-            self.date_complete = now().date()
+            self.complete_at = now().date()
 
-        elif not self.is_complete and self.date_complete:
+        elif not self.is_complete and self.complete_at:
             # Если задача не завершена, и дата завершения уже была установлена,
             # мы не должны её изменять
             pass
@@ -463,8 +447,10 @@ class ChatLink(models.Model):
         choices=PLATFORM_CHOICES,
         verbose_name="Платформа"
     )
+    
+    is_active = models.BooleanField(verbose_name='активна',default=True)
     link = models.CharField(max_length=512, verbose_name='Ссылка')
-    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Добавлено в избранное")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="добавлена")
     updated_at = models.DateTimeField(auto_now=True, verbose_name="Стала неактивной")
 
     def __str__(self):
@@ -473,3 +459,35 @@ class ChatLink(models.Model):
     class Meta:
         verbose_name = "Активная ссылка"
         verbose_name_plural = "Ссылки"
+
+class QuotaRequest(models.Model):
+    STATUS_CHOICES = [
+        ('waited', 'ожидание'),
+        ('accepted', 'Принято'),
+        ('rejected', 'Отклонено')
+    ]
+    
+    office = models.ForeignKey(Office, verbose_name='оффис', on_delete=models.CASCADE)
+    amount = models.PositiveIntegerField()
+    status = models.CharField(max_length=16, choices=STATUS_CHOICES, default='waited', verbose_name='статус')
+    
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="создано")
+    updated_at = models.DateTimeField(auto_now=True, verbose_name="обновлено")
+    
+    def __str__(self):
+        return f'запрос {self.amount} квот для {self.office.name}'
+
+
+    class Meta:
+        verbose_name = "Запрос"
+        verbose_name_plural = "Запросы"
+        
+class Course(models.Model):
+    name = models.CharField(max_length=32, verbose_name='Название')
+    
+    def __str__(self):
+        return self.name
+    
+    class Meta:
+        verbose_name = "Курс"
+        verbose_name_plural = "Курсы"

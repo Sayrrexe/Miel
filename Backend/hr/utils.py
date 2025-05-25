@@ -5,7 +5,6 @@ from datetime import timedelta
 from .models import Candidate, Invitation, Office, Transaction
 
 
-
 def write_off_the_quota(office_id, amount, cause):
     """
     Проверяет наличие квот у офиса, создаёт транзакцию и увеличивает used_quota.
@@ -42,7 +41,17 @@ def write_off_the_quota(office_id, amount, cause):
         return False, 'Office doesn`t exist'
     
     
-def update_all_candidate_statuses(candidate_id, invitation_id):
+def update_all_candidate_statuses(candidate_id: int, invitation_id: int):
+    """обновление стаитусов приглашений кандидата, при принятии
+
+    Args:
+        candidate_id (int): id кандидата
+        invitation_id (int): id нужного пришлашения
+
+    Returns:
+        True - success
+        False - error
+    """    
     try:
         with transaction.atomic():  
             # Получаем необходимые объекты
@@ -82,7 +91,16 @@ def update_all_candidate_statuses(candidate_id, invitation_id):
         return False, f'Unexpected error: {str(e)}'
     
     
-def update_one_status(invitation_id, status):
+def update_one_status(invitation_id: int, status: str):
+    """обновиить статус кандидата
+
+    Args:
+        invitation_id (int): id приглашения
+        status (str): статус на который нужно изменить
+
+    Returns:
+        true - successfully
+    """    
     try:
         with transaction.atomic():  
             selected_invitation = Invitation.objects.get(id=invitation_id)
@@ -98,7 +116,15 @@ def update_one_status(invitation_id, status):
         return False, f'Unexpected error: {str(e)}'
 
 
-def restore_archived_candidates(candidate_ids):
+def restore_archived_candidates(candidate_ids: list):
+    """Восстановить кандидатов из архива
+
+    Args:
+        candidate_ids (list): список кандидатов в архиве
+
+    Returns:
+        true - successfully
+    """    
     try:
         with transaction.atomic():
             candidates = Candidate.objects.filter(id__in=candidate_ids)
@@ -107,6 +133,8 @@ def restore_archived_candidates(candidate_ids):
 
             # Восстанавливаем кандидатов
             candidates.update(is_archive=False)
+            candidates.update(office=None)
+            candidates.update(is_free=True)
             return True, f"Восстановлено кандидатов: {candidates.count()}"
     except Exception as e:
         return False, f"Произошла ошибка: {str(e)}"

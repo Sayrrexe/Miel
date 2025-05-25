@@ -1,0 +1,56 @@
+@media (max-width: 1000px) {
+  .container {
+    height: 72px;
+    width: 100%;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    display: flex;
+  }
+  .notificationContainer {
+    display: none;
+  }
+  .imageBottom {
+    display: none;
+  }
+  .linkContainer {
+    margin: 0 0 0 0;
+    width: 26px;
+    gap: 30px;
+    align-items: flex-end;
+  }
+  .linkContainerDiv {
+    display: flex;
+    flex-direction: row-reverse;
+    align-items: center;
+    gap: 40px;
+  }
+  .avatarContainer {
+    margin: 0 0 0 20px;
+  }
+  .menuHeaderBurger {
+    margin-top: 40px;
+    margin-bottom: -500px;
+    margin-right: 20px;
+    background-color: rgb(209 213 219);
+    z-index: 10;
+  }
+  .otherButtons {
+    flex-direction: row;
+  }
+  .officeItemsSearchButton {
+    width: 44px;
+  }
+  .officeItemsAddButton {
+    width: 44px;
+  }
+}
+.linkItem {
+  display: none;
+}
+.burgerMenu {
+  cursor: pointer;
+}
+.linkContainerDiv {
+  height: 100%;
+}
