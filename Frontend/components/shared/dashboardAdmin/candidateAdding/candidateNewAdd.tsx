@@ -12,9 +12,6 @@ import {zodResolver} from "@hookform/resolvers/zod";
 import {z} from "zod";
 import {useEffect, useState} from "react";
 import css from "./main.module.css";
-import DatePicker from "react-date-picker";
-import "react-date-picker/dist/DatePicker.css";
-import "react-calendar/dist/Calendar.css";
 
 export const CandidateNewAdd = () => {
   const router = useRouter();
@@ -23,13 +20,26 @@ export const CandidateNewAdd = () => {
   const token = localStorage.getItem("token") || "";
   const candidates = useCandidates((state) => state.data);
   const setCandidates = useCandidates((state) => state.setCandidates);
-  const [isLoading, setIsLoading] = useState(false); // Добавлено состояние загрузки
+  const [isLoading, setIsLoading] = useState(false);
 
   // Схема валидации с использованием Zod
   const checkoutFormSchema = z.object({
     data: z.string().refine(
-      (val) => !isNaN(Date.parse(val)),
-      {message: "Введите корректную дату в формате ДД.ММ.ГГГГ"}
+      (val) => {
+        if (!val) return false;
+        const regex = /^\d{2}\.\d{2}\.\d{4}$/;
+        if (!regex.test(val)) return false;
+        const [day, month, year] = val.split(".").map(Number);
+        const date = new Date(year, month - 1, day);
+        return (
+          date.getDate() === day &&
+          date.getMonth() === month - 1 &&
+          date.getFullYear() === year &&
+          year >= 1900 &&
+          year <= new Date().getFullYear()
+        );
+      },
+      {message: "Введите корректную дату в формате ДД.ММ.ГГГГ (например, 01.01.2000)"}
     ),
     email: z.string().email("Введите корректный email"),
   });
@@ -147,7 +157,7 @@ export const CandidateNewAdd = () => {
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Отчество</p>
                 <Input
-                  type="text" // Исправлено type с "phone" на "text", так как это отчество
+                  type="text"
                   value={employee.patronymic}
                   className="w-[450px] rounded-xl"
                   placeholder="Отчество"
@@ -180,29 +190,19 @@ export const CandidateNewAdd = () => {
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Дата рождения</p>
                 <div className="w-[450px]">
-                  <DatePicker
+                  <Input
                     {...form.register("data")}
-                    onChange={(date) => {
-                      form.setValue(
-                        "data",
-                        date instanceof Date
-                          ? date.toLocaleDateString("ru-RU", {
-                            day: "2-digit",
-                            month: "2-digit",
-                            year: "numeric",
-                          })
-                          : ""
-                      );
-                    }}
-                    value={
-                      form.watch("data")
-                        ? new Date(form.watch("data").split(".").reverse().join("-"))
-                        : null
+                    value={form.watch("data")}
+                    className={`w-[450px] rounded-xl ${
+                      form.formState.errors.data ? "border-red-500" : ""
+                    }`}
+                    placeholder="ДД.ММ.ГГГГ"
+                    onInput={(e) =>
+                      setEmployee({
+                        ...employee,
+                        birth: e.currentTarget.value.split(".").reverse().join("-"),
+                      })
                     }
-                    format="dd.MM.yyyy"
-                    className={`w-full rounded-xl ${form.formState.errors.data ? "border-red-500" : ""}`}
-                    calendarClassName="shadow-lg rounded-xl"
-                    locale="ru"
                   />
                   {form.formState.errors.data && (
                     <p className="text-red-500 text-sm mt-1">
