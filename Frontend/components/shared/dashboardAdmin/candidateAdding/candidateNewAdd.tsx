@@ -1,83 +1,115 @@
 "use client";
-import { Button, Input } from "@/components/ui";
-import { fetchPostEndpoint } from "@/lib/candidates";
-import { cn } from "@/lib/utils";
-import { useCandidates, useEmployee } from "@/store/context";
-import { ArrowLeft } from "lucide-react";
+import {Button, Input} from "@/components/ui";
+import {fetchPostEndpoint} from "@/lib/candidates";
+import {cn} from "@/lib/utils";
+import {useCandidates, useEmployee} from "@/store/context";
+import {ArrowLeft} from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
-import toast, { Toaster } from "react-hot-toast";
-import { MailInput } from "../adminAdding";
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { useEffect } from "react";
+import {useRouter} from "next/navigation";
+import toast, {Toaster} from "react-hot-toast";
+import {FormProvider, useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
+import {useEffect, useState} from "react";
 import css from "./main.module.css";
+import DatePicker from "react-date-picker";
+import "react-date-picker/dist/DatePicker.css";
+import "react-calendar/dist/Calendar.css";
 
 export const CandidateNewAdd = () => {
   const router = useRouter();
   const employee = useEmployee((state) => state.data);
   const setEmployee = useEmployee((state) => state.setEmployee);
   const token = localStorage.getItem("token") || "";
-
-  const checkoutFormSchema = z.object({
-    data: z.string().date("Введите корректную дату"),
-    email: z.string().email("Введите корректный email"), // Валидация email
-  });
-
   const candidates = useCandidates((state) => state.data);
   const setCandidates = useCandidates((state) => state.setCandidates);
+  const [isLoading, setIsLoading] = useState(false); // Добавлено состояние загрузки
+
+  // Схема валидации с использованием Zod
+  const checkoutFormSchema = z.object({
+    data: z.string().refine(
+      (val) => !isNaN(Date.parse(val)),
+      {message: "Введите корректную дату в формате ДД.ММ.ГГГГ"}
+    ),
+    email: z.string().email("Введите корректный email"),
+  });
+
   type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
-  useEffect(
-    () =>
-      setEmployee({
-        age: 0,
-        basic_legal_course: "",
-        birth: "",
-        city: "",
-        clients: 0,
-        completed_objects: 0,
-        country: "",
-        course_mortgage: "",
-        course_rieltor_join: "",
-        course_taxation: "",
-        created_at: "",
-        education: "",
-        is_archive: false,
-        is_free: true,
-        name: "",
-        patronymic: "",
-        phone: "",
-        resume: "",
-        surname: "",
-        office_name: "",
-        email: "", // Добавлено поле для email
-      }),
-    [setEmployee]
-  );
-
+  // Инициализация формы с react-hook-form
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
     defaultValues: {
       data: "",
-      email: "", // Значение по умолчанию для email
+      email: "",
     },
   });
 
-  const onSubmit = (data: CheckoutFormValues) => {
-    console.log(data);
+  // Сброс состояния employee при монтировании компонента
+  useEffect(() => {
+    setEmployee({
+      age: 0,
+      basic_legal_course: "",
+      birth: "",
+      city: "",
+      clients: 0,
+      completed_objects: 0,
+      country: "",
+      course_mortgage: "",
+      course_rieltor_join: "",
+      course_taxation: "",
+      created_at: "",
+      education: "",
+      is_archive: false,
+      is_free: true,
+      name: "",
+      patronymic: "",
+      phone: "",
+      resume: "",
+      surname: "",
+      office_name: "",
+      email: "",
+    });
+  }, [setEmployee]);
+
+  // Обработчик отправки формы
+  const onSubmit = async (data: CheckoutFormValues) => {
+    if (!token) {
+      toast.error("Токен авторизации отсутствует");
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      // Преобразование даты из ДД.ММ.ГГГГ в ГГГГ-ММ-ДД для сервера
+      const formattedData = {
+        ...data,
+        data: data.data ? data.data.split(".").reverse().join("-") : "",
+      };
+      const updatedEmployee = {...employee, ...formattedData, birth: formattedData.data};
+      const response = await fetchPostEndpoint("/api/admin/candidates/", updatedEmployee, token);
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      toast.success("Кандидат добавлен!");
+      setCandidates([...candidates, updatedEmployee]);
+      setEmployee(updatedEmployee);
+      router.push(`/addingEmployee/${response.id || candidates.length + 1}`);
+    } catch (error) {
+      console.error("Ошибка запроса:", error);
+      toast.error("Кандидат не добавлен");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <div className={cn("mt-[52px] ml-10")}>
       <FormProvider {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)}>
-          <Link
-            href={"./candidates"}
-            className="flex gap-[10px] hover:text-gray-300"
-          >
-            <ArrowLeft />
+          <Link href={"./candidates"}
+            className="flex gap-[10px] hover:text-gray-300">
+            <ArrowLeft/>
             Вернуться
           </Link>
           <div className="mt-[29px]">
@@ -90,7 +122,7 @@ export const CandidateNewAdd = () => {
                   placeholder="Фамилия"
                   className="w-[450px] rounded-xl"
                   onInput={(e) =>
-                    setEmployee({ ...employee, surname: e.currentTarget.value })
+                    setEmployee({...employee, surname: e.currentTarget.value})
                   }
                 />
               </div>
@@ -115,7 +147,7 @@ export const CandidateNewAdd = () => {
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Отчество</p>
                 <Input
-                  type="phone"
+                  type="text" // Исправлено type с "phone" на "text", так как это отчество
                   value={employee.patronymic}
                   className="w-[450px] rounded-xl"
                   placeholder="Отчество"
@@ -134,7 +166,7 @@ export const CandidateNewAdd = () => {
                 <Input
                   value={employee.phone}
                   className="w-[450px] rounded-xl"
-                  placeholder="+7 (___) ___ - __ - __  "
+                  placeholder="+7 (___) ___ - __ - __"
                   onInput={(e) =>
                     setEmployee({
                       ...employee,
@@ -147,18 +179,37 @@ export const CandidateNewAdd = () => {
               {/* Дата рождения */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Дата рождения</p>
-                <MailInput
-                  name="data"
-                  value={employee.birth}
-                  className="w-[450px] rounded-xl"
-                  placeholder="Дата рождения"
-                  onInput={(e) =>
-                    setEmployee({
-                      ...employee,
-                      birth: e.currentTarget.value,
-                    })
-                  }
-                />
+                <div className="w-[450px]">
+                  <DatePicker
+                    {...form.register("data")}
+                    onChange={(date) => {
+                      form.setValue(
+                        "data",
+                        date instanceof Date
+                          ? date.toLocaleDateString("ru-RU", {
+                            day: "2-digit",
+                            month: "2-digit",
+                            year: "numeric",
+                          })
+                          : ""
+                      );
+                    }}
+                    value={
+                      form.watch("data")
+                        ? new Date(form.watch("data").split(".").reverse().join("-"))
+                        : null
+                    }
+                    format="dd.MM.yyyy"
+                    className={`w-full rounded-xl ${form.formState.errors.data ? "border-red-500" : ""}`}
+                    calendarClassName="shadow-lg rounded-xl"
+                    locale="ru"
+                  />
+                  {form.formState.errors.data && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form.formState.errors.data.message}
+                    </p>
+                  )}
+                </div>
               </div>
 
               {/* Страна */}
@@ -182,7 +233,7 @@ export const CandidateNewAdd = () => {
                 <p className="min-w-[134px]">Город</p>
                 <Input
                   value={employee.city}
-                  className="w-[450px] rounded-xl "
+                  className="w-[450px] rounded-xl"
                   placeholder="Город"
                   onInput={(e) =>
                     setEmployee({
@@ -196,58 +247,39 @@ export const CandidateNewAdd = () => {
               {/* Email */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Email</p>
-                <Input
-                  {...form.register("email")} // Привязка поля к react-hook-form
-                  value={employee.email}
-                  className={`w-[450px] rounded-xl ${
-                    form.formState.errors.email ? "border-red-500" : ""
-                  }`} // Красная рамка при ошибке
-                  placeholder="Email"
-                  onInput={(e) =>
-                    setEmployee({
-                      ...employee,
-                      email: e.currentTarget.value, // Обновление email
-                    })
-                  }
-                />
+                <div className="w-[450px]">
+                  <Input
+                    {...form.register("email")}
+                    value={employee.email}
+                    className={`w-[450px] rounded-xl ${
+                      form.formState.errors.email ? "border-red-500" : ""
+                    }`}
+                    placeholder="Email"
+                    onInput={(e) =>
+                      setEmployee({
+                        ...employee,
+                        email: e.currentTarget.value,
+                      })
+                    }
+                  />
+                  {form.formState.errors.email && (
+                    <p className="text-red-500 text-sm mt-1">
+                      {form.formState.errors.email.message}
+                    </p>
+                  )}
+                </div>
               </div>
-
-              {/* Отображение ошибки с красным текстом */}
-              {form.formState.errors.email && (
-                <p className="text-red-500 text-sm mt-1">
-                  {form.formState.errors.email.message}
-                </p>
-              )}
             </div>
 
             <Button
+              type="submit"
               className="mt-8 bg-[#960047] w-[160px] h-[44px] rounded-xl"
-              onClick={async () => {
-                console.log("Отправка данных:", employee);
-                try {
-                  const response = await fetchPostEndpoint(
-                    "/api/admin/candidates/",
-                    employee,
-                    token
-                  );
-                  console.log("Ответ:", response);
-                  if (response.error) {
-                    throw new Error(response.error);
-                  } else {
-                    toast.success("Кандидат добавлен!");
-                    setCandidates([...candidates, employee]);
-                    router.push(`/addingEmployee/${candidates.length}`);
-                  }
-                } catch (error) {
-                  console.error("Ошибка запроса:", error);
-                  toast.error("Кандидат не добавлен");
-                }
-              }}
+              disabled={isLoading}
             >
-              Создать
+              {isLoading ? "Загрузка..." : "Создать"}
             </Button>
           </div>
-          <Toaster />
+          <Toaster/>
         </form>
       </FormProvider>
     </div>
