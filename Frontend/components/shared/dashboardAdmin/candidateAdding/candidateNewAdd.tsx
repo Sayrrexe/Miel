@@ -104,7 +104,7 @@ export const CandidateNewAdd = () => {
       toast.success("Кандидат добавлен!");
       setCandidates([...candidates, updatedEmployee]);
       setEmployee(updatedEmployee);
-      router.push(`/addingEmployee/${response.id || candidates.length + 1}`);
+      router.push(`/main1/`);
     } catch (error) {
       console.error("Ошибка запроса:", error);
       toast.error("Кандидат не добавлен");
@@ -276,7 +276,7 @@ export const CandidateNewAdd = () => {
               className="mt-8 bg-[#960047] w-[160px] h-[44px] rounded-xl"
               disabled={isLoading}
             >
-              {isLoading ? "Загрузка..." : "Создать"}
+              {isLoading ? "Добавляю..." : "Создать"}
             </Button>
           </div>
           <Toaster/>
