@@ -59,7 +59,26 @@ const config: Config = {
         lg: 'var(--radius)',
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)'
-      }
+      },
+      fontFamily: {
+        'geist': ['Geist', 'sans-serif'],
+        'geist-mono': ['GeistMono', 'monospace'],
+      },
+      fontWeight: {
+        'hairline': '100',
+        'thin': '200',
+        'light': '300',
+        'normal': '400',
+        'medium': '500',
+        'semibold': '600',
+        'bold': '700',
+        'extrabold': '800',
+        'black': '900',
+      },
+      fontStyle: {
+        'normal': 'normal',
+        'oblique': 'oblique',
+      },
     }
   },
   plugins: [require("tailwindcss-animate")],
