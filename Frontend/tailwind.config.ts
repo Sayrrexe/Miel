@@ -52,6 +52,7 @@ const config: Config = {
         },
         'btn-primary': '#960047',  // цвет фона кнопки
         'btn-primary-hover': '#AB336C', // цвет фона кнопки при наведении
+        'input-primary-hvr': '#F6F6F7', // цвет фона инпута
         'l-gray': '#B9BABD', // цвет бордера (рамка авторизации)
       },
       borderRadius: {

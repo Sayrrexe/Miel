@@ -108,7 +108,7 @@ const Authorisation = () => {
                         <FormLabel className={css.formLabel}>Логин</FormLabel>
                         <FormControl>
                           <Input
-                            className={`w-[324px] ${css.input}`}
+                            className={`w-[324px] h-[44px] hover:bg-input-primary-hvr ${css.input}`}
                             placeholder="Логин"
                             {...field}
                             value={data.username}
@@ -136,7 +136,7 @@ const Authorisation = () => {
                         <FormLabel className={css.formLabel}>Пароль</FormLabel>
                         <FormControl>
                           <Input
-                            className={`w-[324px] ${css.input}`}
+                            className={`w-[324px] h-[44px] hover:bg-input-primary-hvr ${css.input}`}
                             placeholder="Пароль"
                             type="password"
                             {...field}
