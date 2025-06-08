@@ -166,7 +166,7 @@ const Authorisation = () => {
                       Забыли пароль?
                     </p>
                     <Button
-                      className={`bg-btn-primary w-[324px] border- h-[44px] text-white ${css.loginButton}`}
+                      className={`bg-btn-primary hover:bg-btn-primary-hover w-[324px] border- h-[44px] text-white ${css.loginButton}`}
                       type="submit"
                       onClick={() =>
                         (async () => {

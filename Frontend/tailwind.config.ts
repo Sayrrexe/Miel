@@ -51,6 +51,7 @@ const config: Config = {
           '5': 'hsl(var(--chart-5))'
         },
         'btn-primary': '#960047',  // цвет фона кнопки
+        'btn-primary-hover': '#AB336C', // цвет фона кнопки при наведении
         'l-gray': '#B9BABD', // цвет бордера (рамка авторизации)
       },
       borderRadius: {
