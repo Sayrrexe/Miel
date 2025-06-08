@@ -158,13 +158,8 @@ const Authorisation = () => {
                     )}
                   />
                   <div
-                    className={`flex items-center flex-col gap-[33px] ${css.actionsWrapper}`}
+                    className={`flex items-center flex-col pt-[22px] ${css.actionsWrapper}`}
                   >
-                    <p
-                      className={`mt-[14px] text-sm cursor-pointer hover:text-orange-400 ${css.forgotPassword}`}
-                    >
-                      Забыли пароль?
-                    </p>
                     <Button
                       className={`bg-btn-primary hover:bg-btn-primary-hover w-[324px] border- h-[44px] text-white ${css.loginButton}`}
                       type="submit"
