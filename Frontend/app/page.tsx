@@ -104,11 +104,13 @@ const Authorisation = () => {
                     control={form.control}
                     name="username"
                     render={({field}) => (
+
                       <FormItem>
                         <FormLabel className={css.formLabel}>Логин</FormLabel>
                         <FormControl>
                           <Input
                             className={`w-[324px] h-[44px] hover:bg-input-primary-hvr ${css.input}`}
+
                             placeholder="Логин"
                             {...field}
                             value={data.username}
@@ -132,6 +134,7 @@ const Authorisation = () => {
                     control={form.control}
                     name="password"
                     render={({field}) => (
+
                       <FormItem>
                         <FormLabel className={css.formLabel}>Пароль</FormLabel>
                         <FormControl>

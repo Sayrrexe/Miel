@@ -120,6 +120,7 @@ export const CandidateNewAdd = () => {
           <Link href={"./candidates"}
             className="flex gap-[10px] hover:text-gray-300">
             <ArrowLeft/>
+
             Вернуться
           </Link>
           <div className="mt-[29px]">
@@ -133,6 +134,7 @@ export const CandidateNewAdd = () => {
                   className="w-[450px] rounded-xl"
                   onInput={(e) =>
                     setEmployee({...employee, surname: e.currentTarget.value})
+
                   }
                 />
               </div>
@@ -158,6 +160,7 @@ export const CandidateNewAdd = () => {
                 <p className="min-w-[134px]">Отчество</p>
                 <Input
                   type="text"
+
                   value={employee.patronymic}
                   className="w-[450px] rounded-xl"
                   placeholder="Отчество"
@@ -177,6 +180,7 @@ export const CandidateNewAdd = () => {
                   value={employee.phone}
                   className="w-[450px] rounded-xl"
                   placeholder="+7 (___) ___ - __ - __"
+
                   onInput={(e) =>
                     setEmployee({
                       ...employee,
@@ -210,6 +214,7 @@ export const CandidateNewAdd = () => {
                     </p>
                   )}
                 </div>
+
               </div>
 
               {/* Страна */}
@@ -234,6 +239,7 @@ export const CandidateNewAdd = () => {
                 <Input
                   value={employee.city}
                   className="w-[450px] rounded-xl"
+
                   placeholder="Город"
                   onInput={(e) =>
                     setEmployee({

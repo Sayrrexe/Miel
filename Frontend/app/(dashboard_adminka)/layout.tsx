@@ -18,7 +18,6 @@ export default function RootLayout({children}: Readonly<{
       console.log(`${key}: ${value}`);
     }
   }, []);
-
   return (
     <html lang="en">
     <head>
