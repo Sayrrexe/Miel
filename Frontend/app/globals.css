@@ -2,8 +2,22 @@
 @tailwind components;
 @tailwind utilities;
 
+@font-face {
+  font-family: 'Geist';
+  src: url('./fonts/GeistVF.woff') format('woff');
+  font-weight: 100 900; /* Диапазон весов для Variable Font */
+  font-style: oblique 0deg 12deg; /* Поддержка нормального и наклонного стилей */
+}
+
+@font-face {
+  font-family: 'GeistMono';
+  src: url('./fonts/GeistMonoVF.woff') format('woff');
+  font-weight: 100 900; /* Диапазон весов для Variable Font */
+  font-style: oblique 0deg 12deg; /* Поддержка нормального и наклонного стилей */
+}
+
 body {
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Geist', sans-serif;
 }
 
 @layer utilities {
@@ -40,6 +54,7 @@ body {
     --chart-5: 27 87% 67%;
     --radius: 0.5rem;
   }
+
   .dark {
     --background: 0 0% 3.9%;
     --foreground: 0 0% 98%;
@@ -72,10 +87,15 @@ html {
   overflow-y: hidden;
 }
 
+code, pre {
+  font-family: 'GeistMono', monospace;
+}
+
 @layer base {
   * {
     @apply border-border;
   }
+
   body {
     @apply bg-background text-foreground;
   }

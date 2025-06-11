@@ -286,7 +286,6 @@ class CandidateInfoSerializer(serializers.ModelSerializer):
             'country',
             'city',
             'resume',
-            'candidate_achievements',
             'courses',
             'updated_at',
             'is_favorite',

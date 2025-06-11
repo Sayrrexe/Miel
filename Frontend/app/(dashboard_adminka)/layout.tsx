@@ -1,21 +1,14 @@
 "use client";
-import { PT_Sans } from "next/font/google";
 import "./globals.css";
-import { BrowserRouter } from "react-router-dom";
-import { Header } from "@/components/shared";
-import { AdminPages } from "@/components/shared/dashboardAdmin/administrationPage";
-import { useEffect } from "react";
+import {BrowserRouter} from "react-router-dom";
+import {Header} from "@/components/shared";
+import {
+  AdminPages
+} from "@/components/shared/dashboardAdmin/administrationPage";
+import {useEffect} from "react";
 import css from "./main.module.css";
 
-const PTSans = PT_Sans({
-  subsets: ["cyrillic"],
-  variable: "--font-PT_Sans",
-  weight: ["400", "700"],
-});
-
-export default function RootLayout({
-  children,
-}: Readonly<{
+export default function RootLayout({children}: Readonly<{
   children: React.ReactNode;
 }>) {
   useEffect(() => {
@@ -27,22 +20,26 @@ export default function RootLayout({
   }, []);
   return (
     <html lang="en">
-      <head>
-        <link data-rh="true" rel="icon" href="/logo.png" />
-      </head>
-      <body className={`${PTSans.variable}`}>
-        <BrowserRouter>
-          <Header />
-          <main className={`flex ${css.main}`}>
-            <AdminPages />
-            {localStorage.getItem("token") ? (
-              children
-            ) : (
-              <p>Вы не авторизованы</p>
-            )}
-          </main>
-        </BrowserRouter>
-      </body>
+    <head>
+      <link
+        data-rh="true"
+        rel="icon"
+        href="/logo.png"
+      />
+    </head>
+    <body>
+    <BrowserRouter>
+      <Header />
+      <main className={`flex ${css.main}`}>
+        <AdminPages />
+        {localStorage.getItem("token") ? (
+          children
+        ) : (
+          <p>Вы не авторизованы</p>
+        )}
+      </main>
+    </BrowserRouter>
+    </body>
     </html>
   );
 }

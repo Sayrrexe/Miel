@@ -1,6 +1,6 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
+import {Button} from "@/components/ui/button";
 import {
   Form,
   FormControl,
@@ -9,16 +9,16 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import {Input} from "@/components/ui/input";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {useForm} from "react-hook-form";
+import {z} from "zod";
 import Image from "next/image";
 import baloons from "@/public/assets/Group (3).png";
-import { useCategoryStore } from "@/store/context";
-import fetchGetEndpoint, { fetchAuthorisation } from "@/lib/candidates";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import {useCategoryStore} from "@/store/context";
+import fetchGetEndpoint, {fetchAuthorisation} from "@/lib/candidates";
+import {useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
 import css from "./main.module.css";
 
 const Authorisation = () => {
@@ -46,6 +46,7 @@ const Authorisation = () => {
     // ✅ This will be type-safe and validated.
     console.log(values);
   }
+
   const router = useRouter();
   useEffect(() => {
     const storedRole = localStorage.getItem("role");
@@ -77,7 +78,7 @@ const Authorisation = () => {
         className={`flex items-center justify-center h-[100vh] ${css.formWrapper}`}
       >
         <div
-          className={`border-solid border-black border-[1px] h-[552px] py-10 px-[66px] ${css.formBox}`}
+          className={`border-solid border-l-gray border-[1px] h-[552px] py-10 px-[66px] ${css.formBox}`}
         >
           <p className={`text-3xl pb-9 ${css.title}`}>Войти</p>
           {userWrong ? (
@@ -102,12 +103,14 @@ const Authorisation = () => {
                   <FormField
                     control={form.control}
                     name="username"
-                    render={({ field }) => (
+                    render={({field}) => (
+
                       <FormItem>
                         <FormLabel className={css.formLabel}>Логин</FormLabel>
                         <FormControl>
                           <Input
-                            className={`w-[324px] ${css.input}`}
+                            className={`w-[324px] h-[44px] hover:bg-input-primary-hvr ${css.input}`}
+
                             placeholder="Логин"
                             {...field}
                             value={data.username}
@@ -130,12 +133,13 @@ const Authorisation = () => {
                   <FormField
                     control={form.control}
                     name="password"
-                    render={({ field }) => (
+                    render={({field}) => (
+
                       <FormItem>
                         <FormLabel className={css.formLabel}>Пароль</FormLabel>
                         <FormControl>
                           <Input
-                            className={`w-[324px] ${css.input}`}
+                            className={`w-[324px] h-[44px] hover:bg-input-primary-hvr ${css.input}`}
                             placeholder="Пароль"
                             type="password"
                             {...field}
@@ -157,15 +161,10 @@ const Authorisation = () => {
                     )}
                   />
                   <div
-                    className={`flex items-center flex-col gap-[33px] ${css.actionsWrapper}`}
+                    className={`flex items-center flex-col pt-[22px] ${css.actionsWrapper}`}
                   >
-                    <p
-                      className={`mt-[14px] text-sm cursor-pointer hover:text-orange-400 ${css.forgotPassword}`}
-                    >
-                      Забыли пароль?
-                    </p>
                     <Button
-                      className={`bg-orange-600 w-[160px] border- h-[44px] text-white ${css.loginButton}`}
+                      className={`bg-btn-primary hover:bg-btn-primary-hover w-[324px] border- h-[44px] text-white ${css.loginButton}`}
                       type="submit"
                       onClick={() =>
                         (async () => {
