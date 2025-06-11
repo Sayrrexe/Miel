@@ -1,5 +1,4 @@
 "use client";
-import "./globals.css";
 import {Header} from "@/components/shared";
 import {BrowserRouter} from "react-router-dom";
 import {BossPages} from "@/components/shared/dashboardBoss/candidatesPage";

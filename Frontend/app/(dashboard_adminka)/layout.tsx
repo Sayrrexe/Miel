@@ -1,5 +1,4 @@
 "use client";
-import "./globals.css";
 import {BrowserRouter} from "react-router-dom";
 import {Header} from "@/components/shared";
 import {
@@ -18,6 +17,7 @@ export default function RootLayout({children}: Readonly<{
       console.log(`${key}: ${value}`);
     }
   }, []);
+
   return (
     <html lang="en">
     <head>
