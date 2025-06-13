@@ -24,7 +24,7 @@ interface Props {
     candidate_achievements?: Achievements[];
     city: string;
     country: string;
-    courses: Courses[];
+    courses?: Courses[];
     education: string;
     favorite_id: number;
     id: number;
@@ -94,19 +94,20 @@ export const Candidate: React.FC<Props> = ({candidate}) => {
           </div>
 
           <div className="mt-9">
-            {candidate.courses.length != 0 && (
+            {Array.isArray(candidate.courses) && candidate.courses.length > 0 && (
               <p className="text-2xl">Обучение в Миэль</p>
             )}
             <div className="mt-2">
-              {candidate.courses.map((course, index) => (
-                <div
-                  key={index}
-                  className="flex gap-2 items-center text-xl"
-                >
-                  <div className="bg-blue-400 w-3 h-3" />
-                  <p>{course.name} (пройден)</p>
-                </div>
-              ))}
+              {Array.isArray(candidate.courses) &&
+                candidate.courses.map((course, index) => (
+                  <div
+                    key={index}
+                    className="flex gap-2 items-center text-xl"
+                  >
+                    <div className="bg-blue-400 w-3 h-3" />
+                    <p>{course.name} (пройден)</p>
+                  </div>
+                ))}
             </div>
           </div>
 
