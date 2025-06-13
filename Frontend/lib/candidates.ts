@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import axios, { AxiosResponse } from "axios";
+import axios, {AxiosResponse} from "axios";
 
 // Тип для пользователя
 interface User {
@@ -136,7 +136,7 @@ export default async function fetchGetEndpoint(
 
     return response.data
       ? response
-      : { error: "Unexpected response structure" }; // Проверка на корректный ответ
+      : {error: "Unexpected response structure"}; // Проверка на корректный ответ
   } catch (error) {
     return handleError(error);
   }
@@ -227,7 +227,7 @@ export async function fetchDelete(
 
     return response.data; // Возвращаем данные из ответа
   } catch (error: any) {
-    return { error: error.message || "Unknown error" }; // Обрабатываем ошибку и возвращаем объект с полем error
+    return {error: error.message || "Unknown error"}; // Обрабатываем ошибку и возвращаем объект с полем error
   }
 }
 
@@ -311,7 +311,7 @@ export async function fetchGetCandidates(
 
     return response.data
       ? response
-      : { error: "Unexpected response structure" };
+      : {error: "Unexpected response structure"};
   } catch (error) {
     return handleError(error);
   }
