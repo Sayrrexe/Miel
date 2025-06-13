@@ -82,7 +82,7 @@ export const OfficeItems = () => {
         className={`pt-8 flex flex-col md:flex-row gap-4 md:gap-6 ${css.otherButtons}`}
       >
         <Input
-          className={`rounded-lg w-full md:w-[696px] ${css.officeItemsSearchInput}`}
+          className={`rounded-xl w-full md:w-[696px] ${css.officeItemsSearchInput}`}
           placeholder="Найти офис"
           id="search"
           onChange={(e) => setSearch(e.currentTarget.value)}
@@ -109,13 +109,13 @@ export const OfficeItems = () => {
               }
             })();
           }}
-          className={`bg-white w-full md:w-[160px] text-black hover:text-btn-sec-fg-hover border-[#960047] border-solid border-[1px] rounded-xl ${css.officeItemsSearchButton}`}
+          className={`bg-white w-full md:w-[160px] text-black hover:text-btn-sec-fg-hover border-[#960047] border-solid border-[1px] ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
           variant='secondary'
-          className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl ${css.officeItemsSearchButton}`}
+          className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] ${css.officeItemsSearchButton}`}
           onClick={async () => {
             router.push("/addingOffice");
           }}
@@ -123,7 +123,7 @@ export const OfficeItems = () => {
           {window.innerWidth < 1000 ? "+" : "Добавить офис"}
         </Button>
         <Button
-          className={`bg-[#960047] w-full md:w-[160px] hover:bg-[#960046a9] rounded-xl ${css.officeItemsAddButton}`}
+          variant='default'
           onClick={async () => {
             setIsModalOpen(true);
           }}
