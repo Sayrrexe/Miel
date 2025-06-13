@@ -1,10 +1,10 @@
 "use client";
-import { Button, Input } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { OfficeItem } from ".";
-import { useEffect, useState } from "react";
-import fetchGetEndpoint, { fetchPostEndpoint } from "@/lib/candidates";
-import { useRouter } from "next/navigation";
+import {Button, Input} from "@/components/ui";
+import {cn} from "@/lib/utils";
+import {OfficeItem} from ".";
+import {useEffect, useState} from "react";
+import fetchGetEndpoint, {fetchPostEndpoint} from "@/lib/candidates";
+import {useRouter} from "next/navigation";
 import css from "./main.module.css";
 
 export const OfficeItems = () => {
@@ -88,6 +88,7 @@ export const OfficeItems = () => {
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
         <Button
+          variant='secondary'
           onClick={() => {
             console.log(token);
             (async () => {
@@ -108,12 +109,13 @@ export const OfficeItems = () => {
               }
             })();
           }}
-          className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] hover:bg-[#960047] rounded-xl ${css.officeItemsSearchButton}`}
+          className={`bg-white w-full md:w-[160px] text-black hover:text-btn-sec-fg-hover border-[#960047] border-solid border-[1px] rounded-xl ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
-          className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] hover:bg-[#960047] rounded-xl ${css.officeItemsSearchButton}`}
+          variant='secondary'
+          className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl ${css.officeItemsSearchButton}`}
           onClick={async () => {
             router.push("/addingOffice");
           }}
@@ -176,7 +178,10 @@ export const OfficeItems = () => {
           tabIndex={-1}
           role="dialog"
         >
-          <div className="modal-content" style={{ height: "100%" }}>
+          <div
+            className="modal-content"
+            style={{height: "100%"}}
+          >
             <div
               className="modal-header"
               style={{
@@ -216,7 +221,10 @@ export const OfficeItems = () => {
               <p className="text-3xl ">Квоты</p>
               <div>
                 {offices.map((office, index) => (
-                  <div className="flex gap-5 items-center" key={index}>
+                  <div
+                    className="flex gap-5 items-center"
+                    key={index}
+                  >
                     <p className="min-w-[100px] max-w-[100px] text-left overflow-hidden">
                       {office.name}
                     </p>
@@ -230,7 +238,7 @@ export const OfficeItems = () => {
                         // Update the corresponding office in the offices list
                         const updatedOffices = offices.map((o) => {
                           if (o.id === office.id) {
-                            return { ...o, quota: amount }; // Update the quota value for the corresponding office
+                            return {...o, quota: amount}; // Update the quota value for the corresponding office
                           }
                           return o;
                         });
@@ -264,7 +272,7 @@ export const OfficeItems = () => {
                             // Add a new quote if it doesn't exist
                             setNewQuotes((prevQuotes) => [
                               ...prevQuotes,
-                              { office_id: office.id, amount },
+                              {office_id: office.id, amount},
                             ]);
                           }
                         }
@@ -287,7 +295,7 @@ export const OfficeItems = () => {
                     try {
                       const response = await fetchPostEndpoint(
                         "/api/admin/quotas/update/",
-                        { quotas: newQuotes },
+                        {quotas: newQuotes},
                         token
                       );
                       console.log("Response:", response);
