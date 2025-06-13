@@ -4,8 +4,6 @@ import {
   ArchiveRestore,
   BellDot,
   ChartNoAxesColumnIncreasing,
-  FileSliders,
-  List,
   Settings,
   UsersRound,
   Menu as BurgerMenu,
