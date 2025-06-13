@@ -1,5 +1,5 @@
 "use client";
-import { useState } from "react";
+import {useState} from "react";
 import {
   ArchiveRestore,
   BellDot,
@@ -11,12 +11,14 @@ import {
   Menu as BurgerMenu,
   LogOut, // Иконка бургера
 } from "lucide-react";
+import {Administration} from "@/components/ui/icons/administration";
+import {Planning} from "@/components/ui/icons/plannig";
 import Image from "next/image";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import css from "./main.module.css"; // Импортируем CSS-модуль
-import { useRouter } from "next/navigation";
+import {useRouter} from "next/navigation";
 
 export const AdminPages = () => {
   const router = useRouter(); // Инициализация useRouter внутри компонента
@@ -36,16 +38,16 @@ export const AdminPages = () => {
     location.pathname == "/main1"
       ? 0
       : location.pathname == "/plans"
-      ? 1
-      : location.pathname == "/statisticAdmin"
-      ? 3
-      : location.pathname == "/archive"
-      ? 4
-      : location.pathname == "/notifications"
-      ? 5
-      : location.pathname == "/settings"
-      ? 6
-      : 2
+        ? 1
+        : location.pathname == "/statisticAdmin"
+          ? 3
+          : location.pathname == "/archive"
+            ? 4
+            : location.pathname == "/notifications"
+              ? 5
+              : location.pathname == "/settings"
+                ? 6
+                : 2
   );
   const [headerScreen, setHeaderScreen] = useState<boolean>(
     window.innerWidth < 1000 ? true : false
@@ -103,7 +105,7 @@ export const AdminPages = () => {
                 headerScreen == true && css.linkItem
               }`}
             >
-              <FileSliders />
+              <Administration />
               Администрирование
             </Link>
             <Link
@@ -115,7 +117,7 @@ export const AdminPages = () => {
                 headerScreen == true && css.linkItem
               }`}
             >
-              <List />
+              <Planning />
               Планирование
             </Link>
             <Link
