@@ -7,7 +7,7 @@ interface ArchiveProps extends React.SVGProps<SVGSVGElement> {
 
 /**
  * @function Archive
- * @description Компонент для отображения иконки "Архив]"
+ * @description Компонент для отображения иконки "Архив"
  * @param {ShowcaseProps} props - props для компонента
  * @returns {ReactElement} реакт-элемент иконки
  */

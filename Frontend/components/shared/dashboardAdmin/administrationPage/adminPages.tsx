@@ -1,8 +1,6 @@
 "use client";
 import {useState} from "react";
 import {
-  ArchiveRestore,
-  BellDot,
   Settings,
   Menu as BurgerMenu,
   LogOut, // Иконка бургера
@@ -12,6 +10,7 @@ import {Planning} from "@/components/ui/icons/plannig";
 import {Showcase} from "@/components/ui/icons/showcase";
 import {Statistics} from "@/components/ui/icons/statistics";
 import {Archive} from "@/components/ui/icons/archive";
+import {Notification} from "@/components/ui/icons/notification";
 import Image from "next/image";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
@@ -179,7 +178,7 @@ export const AdminPages = () => {
             headerScreen == true && css.linkItem
           }`}
         >
-          <BellDot />
+          <Notification />
           Уведомления
         </Link>
         <Link
