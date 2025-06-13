@@ -1,7 +1,6 @@
 "use client";
 import {useState} from "react";
 import {
-  Settings,
   Menu as BurgerMenu,
   LogOut, // Иконка бургера
 } from "lucide-react";
@@ -11,6 +10,7 @@ import {Showcase} from "@/components/ui/icons/showcase";
 import {Statistics} from "@/components/ui/icons/statistics";
 import {Archive} from "@/components/ui/icons/archive";
 import {Notification} from "@/components/ui/icons/notification";
+import {Settings} from "@/components/ui/icons/settings";
 import Image from "next/image";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
