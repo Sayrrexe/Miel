@@ -5,12 +5,12 @@ import {
   BellDot,
   ChartNoAxesColumnIncreasing,
   Settings,
-  UsersRound,
   Menu as BurgerMenu,
   LogOut, // Иконка бургера
 } from "lucide-react";
 import {Administration} from "@/components/ui/icons/administration";
 import {Planning} from "@/components/ui/icons/plannig";
+import {Showcase} from "@/components/ui/icons/showcase";
 import Image from "next/image";
 import officeWoman from "../../../../public/assets/Office woman.png";
 import Link from "next/link";
@@ -127,7 +127,7 @@ export const AdminPages = () => {
                 headerScreen == true && css.linkItem
               }`}
             >
-              <UsersRound /> Витрина кандидатов
+              <Showcase /> Витрина кандидатов
             </Link>
             <Link
               href={"/statisticAdmin"}

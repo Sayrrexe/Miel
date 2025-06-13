@@ -5,6 +5,13 @@ interface PlanningProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
 }
 
+/**
+ * @function Planning
+ * @description Компонент для отображения иконки "Планирование"
+ * @param {ShowcaseProps} props - props для компонента
+ * @returns {ReactElement} реакт-элемент иконки
+ */
+
 const Planning = React.forwardRef<SVGSVGElement, PlanningProps>(
   ({className, size = 24, ...props}, ref) => {
     return (

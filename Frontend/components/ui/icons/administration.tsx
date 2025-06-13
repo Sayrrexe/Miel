@@ -5,6 +5,13 @@ interface AdministrationProps extends React.SVGProps<SVGSVGElement> {
   size?: number | string;
 }
 
+/**
+ * @function Administration
+ * @description Компонент для отображения иконки "Администрирование"
+ * @param {ShowcaseProps} props - props для компонента
+ * @returns {ReactElement} реакт-элемент иконки
+ */
+
 const Administration = React.forwardRef<SVGSVGElement, AdministrationProps>(
   ({className, size = 24, ...props}, ref) => {
     return (
