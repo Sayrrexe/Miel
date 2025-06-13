@@ -101,6 +101,7 @@ export const NewPlans = () => {
           value={value}
         />
         <Button
+          variant='default'
           onClick={() => {
             console.log(token);
             (async () => {

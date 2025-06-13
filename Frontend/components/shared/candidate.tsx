@@ -1,15 +1,16 @@
 /* eslint-disable @next/next/no-img-element */
-import { cn } from "@/lib/utils";
-import { Button } from "@/components/ui";
+import {cn} from "@/lib/utils";
+import {Button} from "@/components/ui";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import Image from "next/image";
-import { fetchPostEndpoint } from "@/lib/candidates";
-import toast, { Toaster } from "react-hot-toast";
+import {fetchPostEndpoint} from "@/lib/candidates";
+import toast, {Toaster} from "react-hot-toast";
 
 interface Courses {
   id: number;
   name: string;
 }
+
 interface Achievements {
   achievement: number;
   achievement_name: string;
@@ -20,10 +21,10 @@ interface Props {
   candidate: {
     age: number;
     birth: string;
-    candidate_achievements: Achievements[];
+    candidate_achievements?: Achievements[];
     city: string;
     country: string;
-    courses: Courses[];
+    courses?: Courses[];
     education: string;
     favorite_id: number;
     id: number;
@@ -37,7 +38,7 @@ interface Props {
   };
 }
 
-export const Candidate: React.FC<Props> = ({ candidate }) => {
+export const Candidate: React.FC<Props> = ({candidate}) => {
   const token = localStorage.getItem("token") || "";
   return (
     <div className={cn("")}>
@@ -93,36 +94,40 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
           </div>
 
           <div className="mt-9">
-            {candidate.courses.length != 0 && (
+            {Array.isArray(candidate.courses) && candidate.courses.length > 0 && (
               <p className="text-2xl">Обучение в Миэль</p>
             )}
             <div className="mt-2">
-              {candidate.courses.map((course, index) => (
-                <div key={index} className="flex gap-2 items-center text-xl">
-                  <div className="bg-blue-400 w-3 h-3" />
-                  <p>{course.name} (пройден)</p>
-                </div>
-              ))}
+              {Array.isArray(candidate.courses) &&
+                candidate.courses.map((course, index) => (
+                  <div
+                    key={index}
+                    className="flex gap-2 items-center text-xl"
+                  >
+                    <div className="bg-blue-400 w-3 h-3" />
+                    <p>{course.name} (пройден)</p>
+                  </div>
+                ))}
             </div>
           </div>
 
           <div className="mt-7">
-            {candidate.candidate_achievements.length != 0 && (
+            {Array.isArray(candidate.candidate_achievements) && candidate.candidate_achievements.length > 0 && (
               <p className="text-2xl">Достижения</p>
             )}
             <div className="flex gap-[63px] mt-4 flex-wrap">
-              {candidate.candidate_achievements.map((achieve) => (
-                <div
-                  key={achieve.achievement}
-                  className="flex gap-2 items-center text-xl"
-                >
-                  <div className="bg-green-600 w-3 h-3" />
-                  <p>
-                    {achieve.achievement_name} {""}
-                    {achieve.count}
-                  </p>
-                </div>
-              ))}
+              {Array.isArray(candidate.candidate_achievements) &&
+                candidate.candidate_achievements.map((achieve) => (
+                  <div
+                    key={achieve.achievement}
+                    className="flex gap-2 items-center text-xl"
+                  >
+                    <div className="bg-green-600 w-3 h-3" />
+                    <p>
+                      {achieve.achievement_name} {achieve.count}
+                    </p>
+                  </div>
+                ))}
             </div>
           </div>
         </div>
@@ -134,11 +139,11 @@ export const Candidate: React.FC<Props> = ({ candidate }) => {
           </Button>
           <Button
             onClick={async () => {
-              console.log("Sending data:", { candidate: candidate.id });
+              console.log("Sending data:", {candidate: candidate.id});
               try {
                 const response = await fetchPostEndpoint(
                   "/api/supervisor/favorites/",
-                  { candidate: candidate.id },
+                  {candidate: candidate.id},
                   token
                 );
                 console.log("Response:", response);

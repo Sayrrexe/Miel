@@ -1,10 +1,10 @@
 "use client";
-import { cn } from "@/lib/utils";
-import { BossFilters } from ".";
-import { candidatObject } from "../../consts/data";
-import { Candidate } from "../../candidate";
-import { fetchGetCandidates } from "../../../../lib/candidates";
-import { useEffect, useState } from "react";
+import {cn} from "@/lib/utils";
+import {BossFilters} from ".";
+import {candidatObject} from "../../consts/data";
+import {Candidate} from "../../candidate";
+import {fetchGetCandidates} from "@/lib/candidates";
+import {useEffect, useState} from "react";
 
 export const DashboardBossCandidates = () => {
   const [age_max, setAge_max] = useState<number>(0);
@@ -55,7 +55,10 @@ export const DashboardBossCandidates = () => {
       <div className="flex  flex-wrap ml-[-10px] gap-0 w-[84vw] mt-[10px] pl-[10px] overflow-y-scroll h-[720px] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
         {candidates.length &&
           candidates.map((candidatObject) => (
-            <Candidate candidate={candidatObject} key={candidatObject.id} />
+            <Candidate
+              candidate={candidatObject}
+              key={candidatObject.id}
+            />
           ))}
       </div>
     </div>
