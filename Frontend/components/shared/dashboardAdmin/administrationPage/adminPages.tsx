@@ -51,6 +51,27 @@ export const AdminPages = () => {
     window.innerWidth < 1000 ? true : false
   );
 
+  // Базовые стили для всех ссылок
+  const linkBaseStyles = `
+    flex items-center gap-2 px-3 py-2 cursor-pointer
+    relative // Для позиционирования псевдоэлемента ::before
+  `;
+
+  // Стили для полосы при наведении (только для неактивных элементов)
+  const hoverStyles = `
+    hover:before:content-[''] hover:before:absolute hover:before:left-0 hover:before:top-0
+    hover:before:h-full hover:before:w-[5px] hover:before:bg-menu-hvr
+  `;
+
+  // Стили для активной ссылки
+  const activeStyles = `
+    bg-menu-active
+    hover:before:hidden // Отключаем полосу при наведении на активный элемент
+  `;
+
+  // Стили для headerScreen
+  const headerScreenStyles = headerScreen ? "inline-flex" : "flex";
+
   return (
     <div
       className={`relative bg-gray-200 h-[calc(100vh-71px)] ${css.container}`}
@@ -93,114 +114,115 @@ export const AdminPages = () => {
           ) : (
             ""
           )}
-          <div className={`gap-0 flex flex-col  ${css.menuHeaderBurger}`}>
-            <Link
-              href={"./main1"}
-              onClick={() => setActiveCategorie(0)}
-              className={`${activeCategorie == 0 && "bg-gray-300"} ${
-                headerScreen && "inline"
-              } flex pr-8 pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-                headerScreen == true && css.linkItem
-              }`}
-            >
-              <Administration />
-              Администрирование
-            </Link>
-            <Link
-              href={"/plans"}
-              onClick={() => setActiveCategorie(1)}
-              className={`${
-                activeCategorie == 1 && "bg-gray-300"
-              } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-                headerScreen == true && css.linkItem
-              }`}
-            >
-              <Planning />
-              Планирование
-            </Link>
-            <Link
-              href={"/candidates"}
-              onClick={() => setActiveCategorie(2)}
-              className={`${
-                activeCategorie == 2 && "bg-gray-300"
-              } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-                headerScreen == true && css.linkItem
-              }`}
-            >
-              <Showcase /> Витрина кандидатов
-            </Link>
-            <Link
-              href={"/statisticAdmin"}
-              onClick={() => setActiveCategorie(3)}
-              className={`${
-                activeCategorie == 3 && "bg-gray-300"
-              } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-                headerScreen == true && css.linkItem
-              }`}
-            >
-              <Statistics />
-              Статистика
-            </Link>
-            <Link
-              href={"/archive"}
-              onClick={() => setActiveCategorie(4)}
-              className={`${
-                activeCategorie == 4 && "bg-gray-300"
-              } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-                headerScreen == true && css.linkItem
-              }`}
-            >
-              <Archive />
-              Архив
-            </Link>
+          <div className="flex flex-col h-full">
+            <nav className="flex-1">
+              <Link
+                href="/main1"
+                onClick={() => setActiveCategorie(0)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 0 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Administration />
+                Администрирование
+              </Link>
+              <Link
+                href="/plans"
+                onClick={() => setActiveCategorie(1)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 1 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Planning />
+                Планирование
+              </Link>
+              <Link
+                href="/candidates"
+                onClick={() => setActiveCategorie(2)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 2 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Showcase />
+                Витрина кандидатов
+              </Link>
+              <Link
+                href="/statisticAdmin"
+                onClick={() => setActiveCategorie(3)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 3 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Statistics />
+                Статистика
+              </Link>
+              <Link
+                href="/archive"
+                onClick={() => setActiveCategorie(4)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 4 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Archive />
+                Архив
+              </Link>
+            </nav>
+            <div className="flex justify-center">
+              {window.innerWidth < 1000 ? (
+                <LogOut
+                  height={24}
+                  width={24}
+                  className="cursor-pointer mt-1 mr-5"
+                  onClick={handleLogout}
+                />
+              ) : null}
+            </div>
+            <div className={`flex justify-center flex-col gap-0 mt-12 ${css.notificationContainer}`}>
+              <Link
+                href="/notifications"
+                onClick={() => setActiveCategorie(5)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 5 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Notification />
+                Уведомления
+              </Link>
+              <Link
+                href="/settings"
+                onClick={() => setActiveCategorie(6)}
+                className={`
+            ${linkBaseStyles}
+            ${activeCategorie === 6 ? activeStyles : hoverStyles}
+            ${headerScreenStyles}
+          `}
+              >
+                <Settings />
+                Настройки
+              </Link>
+            </div>
           </div>
         </div>
-        {window.innerWidth < 1000 ? (
-          <LogOut
-            height={24}
-            width={24}
-            className="cursor-pointer mt-1 mr-5"
-            onClick={handleLogout} // Вызываем функцию с логикой выхода
-          />
-        ) : (
-          ""
-        )}
+        <Image
+          src={officeWoman}
+          width={230}
+          height={240}
+          alt="graph"
+          className={`absolute bottom-0 ${css.imageBottom}`}
+        />
       </div>
-      <div
-        className={`flex justify-center flex-col gap-0 mt-12 ${css.notificationContainer}`}
-      >
-        <Link
-          href={"/notifications"}
-          onClick={() => setActiveCategorie(5)}
-          className={`${
-            activeCategorie == 5 && "bg-gray-300"
-          } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-            headerScreen == true && css.linkItem
-          }`}
-        >
-          <Notification />
-          Уведомления
-        </Link>
-        <Link
-          href={"/settings"}
-          onClick={() => setActiveCategorie(6)}
-          className={`${
-            activeCategorie == 6 && "bg-gray-300"
-          } flex pl-[10px] p-[10px] gap-[9px] cursor-pointer hover:bg-gray-300 ${
-            headerScreen == true && css.linkItem
-          }`}
-        >
-          <Settings />
-          Настройки
-        </Link>
-      </div>
-      <Image
-        src={officeWoman}
-        width={230}
-        height={240}
-        alt="graph"
-        className={`absolute bottom-0 ${css.imageBottom}`}
-      />
     </div>
   );
 };
