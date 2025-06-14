@@ -10,13 +10,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui";
-import fetchGetEndpoint, { fetchDelete } from "@/lib/candidates";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import fetchGetEndpoint, {fetchDelete} from "@/lib/candidates";
+import {cn} from "@/lib/utils";
+import {useEffect, useState} from "react";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
-import { useRouter } from "next/navigation";
-import { Trash } from "lucide-react";
+import {useRouter} from "next/navigation";
+import {Trash} from "lucide-react";
 import css from "./main.module.css";
 
 export const AdminItems = () => {
@@ -107,6 +107,7 @@ export const AdminItems = () => {
           onChange={(e) => setInputValue(e.target.value)}
         />
         <Button
+          variant="secondary"
           type="submit"
           onClick={async () => {
             const endpointToCall = "/api/admin/supervisors/";
@@ -126,13 +127,13 @@ export const AdminItems = () => {
             }
           }}
           id="search"
-          className={`bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047] ${css.officeItemsSearchButton}`}
+          className={`w-[160px]  ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
+          variant="default"
           onClick={() => router.push("addingAdmin")}
-          className={`bg-[#960047] w-[226px] rounded-xl hover:bg-[#960046a9] ${css.officeItemsAddButton}`}
         >
           {window.innerWidth < 1000 ? "+" : "Добавить руководителя"}
         </Button>
@@ -228,7 +229,10 @@ export const AdminItems = () => {
           tabIndex={-1}
           role="dialog"
         >
-          <div className="modal-content" style={{ height: "100%" }}>
+          <div
+            className="modal-content"
+            style={{height: "100%"}}
+          >
             <div
               className="modal-header"
               style={{
