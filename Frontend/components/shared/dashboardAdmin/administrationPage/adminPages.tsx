@@ -53,7 +53,7 @@ export const AdminPages = () => {
 
   // Базовые стили для всех ссылок
   const linkBaseStyles = `
-    flex items-center gap-2 px-3 py-2 cursor-pointer
+    flex items-center gap-2 pl-9 w-[280px] h-[40px] cursor-pointer
     relative // Для позиционирования псевдоэлемента ::before
   `;
 
