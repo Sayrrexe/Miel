@@ -134,7 +134,7 @@ export const OfficeItems = () => {
       </div>
 
       <div
-        className={`grid gap-4 mt-7 w-full md:w-[70vw] max-h-[calc(100vh-300px)] overflow-y-auto ${css.officeItemsList} ${css.officeItemsList}`}
+        className={cn(css.officeItemsList)}  // поле для размещения карточек офисов
       >
         {offices.map((candidatObject, index) => (
           <OfficeItem
