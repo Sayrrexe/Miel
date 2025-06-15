@@ -7,41 +7,76 @@
     justify-content: space-between;
     display: flex;
   }
+
   .notificationContainer {
     display: none;
   }
+
   .imageBottom {
     display: none;
   }
+
   .linkContainer {
     margin: 0 0 0 0;
     width: 206px;
     gap: 30px;
     align-items: flex-end;
   }
+
   .avatarContainer {
     margin: 0 0 0 20px;
   }
+
   .menuHeaderBurger {
     margin-bottom: -500px;
     margin-right: 20px;
     background-color: rgb(209 213 219);
   }
+
   .otherButtons {
     flex-direction: row;
   }
+
   .officeItemsSearchButton {
     width: 44px;
   }
+
   .officeItemsAddButton {
     width: 44px;
   }
 }
+
 .linkItem {
   display: none;
 }
+
 .burgerMenu {
   cursor: pointer;
   margin-right: 20px;
   margin-top: -10px;
 }
+
+.officeItemsContainer {
+  width: 100%;
+  overflow: visible;
+  padding: 1rem;
+  min-height: 0; /* Убираем минимальную высоту, если она есть */
+  height: auto; /* Позволяем растягиваться */
+}
+
+.officeItemsList {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem;
+  overflow-y: auto;
+  width: 100%;
+  max-height: calc(100vh - 300px); /* Увеличиваем вычитаемое значение */
+  min-height: 200px; /* Минимальная высота для предотвращения сжатия */
+  padding-right: 8px;
+
+  /* Адаптивность */
+  @media (max-width: 768px) {
+    grid-template-columns: 1fr; /* Одна колонка на мобильных */
+  }
+}
+

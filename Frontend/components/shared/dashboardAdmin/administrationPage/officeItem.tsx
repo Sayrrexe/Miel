@@ -1,5 +1,5 @@
-import { cn } from "@/lib/utils";
-import { MessageCircle } from "lucide-react";
+import {cn} from "@/lib/utils";
+import {MessageCircle} from "lucide-react";
 
 interface Props {
   candidatObject: {
@@ -13,7 +13,7 @@ interface Props {
   index: number;
 }
 
-export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
+export const OfficeItem: React.FC<Props> = ({index, candidatObject}) => {
   const colors: string[] = [
     "border-b-[#FF5E01]",
     "border-b-[#9CC700]",
@@ -23,14 +23,12 @@ export const OfficeItem: React.FC<Props> = ({ index, candidatObject }) => {
 
   return (
     <div
-      className={cn("min-w-[388px]")}
+      className={cn("w-full max-w-[416px]")}
       onClick={() => console.log(candidatObject)}
     >
       <div
         key={index}
-        className={`border-solid border-[1px] border-gray-300 w-full sm:w-[416px] p-5 border-b-4 ${
-          colors[index % 4]
-        }`}
+        className={`border-solid border-[1px] border-gray-300 p-5 border-b-4 ${colors[index % 4]}`}
       >
         <div>
           <p className="opacity-50 text-base">{candidatObject.location}</p>

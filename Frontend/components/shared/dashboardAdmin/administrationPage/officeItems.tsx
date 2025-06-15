@@ -76,6 +76,7 @@ export const OfficeItems = () => {
       setIsModalOpen(false);
     }
   };
+
   return (
     <div className={cn(css.officeItemsContainer)}>
       <div
@@ -133,11 +134,11 @@ export const OfficeItems = () => {
       </div>
 
       <div
-        className={`flex flex-wrap gap-4 mt-7 overflow-y-scroll w-full md:w-[70vw] h-[720px] [&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100 ${css.officeItemsList}`}
+        className={`grid gap-4 mt-7 w-full md:w-[70vw] max-h-[calc(100vh-300px)] overflow-y-auto ${css.officeItemsList} ${css.officeItemsList}`}
       >
         {offices.map((candidatObject, index) => (
           <OfficeItem
-            key={index}
+            key={candidatObject.id}
             candidatObject={candidatObject}
             index={index}
           />

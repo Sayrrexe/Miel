@@ -70,3 +70,13 @@
 .officeList::-webkit-scrollbar-track {
   background-color: #f3f4f6;
 }
+
+.officeList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 2rem;
+  overflow-y: scroll;
+  width: 100%;
+  height: 720px;
+}
