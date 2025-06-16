@@ -80,10 +80,10 @@ export const OfficeItems = () => {
   return (
     <div className={cn(css.officeItemsContainer)}>
       <div
-        className={`pt-8 flex flex-col md:flex-row gap-4 md:gap-4 ${css.otherButtons}`}
+        className={`pt-8 flex flex-col md:flex-row gap-4 md:gap-4 max-w-[1048px] ${css.otherButtons}`}
       >
         <Input
-          className={`rounded-xl w-full md:w-[696px] max-w-[507px] ${css.officeItemsSearchInput}`}
+          className={`rounded-xl w-full md:w-[696px] max-w-[50%] ${css.officeItemsSearchInput}`}
           placeholder="Найти офис"
           id="search"
           onChange={(e) => setSearch(e.currentTarget.value)}

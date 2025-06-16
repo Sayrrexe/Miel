@@ -23,7 +23,7 @@ export const OfficeItem: React.FC<Props> = ({index, candidatObject}) => {
 
   return (
     <div
-      className={cn("w-full max-w-[416px]")}
+      className={cn("w-full max-w-[516px]")}
       onClick={() => console.log(candidatObject)}
     >
       <div
