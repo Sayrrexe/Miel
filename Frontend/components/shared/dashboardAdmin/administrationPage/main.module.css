@@ -70,15 +70,13 @@
   column-gap: 16px;
   row-gap: 28px;
   overflow-y: auto;
-  width: 100%;
-  max-width: 1048px;
   max-height: calc(100vh - 300px);
   min-height: 200px;
   padding-right: 8px;
   margin-top: 1.75rem; /* mt-7 в пикселях ≈ 28px или 1.75rem */
 
   /* Адаптивность колонок */
-  @media (max-width: 768px) {
+  @media (max-width: 1000px) {
     grid-template-columns: 1fr;
   }
 }
