@@ -102,6 +102,7 @@ export const AddingOffice = () => {
           </div>
         </div>
         <Button
+          variant="default"
           className="mt-8 bg-[#960047] w-[160px] h-[44px] rounded-xl"
           onClick={async () => {
             console.log("Sending data:", officeData);

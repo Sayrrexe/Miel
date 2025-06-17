@@ -9,7 +9,7 @@ export const FilterCategories = () => {
 
   return (
     <div
-      className={cn("max-w-[78vw] pt-8 pl-[23px] flex flex-col justify-between")}
+      className={cn("max-w-[78vw] pt-8 pl-[23px] flex flex-col")}
     >
       <div className="flex gap-[32px]">
         <p

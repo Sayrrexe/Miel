@@ -80,3 +80,11 @@
     grid-template-columns: 1fr;
   }
 }
+
+.adminItemsContainer {
+  width: 100%;
+  overflow: visible;
+  padding: 1rem;
+  min-height: 0; /* Убираем минимальную высоту, если она есть */
+  height: auto; /* Позволяем растягиваться */
+}

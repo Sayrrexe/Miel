@@ -98,10 +98,10 @@ export const AdminItems = () => {
     };
   }, []);
   return (
-    <div className={cn("")}>
-      <div className="pt-8 pl-[-23px] flex gap-4">
+    <div className={cn(css.adminItemsContainer)}>
+      <div className="pt-8 flex flex-col md:flex-row gap-4 md:gap-4">
         <Input
-          className="rounded-xl w-[696px]"
+          className="rounded-xl w-full md:w-[630px] max-w-[57%]"
           placeholder="Найти руководителя"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -127,18 +127,19 @@ export const AdminItems = () => {
             }
           }}
           id="search"
-          className={`w-[160px]  ${css.officeItemsSearchButton}`}
+          className={`md:w-[160px]  ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
           variant="default"
+          className={`md:w-[226px] ${css.officeItemsAddButton}`}  // внимательно!
           onClick={() => router.push("addingAdmin")}
         >
           {window.innerWidth < 1000 ? "+" : "Добавить руководителя"}
         </Button>
       </div>
-      <Table className="border-solid border-[#CACBCD] border-2 w-[1048px]">
+      <Table className="border-solid border-[#CACBCD] border-2 w-full">
         <TableHeader>
           <TableRow>
             <TableHead className="font-bold text-center w-[326px]">
