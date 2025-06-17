@@ -8,6 +8,7 @@ import {useForm} from "react-hook-form"; // Правильный импорт
 import {z} from "zod";
 import {zodResolver} from "@hookform/resolvers/zod";
 import toast, {Toaster} from "react-hot-toast";
+import {useRouter} from "next/navigation";
 import css from "./main.module.css";
 
 
@@ -32,6 +33,7 @@ export const AddingOffice = () => {
   });
 
   const token = localStorage.getItem("token") || "";
+  const router = useRouter();
 
   const onSubmit = async (data: OfficeForm) => {
     const dataToSend = {
@@ -47,6 +49,10 @@ export const AddingOffice = () => {
         throw new Error(response.error);
       }
       toast.success("Офис добавлен!");
+      // Перенаправление через 2 секунды, чтобы пользователь увидел уведомление
+      setTimeout(() => {
+        router.push("./main1");
+      }, 2000);
     } catch (error: any) {
       console.error("Request failed:", error);
       toast.error(`Ошибка: ${error.message || "Офис не добавлен"}`);
