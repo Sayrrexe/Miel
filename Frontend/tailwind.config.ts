@@ -57,6 +57,7 @@ const config: Config = {
         'menu-active': '#8BA7C2', // цвет активной ссылки бокового меню
         'menu-hvr': '#FF5E01', // цвет ссылки бокового меню при наведении
         'btn-sec-fg-hover': '#4f5052', // цвет текста (secondary/hover|press)
+        'error-text': '#C92C2C', // цвет текста (error)
       },
       borderRadius: {
         lg: 'var(--radius)',
