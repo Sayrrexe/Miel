@@ -198,7 +198,6 @@ export const OfficeItems = () => {
             top: "50%",
             left: "50%",
             transform: "translate(-50%, -50%)",
-            width: "426px",
             backgroundColor: "white",
             borderRadius: "10px",
             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
@@ -242,22 +241,23 @@ export const OfficeItems = () => {
                 alignItems: "center",
                 textAlign: "center",
                 height: "100%",
-                fontSize: "30px",
+                fontSize: "18px",
                 gap: "24px",
               }}
             >
               <p className="text-3xl">Квоты</p>
-              <div>
+              <div className="w-[580px] grid grid-cols-2 items-center gap-x-10 gap-y-5">
                 {offices.map((office, index) => (
                   <div
-                    className="flex gap-5 items-center"
+                    className="grid grid-cols-[1fr_70px] items-center gap-x-4"
                     key={index}
                   >
-                    <p className="min-w-[100px] max-w-[100px] text-left overflow-hidden">
+                    <p className="truncate text-left">
                       {office.name}
                     </p>
                     <Input
-                      className="min-h-11 rounded-xl w-[70px]"
+                      type='number'
+                      className="min-h-11 rounded-xl w-[70px] text-center"
                       placeholder="0"
                       value={office.quota}
                       onInput={(e) => {
@@ -305,13 +305,15 @@ export const OfficeItems = () => {
               </div>
               <div className="flex gap-4">
                 <Button
-                  className={`bg-white w-full md:w-[160px] text-black border-[#960047] border-solid border-[1px] hover:bg-[#960047] rounded-xl ${css.officeItemsSearchButton}`}
+                  variant="secondary"
+                  className={`md:w-[160px] ${css.officeItemsSearchButton}`}
                   onClick={() => setIsModalOpen(false)}
                 >
                   Отменить
                 </Button>
                 <Button
-                  className={`bg-[#960047] w-full md:w-[160px] hover:bg-[#960046a9] rounded-xl ${css.officeItemsAddButton}`}
+                  variant="default"
+                  className={`md:w-[160px] ${css.officeItemsAddButton}`}
                   onClick={async () => {
                     console.log("Sending data:", newQuotes);
                     try {
