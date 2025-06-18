@@ -126,7 +126,7 @@ export const AddingOffice = () => {
   };
 
   return (
-    <div className={cn("mt-20 ml-10")}>
+    <div className={cn("mt-12 ml-10")}>
       <Link
         href={"./main1"}
         className="flex gap-10 hover:text-gray-300"
@@ -136,7 +136,7 @@ export const AddingOffice = () => {
       </Link>
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="mt-28 flex flex-col gap-5"
+        className="mt-8 flex flex-col gap-5"
       >
         <div className={`flex gap-5 items-center ${css.inputDiv}`}>
           <label
