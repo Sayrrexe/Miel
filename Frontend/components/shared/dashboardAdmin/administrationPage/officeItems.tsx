@@ -8,6 +8,21 @@ import {useRouter} from "next/navigation";
 import css from "./main.module.css";
 
 export const OfficeItems = () => {
+  interface User {
+    first_name: string;
+    last_name: string;
+    email: string;
+    full_name: string;
+  }
+
+  interface Supervisor {
+    id: number;
+    user: User;
+    office: number;
+    office_name: string;
+    department: string;
+  }
+
   interface Office {
     id: number;
     location: string;
@@ -16,9 +31,10 @@ export const OfficeItems = () => {
     phone: string;
     name: string;
     mail: string;
+    supervisor?: Supervisor; // Добавляем данные руководителя
   }
 
-  interface newQuotes {
+  interface NewQuotes {
     office_id: number;
     amount: number;
   }
@@ -28,14 +44,13 @@ export const OfficeItems = () => {
   const token = localStorage.getItem("token") || "";
   const [search, setSearch] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newQuotes, setNewQuotes] = useState<newQuotes[]>([]);
+  const [newQuotes, setNewQuotes] = useState<NewQuotes[]>([]);
 
-  useEffect(() => {
-    console.log(token);
-    (async () => {
-      const endpointToCall = "/api/admin/offices/";
-      const response = await fetchGetEndpoint(
-        endpointToCall,
+  const fetchOfficesAndSupervisors = async () => {
+    try {
+      // Запрос к /api/admin/offices/
+      const officeResponse = await fetchGetEndpoint(
+        "/api/admin/offices/",
         token,
         undefined,
         undefined,
@@ -43,16 +58,48 @@ export const OfficeItems = () => {
         search
       );
 
-      if ("data" in response && Array.isArray(response.data)) {
-        console.log(response.data);
-        setOffices(response.data);
-      } else {
-        console.error("Error fetching candidates:", response);
-      }
-    })();
+      // Запрос к /api/admin/supervisors/
+      const supervisorResponse = await fetchGetEndpoint(
+        "/api/admin/supervisors/",
+        token,
+        undefined,
+        undefined,
+        undefined,
+        search
+      );
 
+      if (
+        "data" in officeResponse &&
+        Array.isArray(officeResponse.data) &&
+        "data" in supervisorResponse &&
+        Array.isArray(supervisorResponse.data)
+      ) {
+        // Сопоставляем офисы и руководителей
+        const officesWithSupervisors = officeResponse.data.map((office: Office) => {
+          const supervisor = supervisorResponse.data.find(  // TODO пока не трогаем, но не забываем
+            (sup: Supervisor) => sup.office === office.id
+          );
+          return {
+            ...office,
+            supervisor: supervisor || null, // Добавляем руководителя или null, если не найден
+          };
+        });
+        setOffices(officesWithSupervisors);
+      } else {
+        console.error("Error fetching data:", {
+          officeResponse,
+          supervisorResponse
+        });
+      }
+    } catch (error) {
+      console.error("Error fetching offices or supervisors:", error);
+    }
+  };
+
+  useEffect(() => {
+    fetchOfficesAndSupervisors();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, search]);
 
   useEffect(() => {
     const handleKeyPress = (event: KeyboardEvent) => {
@@ -70,6 +117,7 @@ export const OfficeItems = () => {
       window.removeEventListener("keydown", handleKeyPress);
     };
   }, []);
+
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
     if (target && target.classList.contains("modal-backdrop")) {
@@ -80,7 +128,7 @@ export const OfficeItems = () => {
   return (
     <div className={cn(css.officeItemsContainer)}>
       <div
-        className={`pt-8 flex flex-col md:flex-row gap-4 md:gap-4  ${css.otherButtons}`}
+        className={`pt-8 flex flex-col md:flex-row gap-4 md:gap-4 ${css.otherButtons}`}
       >
         <Input
           className={`rounded-xl w-full md:w-[696px] max-w-[50%] ${css.officeItemsSearchInput}`}
@@ -89,33 +137,14 @@ export const OfficeItems = () => {
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
         <Button
-          variant='secondary'
-          onClick={() => {
-            console.log(token);
-            (async () => {
-              const endpointToCall = "/api/admin/offices/";
-              const response = await fetchGetEndpoint(
-                endpointToCall,
-                token,
-                undefined,
-                undefined,
-                undefined,
-                search
-              );
-
-              if ("data" in response && Array.isArray(response.data)) {
-                setOffices(response.data);
-              } else {
-                console.error("Error fetching candidates:", response);
-              }
-            })();
-          }}
+          variant="secondary"
+          onClick={fetchOfficesAndSupervisors}
           className={`bg-white w-full md:w-[160px] max-w-[12%] text-black hover:text-btn-sec-fg-hover border-[#960047] border-solid border-[1px] ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
-          variant='secondary'
+          variant="secondary"
           className={`bg-white w-full md:w-[160px] max-w-[12%] text-black border-[#960047] border-solid border-[1px] ${css.officeItemsSearchButton}`}
           onClick={async () => {
             router.push("/addingOffice");
@@ -124,8 +153,7 @@ export const OfficeItems = () => {
           {window.innerWidth < 1000 ? "+" : "Добавить офис"}
         </Button>
         <Button
-          variant='default'
-          // className={`max-w-[16%]`}
+          variant="default"
           onClick={async () => {
             setIsModalOpen(true);
           }}
@@ -134,13 +162,11 @@ export const OfficeItems = () => {
         </Button>
       </div>
 
-      <div
-        className={cn(css.officeItemsList)}  // поле для размещения карточек офисов
-      >
-        {offices.map((candidatObject, index) => (
+      <div className={cn(css.officeItemsList)}>
+        {offices.map((officeData, index) => (
           <OfficeItem
-            key={candidatObject.id}
-            candidatObject={candidatObject}
+            key={officeData.id}
+            officeData={officeData}
             index={index}
           />
         ))}
@@ -155,8 +181,8 @@ export const OfficeItems = () => {
             left: 0,
             width: "100%",
             height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)", // Полупрозрачный фон
-            zIndex: 1040, // Поддержка z-index для фона
+            backgroundColor: "rgba(0, 0, 0, 0.5)",
+            zIndex: 1040,
           }}
           onClick={handleBackdropClick}
         ></div>
@@ -171,11 +197,11 @@ export const OfficeItems = () => {
             position: "fixed",
             top: "50%",
             left: "50%",
-            transform: "translate(-50%, -50%)", // Центрирование модального окна
+            transform: "translate(-50%, -50%)",
             width: "426px",
-            backgroundColor: "white", // Белый фон
-            borderRadius: "10px", // Округление углов
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Легкая тень для красоты
+            backgroundColor: "white",
+            borderRadius: "10px",
+            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
           }}
           tabIndex={-1}
           role="dialog"
@@ -216,11 +242,11 @@ export const OfficeItems = () => {
                 alignItems: "center",
                 textAlign: "center",
                 height: "100%",
-                fontSize: "16px",
+                fontSize: "30px",
                 gap: "24px",
               }}
             >
-              <p className="text-3xl ">Квоты</p>
+              <p className="text-3xl">Квоты</p>
               <div>
                 {offices.map((office, index) => (
                   <div
@@ -237,31 +263,26 @@ export const OfficeItems = () => {
                       onInput={(e) => {
                         const amount = Number(e.currentTarget.value);
 
-                        // Update the corresponding office in the offices list
                         const updatedOffices = offices.map((o) => {
                           if (o.id === office.id) {
-                            return {...o, quota: amount}; // Update the quota value for the corresponding office
+                            return {...o, quota: amount};
                           }
                           return o;
                         });
-                        setOffices(updatedOffices); // Set the updated list of offices
+                        setOffices(updatedOffices);
 
-                        // Handle newQuotes state
                         if (amount === 0) {
-                          // Remove the office from the newQuotes array if it's already present
                           setNewQuotes((prevQuotes) =>
                             prevQuotes.filter(
                               (quote) => quote.office_id !== office.id
                             )
                           );
                         } else {
-                          // Check if this office already exists in newQuotes
                           const existingQuoteIndex = newQuotes.findIndex(
                             (quote) => quote.office_id === office.id
                           );
 
                           if (existingQuoteIndex !== -1) {
-                            // Update the amount of the existing quote
                             setNewQuotes((prevQuotes) => {
                               const updatedQuotes = [...prevQuotes];
                               updatedQuotes[existingQuoteIndex] = {
@@ -271,7 +292,6 @@ export const OfficeItems = () => {
                               return updatedQuotes;
                             });
                           } else {
-                            // Add a new quote if it doesn't exist
                             setNewQuotes((prevQuotes) => [
                               ...prevQuotes,
                               {office_id: office.id, amount},
@@ -302,33 +322,9 @@ export const OfficeItems = () => {
                       );
                       console.log("Response:", response);
                       if (response.error) {
-                        // Если в ответе есть ошибка, выбрасываем исключение
                         throw new Error(response.error);
                       } else {
-                        (async () => {
-                          const endpointToCall = "/api/admin/offices/";
-                          const response = await fetchGetEndpoint(
-                            endpointToCall,
-                            token,
-                            undefined,
-                            undefined,
-                            undefined,
-                            search
-                          );
-
-                          if (
-                            "data" in response &&
-                            Array.isArray(response.data)
-                          ) {
-                            console.log(response.data);
-                            setOffices(response.data);
-                          } else {
-                            console.error(
-                              "Error fetching candidates:",
-                              response
-                            );
-                          }
-                        })();
+                        await fetchOfficesAndSupervisors();
                       }
                     } catch (error) {
                       console.error("Request failed:", error);
