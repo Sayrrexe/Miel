@@ -31,8 +31,8 @@ export const OfficeItem: React.FC<Props> = ({index, candidatObject}) => {
         className={`border-solid border-[1px] border-gray-300 p-5 border-b-4 ${colors[index % 4]}`}
       >
         <div>
-          <p className="opacity-50 text-base">{candidatObject.location}</p>
-          <p className="text-xl font-semibold">{candidatObject.name}</p>
+          <p className="opacity-50 text-base">{candidatObject.name}</p>
+          <p className="text-xl font-semibold">{candidatObject.location}</p>
         </div>
         <div className="mt-9 sm:mt-10 flex sm:flex-row justify-between ">
           <div>
@@ -44,8 +44,8 @@ export const OfficeItem: React.FC<Props> = ({index, candidatObject}) => {
             <p>{candidatObject.used_quota}</p>
           </div>
         </div>
-        <div className="h-[2px] w-full sm:w-[376px] bg-gray-300 mt-9 sm:mt-10"></div>
-        <div className="flex mt-7 sm:mt-9 w-full sm:w-[376px] justify-between">
+        <div className="h-[2px] w-full bg-gray-300 mt-9 sm:mt-10 "></div>
+        <div className="flex mt-7 sm:mt-9 w-full justify-between">
           <div>
             <p>Руководитель</p>
             <p>
