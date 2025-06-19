@@ -19,6 +19,7 @@ import {z} from "zod";
 import {MailInput} from "../../formInputs/mailInput";
 import css from "./main.module.css";
 import toast, {Toaster} from "react-hot-toast";
+import {useRouter} from "next/navigation";
 
 export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
@@ -104,6 +105,7 @@ export const AddingNewAdmin = () => {
         throw new Error(response.error);
       } else {
         toast.success("Руководитель добавлен!");
+        router.back();
         setOfficeData({
           department: "",
           office: "",
@@ -116,6 +118,7 @@ export const AddingNewAdmin = () => {
             office: 0,
             username: "",
           },
+
         }); // Сбрасываем форму после успешного добавления
       }
     } catch (error) {
@@ -123,6 +126,8 @@ export const AddingNewAdmin = () => {
       toast.error("Ошибка при добавлении руководителя");
     }
   };
+
+  const router = useRouter();
 
   return (
     <FormProvider {...form}>
@@ -135,7 +140,7 @@ export const AddingNewAdmin = () => {
             <ArrowLeft />
             Вернуться
           </Link>
-          <div className="mt-[29px] h-[calc(100vh-200px)] overflow-y-auto">
+          <div className="mt-[29px] h-[calc(100vh-200px)] overflow-y-auto p-5">
             <div className="flex flex-col gap-5">
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Фамилия</p>
