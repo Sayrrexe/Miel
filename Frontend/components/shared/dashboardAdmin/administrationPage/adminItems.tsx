@@ -226,7 +226,6 @@ export const AdminItems = () => {
             width: "426px",
             height: "164px",
             backgroundColor: "white", // Белый фон
-            borderRadius: "10px", // Округление углов
             boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)", // Легкая тень для красоты
           }}
           tabIndex={-1}
@@ -275,13 +274,14 @@ export const AdminItems = () => {
               <p>
                 Вы уверены, что хотите удалить
                 <br /> {selectedCandidate.user.first_name}{" "}
-                {selectedCandidate.user.username}?
+                {selectedCandidate.user.last_name}{" "}
+                {selectedCandidate.user.patronymic}?
               </p>
               <div className="gap-4 flex">
                 <Button
-                  variant={"outline"}
+                  variant='secondary'
                   onClick={closeModal}
-                  className="w-40 h-11 rounded-xl border-solid border-[1px] border-[#960047]"
+                  className="w-40 h-11 rounded-xl"
                 >
                   Оставить
                 </Button>
