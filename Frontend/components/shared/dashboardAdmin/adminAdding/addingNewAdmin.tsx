@@ -142,7 +142,7 @@ export const AddingNewAdmin = () => {
                 <Input
                   value={officeData.user.last_name}
                   placeholder="Фамилия"
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
@@ -159,7 +159,7 @@ export const AddingNewAdmin = () => {
                 <Input
                   value={officeData.user.first_name}
                   placeholder="Имя"
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
@@ -176,7 +176,7 @@ export const AddingNewAdmin = () => {
                 <Input
                   value={officeData.user.patronymic}
                   placeholder="Отчество"
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
@@ -193,7 +193,7 @@ export const AddingNewAdmin = () => {
                 <Input
                   value={officeData.user.phone}
                   placeholder="+7 (___) ___ - __ - __"
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
@@ -211,7 +211,7 @@ export const AddingNewAdmin = () => {
                   name="email"
                   value={officeData.user.email}
                   placeholder="Email"
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
@@ -243,7 +243,7 @@ export const AddingNewAdmin = () => {
                     }
                   }}
                 >
-                  <SelectTrigger className="z-10 border-solid border-opacity-40 border-[1px] w-[450px] rounded-xl">
+                  <SelectTrigger className="text-tertiary-text z-10 border-solid border-opacity-40 border-[1px] md:w-[420px] rounded-xl">
                     <SelectValue
                       className="opacity-40"
                       placeholder="Офис"
@@ -266,7 +266,7 @@ export const AddingNewAdmin = () => {
                 <p className="min-w-[134px]">Подразделение</p>
                 <Input
                   value={officeData.department}
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   placeholder="Подразделение"
                   onInput={(e) =>
                     setOfficeData({
@@ -280,7 +280,7 @@ export const AddingNewAdmin = () => {
                 <p className="min-w-[134px]">Логин</p>
                 <Input
                   value={officeData.user.username}
-                  className={`w-[450px] rounded-xl ${
+                  className={`md:w-[420px] rounded-xl ${
                     usernameError ? "border-red-500" : ""
                   }`} // Отображаем ошибку, если есть
                   placeholder="Логин"
@@ -304,7 +304,7 @@ export const AddingNewAdmin = () => {
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Пароль</p>
                 <Input
-                  className="w-[450px] rounded-xl"
+                  className="md:w-[420px] rounded-xl"
                   placeholder="Пароль"
                 />
               </div>
