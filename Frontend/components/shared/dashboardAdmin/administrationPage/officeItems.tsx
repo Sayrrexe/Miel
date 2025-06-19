@@ -6,6 +6,21 @@ import {useEffect, useState} from "react";
 import fetchGetEndpoint, {fetchPostEndpoint} from "@/lib/candidates";
 import {useRouter} from "next/navigation";
 import css from "./main.module.css";
+import {useForm, Controller} from "react-hook-form";
+import {z} from "zod";
+import {zodResolver} from "@hookform/resolvers/zod";
+import toast from "react-hot-toast";
+
+const schema = z.object({
+  quotas: z.array(
+    z.object({
+      office_id: z.number(),
+      amount: z.number().min(0, "Квота не может быть отрицательной"),
+    })
+  ),
+});
+
+type FormData = z.infer<typeof schema>;
 
 export const OfficeItems = () => {
   interface User {
@@ -31,12 +46,7 @@ export const OfficeItems = () => {
     phone: string;
     name: string;
     mail: string;
-    supervisor?: Supervisor; // Добавляем данные руководителя
-  }
-
-  interface NewQuotes {
-    office_id: number;
-    amount: number;
+    supervisor?: Supervisor;
   }
 
   const [offices, setOffices] = useState<Office[]>([]);
@@ -44,11 +54,19 @@ export const OfficeItems = () => {
   const token = localStorage.getItem("token") || "";
   const [search, setSearch] = useState<string>("");
   const [isModalOpen, setIsModalOpen] = useState(false);
-  const [newQuotes, setNewQuotes] = useState<NewQuotes[]>([]);
+
+  const {control, handleSubmit, reset} = useForm<FormData>({
+    resolver: zodResolver(schema),
+    defaultValues: {
+      quotas: offices.map((office) => ({
+        office_id: office.id,
+        amount: office.quota,
+      })),
+    },
+  });
 
   const fetchOfficesAndSupervisors = async () => {
     try {
-      // Запрос к /api/admin/offices/
       const officeResponse = await fetchGetEndpoint(
         "/api/admin/offices/",
         token,
@@ -58,7 +76,6 @@ export const OfficeItems = () => {
         search
       );
 
-      // Запрос к /api/admin/supervisors/
       const supervisorResponse = await fetchGetEndpoint(
         "/api/admin/supervisors/",
         token,
@@ -74,21 +91,26 @@ export const OfficeItems = () => {
         "data" in supervisorResponse &&
         Array.isArray(supervisorResponse.data)
       ) {
-        // Сопоставляем офисы и руководителей
         const officesWithSupervisors = officeResponse.data.map((office: Office) => {
-          const supervisor = supervisorResponse.data.find(  // TODO пока не трогаем, но не забываем
+          const supervisor = supervisorResponse.data.find(
             (sup: Supervisor) => sup.office === office.id
           );
           return {
             ...office,
-            supervisor: supervisor || null, // Добавляем руководителя или null, если не найден
+            supervisor: supervisor || null,
           };
         });
         setOffices(officesWithSupervisors);
+        reset({
+          quotas: officesWithSupervisors.map((office: Office) => ({
+            office_id: office.id,
+            amount: office.quota,
+          })),
+        });
       } else {
         console.error("Error fetching data:", {
           officeResponse,
-          supervisorResponse
+          supervisorResponse,
         });
       }
     } catch (error) {
@@ -120,8 +142,29 @@ export const OfficeItems = () => {
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     const target = e.target as HTMLElement;
-    if (target && target.classList.contains("modal-backdrop")) {
+    if (target && target.classList.contains(css.modalBackdrop)) {
       setIsModalOpen(false);
+      reset();
+    }
+  };
+
+  const onSubmit = async (data: FormData) => {
+    try {
+      const response = await fetchPostEndpoint(
+        "/api/admin/quotas/update/",
+        {quotas: data.quotas},
+        token
+      );
+      if (response.error) {
+        throw new Error(response.error);
+      }
+      await fetchOfficesAndSupervisors();
+      setIsModalOpen(false);
+      reset();
+      toast.success("Квоты успешно обновлены");
+    } catch (error) {
+      console.error("Request failed:", error);
+      toast.error("Ошибка при обновлении квот");
     }
   };
 
@@ -139,13 +182,13 @@ export const OfficeItems = () => {
         <Button
           variant="secondary"
           onClick={fetchOfficesAndSupervisors}
-          className={`bg-white w-full md:w-[160px] max-w-[12%] text-black hover:text-btn-sec-fg-hover border-[#960047] border-solid border-[1px] ${css.officeItemsSearchButton}`}
+          className={` w-full md:w-[160px]  ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>
         <Button
           variant="secondary"
-          className={`bg-white w-full md:w-[160px] max-w-[12%] text-black border-[#960047] border-solid border-[1px] ${css.officeItemsSearchButton}`}
+          className={`w-full md:w-[160px]  ${css.officeItemsSearchButton}`}
           onClick={async () => {
             router.push("/addingOffice");
           }}
@@ -154,7 +197,7 @@ export const OfficeItems = () => {
         </Button>
         <Button
           variant="default"
-          onClick={async () => {
+          onClick={() => {
             setIsModalOpen(true);
           }}
         >
@@ -173,172 +216,90 @@ export const OfficeItems = () => {
       </div>
 
       {isModalOpen && (
-        <div
-          className="modal-backdrop fade show"
-          style={{
-            position: "fixed",
-            top: 0,
-            left: 0,
-            width: "100%",
-            height: "100%",
-            backgroundColor: "rgba(0, 0, 0, 0.5)",
-            zIndex: 1040,
-          }}
-          onClick={handleBackdropClick}
-        ></div>
-      )}
-
-      {isModalOpen && (
-        <div
-          className="modal fade show"
-          style={{
-            display: "block",
-            zIndex: 1050,
-            position: "fixed",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            backgroundColor: "white",
-            borderRadius: "10px",
-            boxShadow: "0px 4px 10px rgba(0, 0, 0, 0.1)",
-          }}
-          tabIndex={-1}
-          role="dialog"
-        >
+        <form onSubmit={handleSubmit(onSubmit)}>
           <div
-            className="modal-content"
-            style={{height: "100%"}}
+            className={css.modalBackdrop}
+            onClick={handleBackdropClick}
           >
             <div
-              className="modal-header"
-              style={{
-                padding: "10px 15px",
-                position: "absolute",
-                top: 0,
-                right: 0,
-              }}
+              className={css.modal}
+              role="dialog"
+              aria-labelledby="modalTitle"
             >
-              <button
-                type="button"
-                className="close"
-                onClick={() => setIsModalOpen(false)}
-                style={{
-                  background: "none",
-                  border: "none",
-                  fontSize: "24px",
-                  color: "#000",
-                }}
-              >
-                &times;
-              </button>
-            </div>
-            <div
-              className="modal-body my-6 mx-[45px]"
-              style={{
-                display: "flex",
-                flexDirection: "column",
-                justifyContent: "center",
-                alignItems: "center",
-                textAlign: "center",
-                height: "100%",
-                fontSize: "18px",
-                gap: "24px",
-              }}
-            >
-              <p className="text-3xl">Квоты</p>
-              <div className="w-[580px] grid grid-cols-2 items-center gap-x-10 gap-y-5">
-                {offices.map((office, index) => (
-                  <div
-                    className="grid grid-cols-[1fr_70px] items-center gap-x-4"
-                    key={index}
+              <div className={css.modalContent}>
+                <div className={css.modalHeader}>
+                  <button
+                    type="button"
+                    className={css.modalCloseButton}
+                    onClick={() => {
+                      setIsModalOpen(false);
+                      reset();
+                    }}
+                    aria-label="Закрыть модальное окно"
                   >
-                    <p className="truncate text-left">
-                      {office.name}
-                    </p>
-                    <Input
-                      type='number'
-                      className="min-h-11 rounded-xl w-[70px] text-center"
-                      placeholder="0"
-                      value={office.quota}
-                      onInput={(e) => {
-                        const amount = Number(e.currentTarget.value);
-
-                        const updatedOffices = offices.map((o) => {
-                          if (o.id === office.id) {
-                            return {...o, quota: amount};
-                          }
-                          return o;
-                        });
-                        setOffices(updatedOffices);
-
-                        if (amount === 0) {
-                          setNewQuotes((prevQuotes) =>
-                            prevQuotes.filter(
-                              (quote) => quote.office_id !== office.id
-                            )
-                          );
-                        } else {
-                          const existingQuoteIndex = newQuotes.findIndex(
-                            (quote) => quote.office_id === office.id
-                          );
-
-                          if (existingQuoteIndex !== -1) {
-                            setNewQuotes((prevQuotes) => {
-                              const updatedQuotes = [...prevQuotes];
-                              updatedQuotes[existingQuoteIndex] = {
-                                ...updatedQuotes[existingQuoteIndex],
-                                amount,
-                              };
-                              return updatedQuotes;
-                            });
-                          } else {
-                            setNewQuotes((prevQuotes) => [
-                              ...prevQuotes,
-                              {office_id: office.id, amount},
-                            ]);
-                          }
-                        }
-                      }}
-                    />
+                    ×
+                  </button>
+                </div>
+                <div className={css.modalBody}>
+                  <p
+                    id="modalTitle"
+                    className="text-3xl"
+                  >
+                    Квоты
+                  </p>
+                  <div className={css.modalQuotaList}>
+                    {offices.map((office, index) => (
+                      <div
+                        className="grid grid-cols-[1fr_70px] items-center gap-x-4"
+                        key={index}
+                      >
+                        <p className="truncate text-left">{office.name}</p>
+                        <Controller
+                          name={`quotas.${index}.amount`}
+                          control={control}
+                          defaultValue={office.quota}
+                          render={({field, fieldState: {error}}) => (
+                            <>
+                              <Input
+                                type="number"
+                                className="min-h-11 rounded-xl w-[70px] text-center"
+                                placeholder="0"
+                                {...field}
+                                onChange={(e) => field.onChange(Number(e.target.value))}
+                              />
+                              {error && (
+                                <p className="text-red-500 text-sm">{error.message}</p>
+                              )}
+                            </>
+                          )}
+                        />
+                      </div>
+                    ))}
                   </div>
-                ))}
-              </div>
-              <div className="flex gap-4">
-                <Button
-                  variant="secondary"
-                  className={`md:w-[160px] ${css.officeItemsSearchButton}`}
-                  onClick={() => setIsModalOpen(false)}
-                >
-                  Отменить
-                </Button>
-                <Button
-                  variant="default"
-                  className={`md:w-[160px] ${css.officeItemsAddButton}`}
-                  onClick={async () => {
-                    console.log("Sending data:", newQuotes);
-                    try {
-                      const response = await fetchPostEndpoint(
-                        "/api/admin/quotas/update/",
-                        {quotas: newQuotes},
-                        token
-                      );
-                      console.log("Response:", response);
-                      if (response.error) {
-                        throw new Error(response.error);
-                      } else {
-                        await fetchOfficesAndSupervisors();
-                      }
-                    } catch (error) {
-                      console.error("Request failed:", error);
-                    }
-                  }}
-                >
-                  Сохранить
-                </Button>
+                  <div className="flex gap-4">
+                    <Button
+                      variant="secondary"
+                      className={`md:w-[160px] ${css.officeItemsSearchButton}`}
+                      onClick={() => {
+                        setIsModalOpen(false);
+                        reset();
+                      }}
+                    >
+                      Отменить
+                    </Button>
+                    <Button
+                      variant="default"
+                      className={`md:w-[160px] ${css.officeItemsAddButton}`}
+                      type="submit"
+                    >
+                      Сохранить
+                    </Button>
+                  </div>
+                </div>
               </div>
             </div>
           </div>
-        </div>
+        </form>
       )}
     </div>
   );

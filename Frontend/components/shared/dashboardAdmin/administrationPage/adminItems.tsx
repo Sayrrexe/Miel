@@ -101,7 +101,7 @@ export const AdminItems = () => {
     <div className={cn(css.adminItemsContainer)}>
       <div className="pt-8 flex flex-col md:flex-row gap-4 md:gap-4">
         <Input
-          className="rounded-xl w-full md:w-[630px] max-w-[57%]"
+          className="rounded-xl w-full md:w-[630px]"
           placeholder="Найти руководителя"
           value={inputValue}
           onChange={(e) => setInputValue(e.target.value)}
@@ -127,7 +127,7 @@ export const AdminItems = () => {
             }
           }}
           id="search"
-          className={`md:w-[160px]  ${css.officeItemsSearchButton}`}
+          className={`w-full md:w-[160px]  ${css.officeItemsSearchButton}`}
         >
           {window.innerWidth < 1000 ? "⌕" : "Поиск"}
         </Button>

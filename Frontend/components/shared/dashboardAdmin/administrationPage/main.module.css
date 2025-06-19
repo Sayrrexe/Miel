@@ -60,8 +60,8 @@
   width: 100%;
   overflow: visible;
   padding: 1rem;
-  min-height: 0; /* Убираем минимальную высоту, если она есть */
-  height: auto; /* Позволяем растягиваться */
+  min-height: 0;
+  height: auto;
 }
 
 .officeItemsList {
@@ -73,9 +73,8 @@
   max-height: calc(100vh - 300px);
   min-height: 200px;
   padding-right: 8px;
-  margin-top: 1.75rem; /* mt-7 в пикселях ≈ 28px или 1.75rem */
+  margin-top: 1.75rem;
 
-  /* Адаптивность колонок */
   @media (max-width: 1000px) {
     grid-template-columns: 1fr;
   }
@@ -85,6 +84,91 @@
   width: 100%;
   overflow: visible;
   padding: 1rem;
-  min-height: 0; /* Убираем минимальную высоту, если она есть */
-  height: auto; /* Позволяем растягиваться */
+  min-height: 0;
+  height: auto;
+}
+
+.modalBackdrop {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 1040;
+  animation: fadeInBackdrop 0.3s ease-in-out;
+}
+
+.modal {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background-color: white;
+  border-radius: 10px;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+  z-index: 1050;
+  width: 640px;
+  max-height: 80vh;
+  overflow-y: auto;
+  animation: fadeInModal 0.3s ease-in-out;
+}
+
+.modalContent {
+  height: 100%;
+}
+
+.modalHeader {
+  padding: 10px 15px;
+  position: absolute;
+  top: 0;
+  right: 0;
+}
+
+.modalCloseButton {
+  background: none;
+  border: none;
+  font-size: 24px;
+  color: #000;
+  cursor: pointer;
+}
+
+.modalBody {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  text-align: center;
+  height: 100%;
+  font-size: 18px;
+  gap: 24px;
+  padding: 2rem 2.5rem;
+}
+
+.modalQuotaList {
+  width: 100%;
+  max-width: 580px;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px 20px;
+}
+
+@keyframes fadeInBackdrop {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes fadeInModal {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -60%);
+  }
+  to {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
 }
