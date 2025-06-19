@@ -22,6 +22,7 @@ import toast, {Toaster} from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import {Plus} from "@/components/ui/icons/plus";
 import {Password} from "@/components/ui/icons/password";
+import {transliterate} from "transliteration";
 
 export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
@@ -47,11 +48,9 @@ export const AddingNewAdmin = () => {
       const endpointToCall = "/api/admin/offices/";
       const response = await fetchGetEndpoint(endpointToCall, token);
 
-      // Проверяем, что ответ успешный и содержит данные
       if ("data" in response && Array.isArray(response.data)) {
-        setOffices(response.data); // Устанавливаем данные в state, это массив объектов типа Candidate
+        setOffices(response.data);
       } else {
-        // Обработка ошибки, если response не содержит data или data не является массивом
         console.error("Error fetching candidates:", response);
       }
     })();
@@ -68,11 +67,11 @@ export const AddingNewAdmin = () => {
       first_name: "",
       patronymic: "",
       office: 0,
-      username: "",  // логин
+      username: "",
     },
   });
 
-  const [usernameError, setUsernameError] = useState(false); // Ошибка на поле логин
+  const [usernameError, setUsernameError] = useState(false);
   const router = useRouter();
   const handleAddOfficeClick = () => {
     router.push("/addingOffice");
@@ -85,29 +84,134 @@ export const AddingNewAdmin = () => {
     },
   });
 
+  // Функция генерации логина
+  const generateLogin = (firstName: string, lastName: string, suffix: string = ""): string => {
+    const firstPart = transliterate(firstName).slice(0, 3).toLowerCase().replace(/\s/g, "") || "";
+    const lastPart = transliterate(lastName).slice(0, 3).toLowerCase().replace(/\s/g, "") || "";
+    let login = `${firstPart}${lastPart}${suffix}`.slice(0, 10);
+
+    // Дополняем логин случайными цифрами, если он короче 6 символов
+    if (login.length < 6) {
+      const randomDigits = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+      login = `${login}${randomDigits}`.slice(0, 10);
+    }
+
+    // Если логин пустой, возвращаем дефолтное значение
+    if (!login) {
+      login = `user${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`;
+    }
+
+    return login;
+  };
+
+  // Функция проверки и генерации логина
+  const checkAndGenerateLogin = async (): Promise<string | null> => {
+    let login = officeData.user.username;
+    let attempts = 0;
+    const maxAttempts = 3;
+
+    // Сбрасываем поле логина
+    setOfficeData({
+      ...officeData,
+      user: {...officeData.user, username: ""},
+    });
+    setUsernameError(false);
+
+    // Если логин не введен, генерируем новый
+    if (!login) {
+      login = generateLogin(officeData.user.first_name, officeData.user.last_name);
+    }
+
+    while (attempts < maxAttempts) {
+      try {
+        const response = await fetchPostEndpoint(
+          "/api/info/",
+          {username: login},
+          token
+        );
+
+        if (response.error === "Username already exists") {
+          // Генерируем новый логин с добавлением случайных цифр
+          login = generateLogin(
+            officeData.user.first_name,
+            officeData.user.last_name,
+            Math.floor(Math.random() * 100).toString().padStart(2, "0")
+          );
+          attempts++;
+          continue;
+        }
+
+        // Логин свободен, возвращаем его
+        return login;
+      } catch (error) {
+        console.error("Error checking login:", error);
+        toast.error("Ошибка при проверке логина");
+        return null;
+      }
+    }
+
+    // Если все попытки исчерпаны, добавляем больше цифр и пробуем снова
+    login = generateLogin(
+      officeData.user.first_name,
+      officeData.user.last_name,
+      Math.floor(Math.random() * 10000).toString().padStart(4, "0")
+    );
+    try {
+      const response = await fetchPostEndpoint(
+        "/api/info/",
+        {username: login},
+        token
+      );
+
+      if (response.error === "Username already exists") {
+        toast.error("Не удалось найти свободный логин. Попробуйте другой.");
+        return null;
+      }
+
+      return login;
+    } catch (error) {
+      console.error("Error checking login:", error);
+      toast.error("Ошибка при проверки логина");
+      return null;
+    }
+  };
+
+  // Обработчик для кнопки генерации логина
+  const handleGenerateLogin = async () => {
+    const newLogin = await checkAndGenerateLogin();
+    if (newLogin) {
+      setOfficeData({
+        ...officeData,
+        user: {...officeData.user, username: newLogin},
+      });
+      setUsernameError(false);
+      toast.success("Логин успешно сгенерирован!");
+    }
+  };
+
+  // Отключение кнопки, если first_name или last_name пустые
+  const isGenerateButtonDisabled = !officeData.user.first_name || !officeData.user.last_name;
+
   const onSubmit = async () => {
     try {
-      // Проверка уникальности логина перед отправкой
       const usernameCheckResponse = await fetchPostEndpoint(
-        "/api/info/", // API для проверки занятости логина
+        "/api/info/",
         {username: officeData.user.username},
         token
       );
 
       if (usernameCheckResponse.error === "Username already exists") {
-        setUsernameError(true); // Устанавливаем ошибку на логин
+        setUsernameError(true);
         toast.error("Логин занят. Выберите другой.");
-        return; // Прекращаем выполнение, если логин занят
+        return;
       }
 
-      // Отправка данных, если логин свободен
       const response = await fetchPostEndpoint(
         "/api/admin/supervisors/",
         officeData,
         token
       );
 
-      // Проверка ответа на ошибки
       if ("error" in response) {
         throw new Error(response.error);
       } else {
@@ -125,8 +229,7 @@ export const AddingNewAdmin = () => {
             office: 0,
             username: "",
           },
-
-        }); // Сбрасываем форму после успешного добавления
+        });
       }
     } catch (error) {
       console.error("Request failed:", error);
@@ -283,8 +386,6 @@ export const AddingNewAdmin = () => {
                   </Button>
                 </div>
               </div>
-
-              {/* Подразделение */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Подразделение</p>
                 <Input
@@ -299,8 +400,6 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
-
-              {/* Логин */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Логин</p>
                 <div className="flex items-center gap-1">
@@ -308,7 +407,7 @@ export const AddingNewAdmin = () => {
                     value={officeData.user.username}
                     className={`md:w-[372px] rounded-xl ${
                       usernameError ? "border-red-500" : ""
-                    }`} // Отображаем ошибку, если есть
+                    }`}
                     placeholder="Логин"
                     onInput={(e) =>
                       setOfficeData({
@@ -325,19 +424,18 @@ export const AddingNewAdmin = () => {
                     variant="ghost"
                     size="icon"
                     aria-label="Сгенерировать логин"
+                    onClick={handleGenerateLogin}
+                    disabled={isGenerateButtonDisabled}
                   >
                     <Password />
                   </Button>
                 </div>
-                {/* Сообщение об ошибке */}
                 {usernameError && (
                   <span className="text-red-500 text-xs">
                     Этот логин уже занят
                   </span>
-                )}{" "}
+                )}
               </div>
-
-              {/* Пароль */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Пароль</p>
                 <div className="flex items-center gap-1">
@@ -356,11 +454,9 @@ export const AddingNewAdmin = () => {
                 </div>
               </div>
             </div>
-
-            {/* Кнопка добавить */}
             <Button
               variant="default"
-              className="mt-8  md:w-[160px]"
+              className="mt-8 md:w-[160px]"
               type="submit"
             >
               Добавить
@@ -372,3 +468,4 @@ export const AddingNewAdmin = () => {
     </FormProvider>
   );
 };
+
