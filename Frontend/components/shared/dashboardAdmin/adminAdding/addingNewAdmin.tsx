@@ -1,4 +1,10 @@
 "use client";
+import {useCallback, useEffect, useState} from "react";
+import {FormProvider, useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
+import {useRouter} from "next/navigation";
+import {transliterate} from "transliteration";
 import {
   Button,
   Input,
@@ -6,23 +12,17 @@ import {
   SelectContent,
   SelectItem,
   SelectTrigger,
-  SelectValue,
+  SelectValue
 } from "@/components/ui";
 import fetchGetEndpoint, {fetchPostEndpoint} from "@/lib/candidates";
 import {cn} from "@/lib/utils";
-import {ArrowLeft} from "lucide-react";
 import Link from "next/link";
-import {useEffect, useState} from "react";
-import {FormProvider, useForm} from "react-hook-form";
-import {zodResolver} from "@hookform/resolvers/zod";
-import {z} from "zod";
 import {MailInput} from "../../formInputs/mailInput";
 import css from "./main.module.css";
 import toast, {Toaster} from "react-hot-toast";
-import {useRouter} from "next/navigation";
 import {Plus} from "@/components/ui/icons/plus";
 import {Password} from "@/components/ui/icons/password";
-import {transliterate} from "transliteration";
+import { ArrowLeft } from "lucide-react";
 
 export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
@@ -40,23 +40,11 @@ export const AddingNewAdmin = () => {
   }
 
   const [offices, setOffices] = useState<Office[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [usernameError, setUsernameError] = useState(false);
   const token = localStorage.getItem("token") || "";
+  const router = useRouter();
 
-  useEffect(() => {
-    console.log(token);
-    (async () => {
-      const endpointToCall = "/api/admin/offices/";
-      const response = await fetchGetEndpoint(endpointToCall, token);
-
-      if ("data" in response && Array.isArray(response.data)) {
-        setOffices(response.data);
-      } else {
-        console.error("Error fetching candidates:", response);
-      }
-    })();
-  }, [token]);
-
-  type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
   const [officeData, setOfficeData] = useState({
     department: "",
     office: "",
@@ -72,131 +60,86 @@ export const AddingNewAdmin = () => {
     },
   });
 
-  const [usernameError, setUsernameError] = useState(false);
-  const router = useRouter();
-  const handleAddOfficeClick = () => {
-    router.push("/addingOffice");
-  };
+  useEffect(() => {
+    (async () => {
+      const endpointToCall = "/api/admin/offices/";
+      const response = await fetchGetEndpoint(endpointToCall, token);
+      if ("data" in response && Array.isArray(response.data)) {
+        setOffices(response.data);
+      } else {
+        console.error("Error fetching offices:", response);
+      }
+    })();
+  }, [token]);
+
+  type CheckoutFormValues = z.infer<typeof checkoutFormSchema>;
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
-    defaultValues: {
-      email: "",
-    },
+    defaultValues: {email: ""},
   });
 
-  // Функция генерации логина
-  const generateLogin = (firstName: string, lastName: string, suffix: string = ""): string => {
-    const firstPart = transliterate(firstName).slice(0, 3).toLowerCase().replace(/\s/g, "") || "";
+  const generateLogin = useCallback((firstName: string, lastName: string): string => {
+    const firstPart = transliterate(firstName).slice(0, 3).toLowerCase().replace(/\s/g, "") || "usr";
     const lastPart = transliterate(lastName).slice(0, 3).toLowerCase().replace(/\s/g, "") || "";
-    let login = `${firstPart}${lastPart}${suffix}`.slice(0, 10);
-
+    const randomSuffix = Math.floor(Math.random() * 100).toString().padStart(2, "0");
+    let login = `${firstPart}${lastPart}${randomSuffix}`.slice(0, 10);
     if (login.length < 6) {
-      const randomDigits = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
-      login = `${login}${randomDigits}`.slice(0, 10);
+      const extraDigits = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
+      login = `${login}${extraDigits}`.slice(0, 10);
     }
-
-    if (!login) {
-      login = `user${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`;
-    }
-
     return login;
-  };
+  }, []);
 
-  // Функция проверки и генерации логина
   const checkAndGenerateLogin = async (): Promise<string | null> => {
-    let login = officeData.user.username;
-    let attempts = 0;
-    const maxAttempts = 3;
-
-    setOfficeData({
-      ...officeData,
-      user: {...officeData.user, username: ""},
-    });
-    setUsernameError(false);
-
-    if (!login) {
-      login = generateLogin(officeData.user.first_name, officeData.user.last_name);
+    if (!officeData.user.first_name || !officeData.user.last_name) {
+      toast.error("Введите имя и фамилию для генерации логина");
+      return null;
     }
 
-    while (attempts < maxAttempts) {
-      try {
-        const response = await fetchPostEndpoint(
-          "/api/info/",
-          {username: login},
-          token
-        );
+    let login = generateLogin(officeData.user.first_name, officeData.user.last_name);
+    console.log(`Generated login: ${login}`);
 
-        if (response.error === "Username already exists") {
-          login = generateLogin(
-            officeData.user.first_name,
-            officeData.user.last_name,
-            Math.floor(Math.random() * 100).toString().padStart(2, "0")
-          );
-          attempts++;
-          continue;
-        }
-
-        return login;
-      } catch (error) {
-        console.error("Error checking login:", error);
-        toast.error("Ошибка при проверке логина");
-        return null;
-      }
-    }
-
-    login = generateLogin(
-      officeData.user.first_name,
-      officeData.user.last_name,
-      Math.floor(Math.random() * 10000).toString().padStart(4, "0")
-    );
     try {
-      const response = await fetchPostEndpoint(
-        "/api/info/",
-        {username: login},
-        token
-      );
+      const response = await fetchPostEndpoint("/api/info/", {username: login}, token);
+      console.log(`Server response:`, response);
 
       if (response.error === "Username already exists") {
-        toast.error("Не удалось найти свободный логин. Попробуйте другой.");
-        return null;
+        login = generateLogin(officeData.user.first_name, officeData.user.last_name);
+        const secondResponse = await fetchPostEndpoint("/api/info/", {username: login}, token);
+
+        if (secondResponse.error === "Username already exists") {
+          toast.error("Не удалось найти свободный логин. Попробуйте другой.");
+          setUsernameError(true);
+          return null;
+        }
       }
 
+      setUsernameError(false);
       return login;
     } catch (error) {
       console.error("Error checking login:", error);
-      toast.error("Ошибка при проверки логина");
+      toast.error("Ошибка при проверке логина");
       return null;
     }
   };
 
-  // Функция генерации пароля
   const generatePassword = (): string => {
     const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
     const numbers = '0123456789';
     const symbols = '!@#$%^&*';
     const allChars = letters + numbers + symbols;
-
     let password = '';
-    // Гарантируем минимум 1 букву, 1 цифру и 1 символ
     password += letters[Math.floor(Math.random() * letters.length)];
     password += numbers[Math.floor(Math.random() * numbers.length)];
     password += symbols[Math.floor(Math.random() * symbols.length)];
-
-    // Заполняем оставшиеся 7 символов
     for (let i = 0; i < 7; i++) {
       const randomIndex = Math.floor(Math.random() * allChars.length);
       password += allChars[randomIndex];
     }
-
-    // Перемешиваем пароль
-    return password
-      .split('')
-      .sort(() => Math.random() - 0.5)
-      .join('');
+    return password.split('').sort(() => Math.random() - 0.5).join('');
   };
 
-  // Обработчик для кнопки генерации пароля
   const handleGeneratePassword = () => {
     try {
       const newPassword = generatePassword();
@@ -211,13 +154,10 @@ export const AddingNewAdmin = () => {
     }
   };
 
-  // Обработчик копирования пароля
   const handleCopyPassword = () => {
     if (officeData.user.password) {
       navigator.clipboard.writeText(officeData.user.password)
-        .then(() => {
-          toast.success("Пароль скопирован в буфер обмена!");
-        })
+        .then(() => toast.success("Пароль скопирован в буфер обмена!"))
         .catch((error) => {
           console.error("Error copying password:", error);
           toast.error("Ошибка при копировании пароля");
@@ -227,8 +167,8 @@ export const AddingNewAdmin = () => {
     }
   };
 
-  // Обработчик для кнопки генерации логина
   const handleGenerateLogin = async () => {
+    setIsLoading(true);
     const newLogin = await checkAndGenerateLogin();
     if (newLogin) {
       setOfficeData({
@@ -238,9 +178,9 @@ export const AddingNewAdmin = () => {
       setUsernameError(false);
       toast.success("Логин успешно сгенерирован!");
     }
+    setIsLoading(false);
   };
 
-  // Отключение кнопки, если first_name или last_name пустые
   const isGenerateButtonDisabled = !officeData.user.first_name || !officeData.user.last_name;
 
   const onSubmit = async () => {
@@ -289,6 +229,10 @@ export const AddingNewAdmin = () => {
     }
   };
 
+  const handleAddOfficeClick = () => {
+    router.push("/addingOffice");
+  };
+
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
@@ -313,7 +257,7 @@ export const AddingNewAdmin = () => {
                       ...officeData,
                       user: {
                         ...officeData.user,
-                        last_name: e.currentTarget.value,
+                        last_name: e.currentTarget.value
                       },
                     })
                   }
@@ -330,7 +274,7 @@ export const AddingNewAdmin = () => {
                       ...officeData,
                       user: {
                         ...officeData.user,
-                        first_name: e.currentTarget.value,
+                        first_name: e.currentTarget.value
                       },
                     })
                   }
@@ -347,7 +291,7 @@ export const AddingNewAdmin = () => {
                       ...officeData,
                       user: {
                         ...officeData.user,
-                        patronymic: e.currentTarget.value,
+                        patronymic: e.currentTarget.value
                       },
                     })
                   }
@@ -362,10 +306,7 @@ export const AddingNewAdmin = () => {
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
-                      user: {
-                        ...officeData.user,
-                        phone: e.currentTarget.value,
-                      },
+                      user: {...officeData.user, phone: e.currentTarget.value},
                     })
                   }
                 />
@@ -380,27 +321,22 @@ export const AddingNewAdmin = () => {
                   onInput={(e) =>
                     setOfficeData({
                       ...officeData,
-                      user: {
-                        ...officeData.user,
-                        email: e.currentTarget.value,
-                      },
+                      user: {...officeData.user, email: e.currentTarget.value},
                     })
                   }
                 />
               </div>
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p
-                  onClick={() => console.log(officeData)}
                   className="min-w-[134px]"
+                  onClick={() => console.log(officeData)}
                 >
                   Офис
                 </p>
                 <div className="flex items-center gap-1">
                   <Select
                     onValueChange={(value: string) => {
-                      const selectedOffice = offices.find(
-                        (office) => office.name === value
-                      );
+                      const selectedOffice = offices.find((office) => office.name === value);
                       if (selectedOffice) {
                         setOfficeData({
                           ...officeData,
@@ -457,16 +393,14 @@ export const AddingNewAdmin = () => {
                 <div className="flex items-center gap-1">
                   <Input
                     value={officeData.user.username}
-                    className={`md:w-[372px] rounded-xl ${
-                      usernameError ? "border-red-500" : ""
-                    }`}
+                    className={`md:w-[372px] rounded-xl ${usernameError ? "border-red-500" : ""}`}
                     placeholder="Логин"
                     onInput={(e) =>
                       setOfficeData({
                         ...officeData,
                         user: {
                           ...officeData.user,
-                          username: e.currentTarget.value,
+                          username: e.currentTarget.value
                         },
                       })
                     }
@@ -477,15 +411,13 @@ export const AddingNewAdmin = () => {
                     size="icon"
                     aria-label="Сгенерировать логин"
                     onClick={handleGenerateLogin}
-                    disabled={isGenerateButtonDisabled}
+                    disabled={isGenerateButtonDisabled || isLoading}
                   >
                     <Password />
                   </Button>
                 </div>
                 {usernameError && (
-                  <span className="text-red-500 text-xs">
-                    Этот логин уже занят
-                  </span>
+                  <span className="text-red-500 text-xs">Этот логин уже занят</span>
                 )}
               </div>
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
