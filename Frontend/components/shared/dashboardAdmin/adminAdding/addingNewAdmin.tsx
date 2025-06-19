@@ -40,6 +40,7 @@ export const AddingNewAdmin = () => {
 
   const [offices, setOffices] = useState<Office[]>([]);
   const token = localStorage.getItem("token") || "";
+
   useEffect(() => {
     console.log(token);
     (async () => {
@@ -67,7 +68,7 @@ export const AddingNewAdmin = () => {
       first_name: "",
       patronymic: "",
       office: 0,
-      username: "",
+      username: "",  // логин
     },
   });
 
@@ -88,7 +89,7 @@ export const AddingNewAdmin = () => {
     try {
       // Проверка уникальности логина перед отправкой
       const usernameCheckResponse = await fetchPostEndpoint(
-        "/api/admin/check-username", // API для проверки занятости логина
+        "/api/info/", // API для проверки занятости логина
         {username: officeData.user.username},
         token
       );
