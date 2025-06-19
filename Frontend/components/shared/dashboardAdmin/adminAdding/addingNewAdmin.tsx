@@ -20,6 +20,7 @@ import {MailInput} from "../../formInputs/mailInput";
 import css from "./main.module.css";
 import toast, {Toaster} from "react-hot-toast";
 import {useRouter} from "next/navigation";
+import {Plus} from "@/components/ui/icons/plus";
 
 export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
@@ -128,6 +129,10 @@ export const AddingNewAdmin = () => {
   };
 
   const router = useRouter();
+  const handleAddAdminClick = () => {
+    router.push("/addingOffice");
+  };
+
 
   return (
     <FormProvider {...form}>
@@ -235,37 +240,48 @@ export const AddingNewAdmin = () => {
                 >
                   Офис
                 </p>
-                <Select
-                  onValueChange={(value: string) => {
-                    const selectedOffice = offices.find(
-                      (office) => office.name === value
-                    );
-                    if (selectedOffice) {
-                      setOfficeData({
-                        ...officeData,
-                        office: String(selectedOffice.id),
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger className="text-tertiary-text z-10 border-solid border-opacity-40 border-[1px] md:w-[420px] rounded-xl">
-                    <SelectValue
-                      className="opacity-40"
-                      placeholder="Офис"
-                    />
-                  </SelectTrigger>
-                  <SelectContent className="flex justify-between z-10">
-                    {offices.map((office, index) => (
-                      <SelectItem
-                        value={`${office.name}`}
-                        className="ml-3 z-10 bg-white"
-                        key={index}
-                      >
-                        {office.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div className="flex items-center gap-1">
+                  <Select
+                    onValueChange={(value: string) => {
+                      const selectedOffice = offices.find(
+                        (office) => office.name === value
+                      );
+                      if (selectedOffice) {
+                        setOfficeData({
+                          ...officeData,
+                          office: String(selectedOffice.id),
+                        });
+                      }
+                    }}
+                  >
+                    <SelectTrigger className="text-tertiary-text z-10 border-solid border-opacity-40 border-[1px] md:w-[372px] rounded-xl">
+                      <SelectValue
+                        className="opacity-40"
+                        placeholder="Офис"
+                      />
+                    </SelectTrigger>
+                    <SelectContent className="flex justify-between z-10">
+                      {offices.map((office, index) => (
+                        <SelectItem
+                          value={`${office.name}`}
+                          className="ml-3 z-10 bg-white"
+                          key={index}
+                        >
+                          {office.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    onClick={handleAddAdminClick}
+                    aria-label="Добавить нового администратора"
+                  >
+                    <Plus />
+                  </Button>
+                </div>
               </div>
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Подразделение</p>
