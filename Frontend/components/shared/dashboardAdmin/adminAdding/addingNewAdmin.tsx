@@ -21,6 +21,7 @@ import css from "./main.module.css";
 import toast, {Toaster} from "react-hot-toast";
 import {useRouter} from "next/navigation";
 import {Plus} from "@/components/ui/icons/plus";
+import {Password} from "@/components/ui/icons/password";
 
 export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
@@ -71,6 +72,10 @@ export const AddingNewAdmin = () => {
   });
 
   const [usernameError, setUsernameError] = useState(false); // Ошибка на поле логин
+  const router = useRouter();
+  const handleAddOfficeClick = () => {
+    router.push("/addingOffice");
+  };
 
   const form = useForm<CheckoutFormValues>({
     resolver: zodResolver(checkoutFormSchema),
@@ -127,12 +132,6 @@ export const AddingNewAdmin = () => {
       toast.error("Ошибка при добавлении руководителя");
     }
   };
-
-  const router = useRouter();
-  const handleAddAdminClick = () => {
-    router.push("/addingOffice");
-  };
-
 
   return (
     <FormProvider {...form}>
@@ -276,13 +275,15 @@ export const AddingNewAdmin = () => {
                     type="button"
                     variant="ghost"
                     size="icon"
-                    onClick={handleAddAdminClick}
-                    aria-label="Добавить нового администратора"
+                    onClick={handleAddOfficeClick}
+                    aria-label="Добавить новый офис"
                   >
                     <Plus />
                   </Button>
                 </div>
               </div>
+
+              {/* Подразделение */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Подразделение</p>
                 <Input
@@ -297,39 +298,65 @@ export const AddingNewAdmin = () => {
                   }
                 />
               </div>
+
+              {/* Логин */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Логин</p>
-                <Input
-                  value={officeData.user.username}
-                  className={`md:w-[420px] rounded-xl ${
-                    usernameError ? "border-red-500" : ""
-                  }`} // Отображаем ошибку, если есть
-                  placeholder="Логин"
-                  onInput={(e) =>
-                    setOfficeData({
-                      ...officeData,
-                      user: {
-                        ...officeData.user,
-                        username: e.currentTarget.value,
-                      },
-                    })
-                  }
-                />
+                <div className="flex items-center gap-1">
+                  <Input
+                    value={officeData.user.username}
+                    className={`md:w-[372px] rounded-xl ${
+                      usernameError ? "border-red-500" : ""
+                    }`} // Отображаем ошибку, если есть
+                    placeholder="Логин"
+                    onInput={(e) =>
+                      setOfficeData({
+                        ...officeData,
+                        user: {
+                          ...officeData.user,
+                          username: e.currentTarget.value,
+                        },
+                      })
+                    }
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Сгенерировать логин"
+                  >
+                    <Password />
+                  </Button>
+                </div>
+                {/* Сообщение об ошибке */}
                 {usernameError && (
                   <span className="text-red-500 text-xs">
                     Этот логин уже занят
                   </span>
                 )}{" "}
-                {/* Сообщение об ошибке */}
               </div>
+
+              {/* Пароль */}
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Пароль</p>
-                <Input
-                  className="md:w-[420px] rounded-xl"
-                  placeholder="Пароль"
-                />
+                <div className="flex items-center gap-1">
+                  <Input
+                    className="md:w-[372px] rounded-xl"
+                    placeholder="Пароль"
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="icon"
+                    aria-label="Сгенерировать пароль"
+                  >
+                    <Password />
+                  </Button>
+                </div>
               </div>
             </div>
+
+            {/* Кнопка добавить */}
             <Button
               variant="default"
               className="mt-8  md:w-[160px]"
