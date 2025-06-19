@@ -68,6 +68,7 @@ export const AddingNewAdmin = () => {
       patronymic: "",
       office: 0,
       username: "",
+      password: "",
     },
   });
 
@@ -90,13 +91,11 @@ export const AddingNewAdmin = () => {
     const lastPart = transliterate(lastName).slice(0, 3).toLowerCase().replace(/\s/g, "") || "";
     let login = `${firstPart}${lastPart}${suffix}`.slice(0, 10);
 
-    // Дополняем логин случайными цифрами, если он короче 6 символов
     if (login.length < 6) {
       const randomDigits = Math.floor(Math.random() * 1000).toString().padStart(3, "0");
       login = `${login}${randomDigits}`.slice(0, 10);
     }
 
-    // Если логин пустой, возвращаем дефолтное значение
     if (!login) {
       login = `user${Math.floor(Math.random() * 1000).toString().padStart(3, "0")}`;
     }
@@ -110,14 +109,12 @@ export const AddingNewAdmin = () => {
     let attempts = 0;
     const maxAttempts = 3;
 
-    // Сбрасываем поле логина
     setOfficeData({
       ...officeData,
       user: {...officeData.user, username: ""},
     });
     setUsernameError(false);
 
-    // Если логин не введен, генерируем новый
     if (!login) {
       login = generateLogin(officeData.user.first_name, officeData.user.last_name);
     }
@@ -131,7 +128,6 @@ export const AddingNewAdmin = () => {
         );
 
         if (response.error === "Username already exists") {
-          // Генерируем новый логин с добавлением случайных цифр
           login = generateLogin(
             officeData.user.first_name,
             officeData.user.last_name,
@@ -141,7 +137,6 @@ export const AddingNewAdmin = () => {
           continue;
         }
 
-        // Логин свободен, возвращаем его
         return login;
       } catch (error) {
         console.error("Error checking login:", error);
@@ -150,7 +145,6 @@ export const AddingNewAdmin = () => {
       }
     }
 
-    // Если все попытки исчерпаны, добавляем больше цифр и пробуем снова
     login = generateLogin(
       officeData.user.first_name,
       officeData.user.last_name,
@@ -173,6 +167,63 @@ export const AddingNewAdmin = () => {
       console.error("Error checking login:", error);
       toast.error("Ошибка при проверки логина");
       return null;
+    }
+  };
+
+  // Функция генерации пароля
+  const generatePassword = (): string => {
+    const letters = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ';
+    const numbers = '0123456789';
+    const symbols = '!@#$%^&*';
+    const allChars = letters + numbers + symbols;
+
+    let password = '';
+    // Гарантируем минимум 1 букву, 1 цифру и 1 символ
+    password += letters[Math.floor(Math.random() * letters.length)];
+    password += numbers[Math.floor(Math.random() * numbers.length)];
+    password += symbols[Math.floor(Math.random() * symbols.length)];
+
+    // Заполняем оставшиеся 7 символов
+    for (let i = 0; i < 7; i++) {
+      const randomIndex = Math.floor(Math.random() * allChars.length);
+      password += allChars[randomIndex];
+    }
+
+    // Перемешиваем пароль
+    return password
+      .split('')
+      .sort(() => Math.random() - 0.5)
+      .join('');
+  };
+
+  // Обработчик для кнопки генерации пароля
+  const handleGeneratePassword = () => {
+    try {
+      const newPassword = generatePassword();
+      setOfficeData({
+        ...officeData,
+        user: {...officeData.user, password: newPassword},
+      });
+      toast.success("Пароль успешно сгенерирован!");
+    } catch (error) {
+      console.error("Error generating password:", error);
+      toast.error("Ошибка при генерации пароля");
+    }
+  };
+
+  // Обработчик копирования пароля
+  const handleCopyPassword = () => {
+    if (officeData.user.password) {
+      navigator.clipboard.writeText(officeData.user.password)
+        .then(() => {
+          toast.success("Пароль скопирован в буфер обмена!");
+        })
+        .catch((error) => {
+          console.error("Error copying password:", error);
+          toast.error("Ошибка при копировании пароля");
+        });
+    } else {
+      toast.error("Пароль не сгенерирован");
     }
   };
 
@@ -228,6 +279,7 @@ export const AddingNewAdmin = () => {
             patronymic: "",
             office: 0,
             username: "",
+            password: "",
           },
         });
       }
@@ -440,14 +492,19 @@ export const AddingNewAdmin = () => {
                 <p className="min-w-[134px]">Пароль</p>
                 <div className="flex items-center gap-1">
                   <Input
-                    className="md:w-[372px] rounded-xl"
+                    value={officeData.user.password}
+                    className="md:w-[372px] rounded-xl cursor-pointer"
                     placeholder="Пароль"
+                    readOnly
+                    onClick={handleCopyPassword}
                   />
                   <Button
                     type="button"
                     variant="ghost"
                     size="icon"
                     aria-label="Сгенерировать пароль"
+                    onClick={handleGeneratePassword}
+                    disabled={isGenerateButtonDisabled}
                   >
                     <Password />
                   </Button>
@@ -468,4 +525,3 @@ export const AddingNewAdmin = () => {
     </FormProvider>
   );
 };
-
