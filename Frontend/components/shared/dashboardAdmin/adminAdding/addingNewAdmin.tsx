@@ -8,22 +8,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui";
-import fetchGetEndpoint, { fetchPostEndpoint } from "@/lib/candidates";
-import { cn } from "@/lib/utils";
-import { ArrowLeft } from "lucide-react";
+import fetchGetEndpoint, {fetchPostEndpoint} from "@/lib/candidates";
+import {cn} from "@/lib/utils";
+import {ArrowLeft} from "lucide-react";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { FormProvider, useForm } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-import { z } from "zod";
-import { MailInput } from "../../formInputs/mailInput";
+import {useEffect, useState} from "react";
+import {FormProvider, useForm} from "react-hook-form";
+import {zodResolver} from "@hookform/resolvers/zod";
+import {z} from "zod";
+import {MailInput} from "../../formInputs/mailInput";
 import css from "./main.module.css";
-import toast, { Toaster } from "react-hot-toast";
+import toast, {Toaster} from "react-hot-toast";
 
 export const AddingNewAdmin = () => {
   const checkoutFormSchema = z.object({
-    email: z.string().email({ message: "Введите корректную почту" }),
+    email: z.string().email({message: "Введите корректную почту"}),
   });
+
   interface Office {
     location: string;
     quota: number;
@@ -33,6 +34,7 @@ export const AddingNewAdmin = () => {
     mail: string;
     id: number;
   }
+
   const [offices, setOffices] = useState<Office[]>([]);
   const token = localStorage.getItem("token") || "";
   useEffect(() => {
@@ -80,7 +82,7 @@ export const AddingNewAdmin = () => {
       // Проверка уникальности логина перед отправкой
       const usernameCheckResponse = await fetchPostEndpoint(
         "/api/admin/check-username", // API для проверки занятости логина
-        { username: officeData.user.username },
+        {username: officeData.user.username},
         token
       );
 
@@ -242,7 +244,10 @@ export const AddingNewAdmin = () => {
                   }}
                 >
                   <SelectTrigger className="z-10 border-solid border-opacity-40 border-[1px] w-[450px] rounded-xl">
-                    <SelectValue className="opacity-40" placeholder="Офис" />
+                    <SelectValue
+                      className="opacity-40"
+                      placeholder="Офис"
+                    />
                   </SelectTrigger>
                   <SelectContent className="flex justify-between z-10">
                     {offices.map((office, index) => (
@@ -298,11 +303,15 @@ export const AddingNewAdmin = () => {
               </div>
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Пароль</p>
-                <Input className="w-[450px] rounded-xl" placeholder="Пароль" />
+                <Input
+                  className="w-[450px] rounded-xl"
+                  placeholder="Пароль"
+                />
               </div>
             </div>
             <Button
-              className="mt-8 bg-[#960047] w-[160px] h-[44px] rounded-xl"
+              variant="default"
+              className="mt-8  md:w-[160px]"
               type="submit"
             >
               Добавить
