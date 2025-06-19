@@ -22,6 +22,7 @@ import css from "./main.module.css";
 export const AdminItems = () => {
   interface User {
     first_name: string;
+    last_name: string;
     username: string;
     patronymic: string | null;
     phone: string | null;
@@ -99,7 +100,7 @@ export const AdminItems = () => {
   }, []);
   return (
     <div className={cn(css.adminItemsContainer)}>
-      <div className="pt-8 flex flex-col md:flex-row gap-4 md:gap-4">
+      <div className="pt-8 flex flex-col md:flex-row gap-4 md:gap-4 mb-1">
         <Input
           className="rounded-xl w-full md:w-[630px]"
           placeholder="Найти руководителя"
@@ -139,60 +140,61 @@ export const AdminItems = () => {
           {window.innerWidth < 1000 ? "+" : "Добавить руководителя"}
         </Button>
       </div>
-      <Table className="border-solid border-[#CACBCD] border-2 w-full">
-        <TableHeader>
-          <TableRow>
-            <TableHead className="font-bold text-center w-[326px]">
-              ФИО
-            </TableHead>
-            <TableHead className="font-bold">Город</TableHead>
-            <TableHead className="font-bold">Телефон</TableHead>
-            <TableHead className="font-bold ">Email</TableHead>
-            <TableHead className="font-bold">Офис</TableHead>
-            <TableHead className="font-bold"></TableHead>
-          </TableRow>
-        </TableHeader>
-        <TableBody>
-          {candidates.map((objectData) => (
-            <TableRow key={objectData.id}>
-              <TableCell className="flex items-center gap-3">
-                <span className="w-6">{""}</span>
-                {objectData.photo ? (
-                  <img
-                    src={objectData.photo}
-                    width={39}
-                    height={39}
-                    className="rounded-3xl pl-[40vw]"
-                    alt="avatar"
-                  />
-                ) : (
-                  <Image
-                    className="max-w-[90px] max-h-[90px]"
-                    src={user}
-                    width={39}
-                    height={39}
-                    alt="photo"
-                  />
-                )}
-
-                <p>{`${objectData.user.full_name || ""}`}</p>
-              </TableCell>
-              <TableCell>Москва</TableCell>
-              <TableCell>{objectData.user.phone || "Не указан"}</TableCell>
-              <TableCell>{objectData.user.email || "Не указан"}</TableCell>
-              <TableCell>{objectData.office_name || "Не указан"}</TableCell>
-              <TableCell onClick={() => openModal(objectData)}>
-                <Trash
-                  className="opacity-50 cursor-pointer"
-                  width={16}
-                  height={16}
-                />
-              </TableCell>
+      <div className="h-[calc(100vh-250px)] overflow-y-auto pr-3">
+        <Table className="border-solid border-[#CACBCD] border-2 w-full">
+          <TableHeader>
+            <TableRow>
+              <TableHead className="font-bold text-center w-[326px]">
+                ФИО
+              </TableHead>
+              <TableHead className="font-bold">Город</TableHead>
+              <TableHead className="font-bold">Телефон</TableHead>
+              <TableHead className="font-bold ">Email</TableHead>
+              <TableHead className="font-bold">Офис</TableHead>
+              <TableHead className="font-bold"></TableHead>
             </TableRow>
-          ))}
-        </TableBody>
-      </Table>
+          </TableHeader>
+          <TableBody>
+            {candidates.map((objectData) => (
+              <TableRow key={objectData.id}>
+                <TableCell className="flex items-center gap-3">
+                  <span className="w-6">{""}</span>
+                  {objectData.photo ? (
+                    <img
+                      src={objectData.photo}
+                      width={39}
+                      height={39}
+                      className="rounded-3xl pl-[40vw]"
+                      alt="avatar"
+                    />
+                  ) : (
+                    <Image
+                      className="max-w-[90px] max-h-[90px]"
+                      src={user}
+                      width={39}
+                      height={39}
+                      alt="photo"
+                    />
+                  )}
 
+                  <p>{`${objectData.user.last_name + " " + objectData.user.first_name + " " + objectData.user.patronymic || ""}`}</p>
+                </TableCell>
+                <TableCell>Москва</TableCell>
+                <TableCell>{objectData.user.phone || "Не указан"}</TableCell>
+                <TableCell>{objectData.user.email || "Не указан"}</TableCell>
+                <TableCell>{objectData.office_name || "Не указан"}</TableCell>
+                <TableCell onClick={() => openModal(objectData)}>
+                  <Trash
+                    className="opacity-50 cursor-pointer"
+                    width={16}
+                    height={16}
+                  />
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
+      </div>
       {/* Затемняющий фон */}
       {isModalOpen && (
         <div
