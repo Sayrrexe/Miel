@@ -135,7 +135,7 @@ export const AddingNewAdmin = () => {
             <ArrowLeft />
             Вернуться
           </Link>
-          <div className="mt-[29px]">
+          <div className="mt-[29px] h-[calc(100vh-200px)] overflow-y-auto">
             <div className="flex flex-col gap-5">
               <div className={`flex gap-5 items-center ${css.inputDiv}`}>
                 <p className="min-w-[134px]">Фамилия</p>
