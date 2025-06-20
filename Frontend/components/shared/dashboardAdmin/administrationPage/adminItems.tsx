@@ -16,7 +16,7 @@ import {useEffect, useState} from "react";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import {useRouter} from "next/navigation";
-import {Trash} from "lucide-react";
+import {Trash} from "@/components/ui/icons/trash";
 import css from "./main.module.css";
 
 export const AdminItems = () => {
@@ -185,9 +185,7 @@ export const AdminItems = () => {
                 <TableCell>{objectData.office_name || "Не указан"}</TableCell>
                 <TableCell onClick={() => openModal(objectData)}>
                   <Trash
-                    className="opacity-50 cursor-pointer"
-                    width={16}
-                    height={16}
+                    className="color-tertiary-text cursor-pointer"
                   />
                 </TableCell>
               </TableRow>
@@ -273,8 +271,8 @@ export const AdminItems = () => {
             >
               <p>
                 Вы уверены, что хотите удалить
-                <br /> {selectedCandidate.user.first_name}{" "}
-                {selectedCandidate.user.last_name}{" "}
+                <br /> {selectedCandidate.user.last_name}{" "}
+                {selectedCandidate.user.first_name}{" "}
                 {selectedCandidate.user.patronymic}?
               </p>
               <div className="gap-4 flex">
