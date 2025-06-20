@@ -17,6 +17,7 @@ import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import {useRouter} from "next/navigation";
 import {Trash} from "@/components/ui/icons/trash";
+import {Edit} from "@/components/ui/icons/edit";
 import css from "./main.module.css";
 
 export const AdminItems = () => {
@@ -183,9 +184,14 @@ export const AdminItems = () => {
                 <TableCell>{objectData.user.phone || "Не указан"}</TableCell>
                 <TableCell>{objectData.user.email || "Не указан"}</TableCell>
                 <TableCell>{objectData.office_name || "Не указан"}</TableCell>
+                <TableCell>
+                  <Edit
+                    className={"text-tertiary-text cursor-pointer hover:text-menu-hvr"}
+                  />
+                </TableCell>
                 <TableCell onClick={() => openModal(objectData)}>
                   <Trash
-                    className="color-tertiary-text cursor-pointer"
+                    className={"text-tertiary-text cursor-pointer hover:text-error-text"}
                   />
                 </TableCell>
               </TableRow>
