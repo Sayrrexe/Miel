@@ -187,6 +187,7 @@ export const AdminItems = () => {
                 <TableCell>
                   <Edit
                     className={"text-tertiary-text cursor-pointer hover:text-menu-hvr"}
+                    onClick={() => router.push(`/editAdmin/${objectData.id}`)}
                   />
                 </TableCell>
                 <TableCell onClick={() => openModal(objectData)}>
