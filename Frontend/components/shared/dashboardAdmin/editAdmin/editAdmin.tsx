@@ -18,7 +18,6 @@ import fetchGetEndpoint, {
   fetchPatchEndpoint,
   fetchPostEndpoint
 } from "@/lib/candidates";
-import {cn} from "@/lib/utils";
 import Link from "next/link";
 import {MailInput} from "../../formInputs/mailInput";
 import css from "./main.module.css";
@@ -105,7 +104,7 @@ export const EditAdmin = () => {
           token
         );
         if ("data" in supervisorResponse && supervisorResponse.data) {
-          const data = supervisorResponse.data as Supervisor;
+          const data = supervisorResponse.data as unknown as Supervisor; // Явное преобразование через unknown
           setSupervisor(data);
           form.reset({
             email: data.user.email,
@@ -286,9 +285,9 @@ export const EditAdmin = () => {
   return (
     <FormProvider {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)}>
-        <div className={cn("mt-[52px] ml-10")}>
+        <div>
           <Link
-            href={"./main1"}
+            href={"/main1"}
             className="flex gap-[10px] hover:text-gray-300"
           >
             <ArrowLeft />
