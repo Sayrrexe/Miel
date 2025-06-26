@@ -56,14 +56,14 @@ function formatDate(date: Date | null): string | null {
 
 type FetchResponse = AxiosResponse<SuccessResponse> | ErrorResponse;
 
-export default async function fetchGetEndpoint(
+export default async function fetchGetEndpoint<T>(
   endpoint: string,
   token: string,
   start_date?: Value,
   end_date?: Value,
   due_date?: Value,
-  search?: string // Новый необязательный параметр
-): Promise<FetchResponse> {
+  search?: string
+): Promise<AxiosResponse<T> | ErrorResponse> {
   try {
     let url = `https://miel.sayrrx.cfd${endpoint}`;
     const params: string[] = [];
@@ -123,20 +123,17 @@ export default async function fetchGetEndpoint(
       url += `?${params.join("&")}`;
     }
 
-    console.log(url); // Логируем финальный URL для отладки
+    console.log(url);
 
-    // Выполнение запроса
-    const response = await axios.get<SuccessResponse>(url, {
+    const response = await axios.get<T>(url, {
       headers: {
-        Authorization: `Token ${
-          token || "1a5091d623065bdb3722c62b70a473cfe2b1749f"
-        }`,
+        Authorization: `Token ${token || "1a5091d623065bdb3722c62b70a473cfe2b1749f"}`,
       },
     });
 
     return response.data
       ? response
-      : {error: "Unexpected response structure"}; // Проверка на корректный ответ
+      : {error: "Unexpected response structure"};
   } catch (error) {
     return handleError(error);
   }
