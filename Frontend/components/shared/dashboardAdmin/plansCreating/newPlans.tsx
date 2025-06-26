@@ -1,13 +1,16 @@
+// newPlans.tsx
 "use client";
-import { cn } from "@/lib/utils";
-import { useEffect, useState } from "react";
+import {cn} from "@/lib/utils";
+import {useEffect, useState} from "react";
 import DatePicker from "react-date-picker";
 import "../../dataPicker/DatePicker.css";
 import "../../dataPicker/Calendar.css";
-import { Button, Checkbox } from "@/components/ui";
-import { Ellipsis, Pen, Trash2 } from "lucide-react";
+import {Button} from "@/components/ui";
+import {Ellipsis} from "lucide-react";
 import fetchGetEndpoint from "@/lib/candidates"; // Импортируем функцию для запроса
 import css from "./main.module.css";
+import {TodoStatsResponse} from "@/lib/types";
+import {TaskList} from "./TaskList";
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -66,12 +69,11 @@ export const NewPlans = () => {
   }, [token]);
 
   // Запрос для получения статистики по задачам
-
   useEffect(() => {
     console.log(token);
     (async () => {
       const endpointToCall = "/api/todo-stats/";
-      const response = await fetchGetEndpoint(endpointToCall, token);
+      const response = await fetchGetEndpoint<TodoStatsResponse>(endpointToCall, token);
 
       console.log(response);
 
@@ -101,7 +103,7 @@ export const NewPlans = () => {
           value={value}
         />
         <Button
-          variant='default'
+          variant="default"
           onClick={() => {
             console.log(token);
             (async () => {
@@ -133,90 +135,23 @@ export const NewPlans = () => {
       <div className="flex gap-20">
         <div className="border-[#CACBCD] border-solid border-[1px] p-5 w-[566px]">
           <div className="w-full flex justify-between text-center">
-            {tasks.filter(
-              (task) => task.is_complete == false && task.is_deleted == false
-            ).length != 0 && <p className="text-[#960047]">Активные задачи</p>}
+            {/* Пустой div для сохранения структуры */}
           </div>
-          <div className="flex flex-col gap-[10px]">
-            {tasks
-              .filter(
-                (task) => task.is_complete == false && task.is_deleted == false
-              )
-              .map((task, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="mt-3 mb-3  w-full bg-[#d9f0f0] flex p-[15px] justify-between border-solid border-[1px] border-[#CACBCD]"
-                  >
-                    <div className="flex items-center gap-[10px]">
-                      <Checkbox className="w-6 h-6" />
-                      <p>{task.task}</p>
-                    </div>
-                    <div className="flex gap-[10px] ">
-                      <Pen className="opacity-50" />
-                      <Trash2 className="opacity-50" />
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-          <div>
-            {tasks.filter(
-              (task) => task.is_complete == true && task.is_deleted == false
-            ).length != 0 && (
-              <p className="text-[#960047]">Завершенные задачи</p>
-            )}
-            {tasks
-              .filter(
-                (task) => task.is_complete == true && task.is_deleted == false
-              )
-              .map((task, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="mt-3 mb-3 w-full bg-[#d9f0f0] flex p-[15px] justify-between border-solid border-[1px] border-[#CACBCD]"
-                  >
-                    <div className="flex items-center gap-[10px]">
-                      <Checkbox className="w-6 h-6" />
-                      <p>{task.task}</p>
-                    </div>
-                    <div className="flex gap-[10px] ">
-                      <Pen className="opacity-50" />
-                      <Trash2 className="opacity-50" />
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
-          <div>
-            {tasks.filter(
-              (task) => task.is_complete == false && task.is_deleted == true
-            ).length != 0 && (
-              <p className="text-[#960047]">Отмененные задачи</p>
-            )}
-
-            {tasks
-              .filter(
-                (task) => task.is_complete == false && task.is_deleted == true
-              )
-              .map((task, index) => {
-                return (
-                  <div
-                    key={index}
-                    className="mt-3 mb-3 w-full bg-[#d9f0f0] flex p-[15px] justify-between border-solid border-[1px] border-[#CACBCD]"
-                  >
-                    <div className="flex items-center gap-[10px]">
-                      <Checkbox className="w-6 h-6" />
-                      <p>{task.task}</p>
-                    </div>
-                    <div className="flex gap-[10px] ">
-                      <Pen className="opacity-50" />
-                      <Trash2 className="opacity-50" />
-                    </div>
-                  </div>
-                );
-              })}
-          </div>
+          <TaskList
+            tasks={tasks}
+            title="Активные задачи"
+            filter={(task) => !task.is_complete && !task.is_deleted}
+          />
+          <TaskList
+            tasks={tasks}
+            title="Завершенные задачи"
+            filter={(task) => task.is_complete && !task.is_deleted}
+          />
+          <TaskList
+            tasks={tasks}
+            title="Отмененные задачи"
+            filter={(task) => !task.is_complete && task.is_deleted}
+          />
         </div>
         <div className="flex flex-col gap-[148px]">
           <div
