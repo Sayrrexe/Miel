@@ -3,6 +3,7 @@ import {Header} from "@/components/shared";
 import {BrowserRouter} from "react-router-dom";
 import {BossPages} from "@/components/shared/dashboardBoss/candidatesPage";
 import css from "./main.module.css";
+import React from "react";
 
 export default function RootLayout({
                                      children,
@@ -10,15 +11,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
-    <head>
-      <link
-        data-rh="true"
-        rel="icon"
-        href="/logo.png"
-      />
-    </head>
-    <body>
+
     <BrowserRouter>
       <Header />
       <main className={`flex ${css.main}`}>
@@ -30,7 +23,5 @@ export default function RootLayout({
         )}
       </main>
     </BrowserRouter>
-    </body>
-    </html>
   );
 }

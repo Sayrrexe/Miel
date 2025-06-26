@@ -1,4 +1,5 @@
 import "./globals.css";
+import React from "react";
 
 export default function RootLayout({
                                      children,
@@ -13,6 +14,9 @@ export default function RootLayout({
         rel="icon"
         href="/logo.png"
       />
+      <title>
+        "Миэль"
+      </title>
     </head>
     <body>{children}</body>
     </html>

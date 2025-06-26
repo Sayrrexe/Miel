@@ -4,7 +4,7 @@ import {Header} from "@/components/shared";
 import {
   AdminPages
 } from "@/components/shared/dashboardAdmin/administrationPage";
-import {useEffect} from "react";
+import React, {useEffect} from "react";
 import css from "./main.module.css";
 
 export default function RootLayout({children}: Readonly<{
@@ -19,15 +19,7 @@ export default function RootLayout({children}: Readonly<{
   }, []);
 
   return (
-    <html lang="en">
-    <head>
-      <link
-        data-rh="true"
-        rel="icon"
-        href="/logo.png"
-      />
-    </head>
-    <body>
+
     <BrowserRouter>
       <Header />
       <main className={`flex ${css.main}`}>
@@ -39,7 +31,5 @@ export default function RootLayout({children}: Readonly<{
         )}
       </main>
     </BrowserRouter>
-    </body>
-    </html>
   );
 }
