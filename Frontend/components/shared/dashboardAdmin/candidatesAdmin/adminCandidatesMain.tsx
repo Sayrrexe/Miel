@@ -11,14 +11,15 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import {cn} from "@/lib/utils";
+import {useRouter} from "next/navigation";
+import {useEffect, useState} from "react";
 import Link from "next/link";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
-import { useCandidates } from "@/store/context";
+import {useCandidates} from "@/store/context";
 import fetchGetEndpoint from "@/lib/candidates";
+import {Magnifier} from "@/components/ui/icons/magnifier";
 import css from "./main.module.css";
 
 export const AdminCandidates = () => {
@@ -47,14 +48,16 @@ export const AdminCandidates = () => {
   }, [setCandidates, token]);
 
   return (
-    <div className={cn(css.container)}>
-      <div className="pt-8 pl-[-23px] flex gap-4">
+    <div className={`w-full max-w-[1000px] min-w-[950px] overflow-visible p-1 min-h-0 h-auto`}>
+      <div className="pt-8 flex flex-row gap-4">
         <Input
-          className={`rounded-xl w-[696px] ml-10 ${css.searchInput}`}
+          className={`w-full basis-4/5 ml-10`}
           placeholder="Найти кандидата"
           onChange={(e) => setSearch(e.currentTarget.value)}
         />
         <Button
+          variant="secondary"
+          className={`w-full basis-2/5`}
           onClick={() => {
             console.log(token);
             (async () => {
@@ -78,12 +81,12 @@ export const AdminCandidates = () => {
               }
             })();
           }}
-          className={`bg-white w-[160px] text-black border-[#960047] border-solid border-[1px] rounded-xl hover:bg-[#960047] ${css.searchButton}`}
         >
-          {window.innerWidth < 1000 ? "⌕" : "Поиск"}
+          {window.innerWidth < 1000 ? <Magnifier/> : "Поиск"}
         </Button>
         <Button
-          className={`bg-[#960047] w-[226px] rounded-xl hover:bg-[#960046a9] text-lg ${css.addButton}`}
+          variant="default"
+          className={`w-full basis-2/5`}
           onClick={async () => {
             router.push("/addingCandidate");
           }}
@@ -122,7 +125,10 @@ export const AdminCandidates = () => {
           </TableHeader>
           <TableBody>
             {candidates.map((objectData, index) => (
-              <TableRow className={css.rowT} key={index}>
+              <TableRow
+                className={css.rowT}
+                key={index}
+              >
                 <Link href={`/addingEmployee/${objectData.id}`}>
                   <TableCell
                     className={`flex items-center gap-3 ${css.tableCell}`}
@@ -157,7 +163,10 @@ export const AdminCandidates = () => {
                   {objectData.phone}
                 </TableCell>
                 <TableCell className={css.tableCellCheck}>
-                  <Checkbox className="ml-5" checked={false} />
+                  <Checkbox
+                    className="ml-5"
+                    checked={false}
+                  />
                 </TableCell>
                 <TableCell className={`text-center ${css.tableCellAge}`}>
                   {objectData.age} лет
