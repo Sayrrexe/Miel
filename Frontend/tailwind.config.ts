@@ -53,6 +53,7 @@ const config: Config = {
         'btn-primary': '#960047',  // цвет фона кнопки
         'btn-primary-hover': '#AB336C', // цвет фона кнопки при наведении
         'input-primary-hvr': '#F6F6F7', // цвет фона инпута
+        'border-primary': '#CACBCD', // цвет бордера
         'l-gray': '#B9BABD', // цвет бордера (рамка авторизации)
         'menu-active': '#8BA7C2', // цвет активной ссылки бокового меню
         'menu-hvr': '#FF5E01', // цвет ссылки бокового меню при наведении
