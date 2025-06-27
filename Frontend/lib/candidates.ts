@@ -2,45 +2,12 @@
 
 import axios, {AxiosResponse} from "axios";
 
-// Тип для пользователя
-interface User {
-  first_name: string;
-  username: string;
-  patronymic: string;
-  phone: string;
-  email: string;
-  office: string;
-}
 
-// Тип для элемента в ответе (кандидат)
-interface Candidate {
-  index: number;
-  photo: string;
-  user: User; // Один пользователь
-}
-
-// Тип для успешного ответа
-interface SuccessResponse {
-  phone: string;
-  email: string;
-  full_name: string;
-  role: string;
-  data: Candidate[]; // Массив кандидатов
-}
-
-// Тип для ошибки
-interface ErrorResponse {
-  error: string;
-  details?: any;
-}
-
-interface SuccessResponse {
-  phone: string;
-  email: string;
-  full_name: string;
-  role: string;
-  data: Candidate[];
-}
+import {
+  CandidateResponse,
+  ErrorResponse, ApiResponse
+} from "@/types/api";
+import {SuccessResponse} from "@/lib/types";
 
 type ValuePiece = Date | null;
 type Value = ValuePiece | [ValuePiece, ValuePiece];
@@ -54,7 +21,7 @@ function formatDate(date: Date | null): string | null {
   return `${year}-${month}-${day}`;
 }
 
-type FetchResponse = AxiosResponse<SuccessResponse> | ErrorResponse;
+type FetchResponse = AxiosResponse<CandidateResponse> | ErrorResponse;
 
 export default async function fetchGetEndpoint<T>(
   endpoint: string,
@@ -63,7 +30,7 @@ export default async function fetchGetEndpoint<T>(
   end_date?: Value,
   due_date?: Value,
   search?: string
-): Promise<AxiosResponse<T> | ErrorResponse> {
+): Promise<ApiResponse<T> | ErrorResponse> {
   try {
     let url = `https://miel.sayrrx.cfd${endpoint}`;
     const params: string[] = [];
@@ -131,9 +98,18 @@ export default async function fetchGetEndpoint<T>(
       },
     });
 
-    return response.data
-      ? response
-      : {error: "Unexpected response structure"};
+    // Проверяем структуру ответа
+    if (!response.data || typeof response.data !== 'object') {
+      return {
+        success: false,
+        error: "Invalid response format",
+      } as ErrorResponse;
+    }
+
+    return {
+      success: true,
+      data: response.data as T
+    };
   } catch (error) {
     return handleError(error);
   }
@@ -161,13 +137,13 @@ function handleError(error: any): ErrorResponse {
 }
 
 // Функция для обработки POST запросов
-export async function fetchPostEndpoint(
+export async function fetchPostEndpoint<T>(
   endpoint: string,
-  body: any,
+  body: Record<string, any>,
   token: string
-): Promise<any | ErrorResponse> {
+): Promise<ApiResponse<T> | ErrorResponse> {
   try {
-    const response = await axios.post(
+    const response = await axios.post<T>(
       `https://miel.sayrrx.cfd${endpoint}`,
       body,
       {
@@ -175,12 +151,23 @@ export async function fetchPostEndpoint(
           Authorization: `Token ${
             token || "1a5091d623065bdb3722c62b70a473cfe2b1749f"
           }`,
-          "Content-Type": "application/json", // Убедитесь, что сервер ожидает JSON
+          "Content-Type": "application/json",
         },
       }
     );
 
-    return response.data; // Возвращаем данные из ответа
+    // Проверяем структуру ответа
+    if (!response.data || typeof response.data !== 'object') {
+      return {
+        success: false,
+        error: "Invalid response format",
+      } as ErrorResponse;
+    }
+
+    return {
+      success: true,
+      data: response.data as T
+    };
   } catch (error) {
     return handleError(error);
   }
