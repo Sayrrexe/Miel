@@ -188,6 +188,17 @@ export const AdminCandidates = () => {
           </TableBody>
         </Table>
       </div>
+      {/* Архивная кнопка */}
+      <div className="flex justify-end mt-7">
+        <Button
+          variant="default"
+          className={`w-full md:w-[160px]`}
+          type="button"
+        >
+          В архив
+        </Button>
+      </div>
+
     </div>
   );
 };
