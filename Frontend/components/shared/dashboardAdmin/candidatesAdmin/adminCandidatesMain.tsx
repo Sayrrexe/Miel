@@ -14,7 +14,6 @@ import {
 import {cn} from "@/lib/utils";
 import {useRouter} from "next/navigation";
 import {useEffect, useState} from "react";
-import Link from "next/link";
 import Image from "next/image";
 import user from "@/public/assets/tcs61nk83dig738gik8qtkcx6ue7sgek.png";
 import {useCandidates} from "@/store/context";
@@ -136,32 +135,31 @@ export const AdminCandidates = () => {
                 className={css.rowT}
                 key={index}
               >
-                <Link href={`/addingEmployee/${objectData.id}`}>
-                  <TableCell
-                    className={`text-black flex justify-start items-center gap-3`}
-                  >
-                    <span className="w-6">{""}</span>
-                    {objectData.photo && objectData.photo != "-" ? (
-                      <img
-                        src={objectData.photo}
-                        width={39}
-                        height={39}
-                        className={`flex rounded-3xl max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px] ${css.candidatePhoto}`}
-                        alt="avatar"
-                      />
-                    ) : (
-                      <Image
-                        className={`flex max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px] ${css.candidatePhoto}`}
-                        src={user}
-                        width={39}
-                        height={39}
-                        alt="photo"
-                      />
-                    )}
-
-                    <p>{`${objectData.surname} ${objectData.name}${objectData.patronymic ? ` ${objectData.patronymic}` : ''}`}</p>
-                  </TableCell>
-                </Link>
+                <TableCell
+                  className={`text-black flex justify-start items-center gap-3`}
+                  onClick={() => router.push(`/addingEmployee/${objectData.id}`)}
+                  style={{cursor: 'pointer'}}
+                >
+                  <span className="w-6">{" "}</span>
+                  {objectData.photo && objectData.photo != "-" ? (
+                    <img
+                      src={objectData.photo}
+                      width={39}
+                      height={39}
+                      className={`flex rounded-3xl max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px] ${css.candidatePhoto}`}
+                      alt="avatar"
+                    />
+                  ) : (
+                    <Image
+                      className={`flex max-w-[90px] max-h-[90px] min-h-[39px] min-w-[39px] ${css.candidatePhoto}`}
+                      src={user}
+                      width={39}
+                      height={39}
+                      alt="photo"
+                    />
+                  )}
+                  <p>{`${objectData.surname} ${objectData.name}${objectData.patronymic ? ` ${objectData.patronymic}` : ''}`}</p>
+                </TableCell>
                 <TableCell className={`text-black text-center tracking-tight`}>
                   {objectData.city}
                 </TableCell>
@@ -188,7 +186,8 @@ export const AdminCandidates = () => {
           </TableBody>
         </Table>
       </div>
-      {/* Архивная кнопка */}
+      {/* Архивная кнопка */
+      }
       <div className="flex justify-end mt-7">
         <Button
           variant="default"
@@ -200,5 +199,6 @@ export const AdminCandidates = () => {
       </div>
 
     </div>
-  );
+  )
+    ;
 };
