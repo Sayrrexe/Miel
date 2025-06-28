@@ -101,6 +101,7 @@ export const AdminItems = () => {
   }, []);
   return (
     <div className={cn(css.adminItemsContainer)}>
+
       <div className="pt-8 flex flex-col md:flex-row gap-4 md:gap-4 mb-1">
         <Input
           className="rounded-xl w-full md:w-[630px]"
@@ -141,6 +142,7 @@ export const AdminItems = () => {
           {window.innerWidth < 1000 ? "+" : "Добавить руководителя"}
         </Button>
       </div>
+
       <div className="h-[calc(100vh-250px)] overflow-y-auto pr-3">
         <Table className="border-solid border-[#CACBCD] border-2 w-full">
           <TableHeader>

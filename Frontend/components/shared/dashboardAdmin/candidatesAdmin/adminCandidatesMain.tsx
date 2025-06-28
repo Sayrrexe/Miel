@@ -129,6 +129,7 @@ export const AdminCandidates = () => {
               </TableHead>
             </TableRow>
           </TableHeader>
+          {/* Тело таблицы */}
           <TableBody>
             {candidates.map((objectData, index) => (
               <TableRow
@@ -158,7 +159,7 @@ export const AdminCandidates = () => {
                       />
                     )}
 
-                    <p className={css.candidateName}>{objectData.name}</p>
+                    <p>{`${objectData.surname} ${objectData.name}${objectData.patronymic ? ` ${objectData.patronymic}` : ''}`}</p>
                   </TableCell>
                 </Link>
                 <TableCell className={`text-black text-center tracking-tight`}>
@@ -168,10 +169,9 @@ export const AdminCandidates = () => {
                   <span className="w-6">{""}</span>
                   {objectData.phone}
                 </TableCell>
-                <TableCell className={`text-black text-center tracking-tight`}>
+                <TableCell className={`text-black tracking-tight p-0`}>
                   <Checkbox
-                    className="ml-5"
-                    checked={false}
+                    // checked={false}
                   />
                 </TableCell>
                 <TableCell className={`text-black text-center tracking-tight`}>
@@ -181,7 +181,7 @@ export const AdminCandidates = () => {
                   {objectData.office ? objectData.office : "нет"}
                 </TableCell>
                 <TableCell className={`text-black text-center tracking-tight`}>
-                  <Checkbox className="ml-5" />
+                  <Checkbox />
                 </TableCell>
               </TableRow>
             ))}

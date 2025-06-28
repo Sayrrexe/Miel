@@ -210,7 +210,7 @@ interface Candidate {
   id?: number;
   name: string;
   office?: number;
-  patronymic: string;
+  patronymic?: string;
   phone: string;
   photo?: string;
   resume: string;
