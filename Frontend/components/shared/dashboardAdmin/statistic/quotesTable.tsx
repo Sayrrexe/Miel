@@ -54,7 +54,7 @@ export const QuotesTable = ({ start_date, end_date }: PersonalInfoProps) => {
     })();
   }, [end_date, start_date, token]);
   return (
-    <div className={cn("")}>
+    <div className="h-[calc(100vh-250px)] overflow-y-auto pr-3">
       <p onClick={() => console.log(quotes)} className="mt-10 text-xl"></p>
       <Table
         onClick={() => console.log(quotes)}
