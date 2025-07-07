@@ -1,12 +1,12 @@
 "use client";
-import { Button } from "@/components/ui";
-import { cn } from "@/lib/utils";
-import { useState } from "react";
+import {Button} from "@/components/ui";
+import {cn} from "@/lib/utils";
+import {useState} from "react";
 import DatePicker from "react-date-picker";
 import "../../dataPicker/DatePicker.css";
 import "../../dataPicker/Calendar.css";
-import { InvitationStatistic } from "./invitationStatistic";
-import { QuotesTable } from "./quotesTable";
+import {InvitationStatistic} from "./invitationStatistic";
+import {QuotesTable} from "./quotesTable";
 
 export const Statistic = () => {
   type ValuePiece = Date | null;
@@ -18,12 +18,12 @@ export const Statistic = () => {
   return (
     <div
       className={cn(
-        "w-[81vw] pt-[54px] pl-[31px] flex flex-col justify-between"
+        "w-[78vw] pt-[54px] pl-[31px] flex flex-col justify-between"
       )}
     >
       <div>
         <p className="text-lg">Информация за период</p>
-        <div className="flex gap-16 items-end">
+        <div className="flex gap-8 laptop:gap-16 items-end">
           <div className="flex items-center gap-4 mt-6">
             <DatePicker
               className={"h-10 w-52 text-sm"}
@@ -42,9 +42,9 @@ export const Statistic = () => {
           </div>
           <div className="flex gap-2">
             <div
-              className={`w-40 h-11 flex items-center justify-center ${
+              className={`max-w-[108px] h-10 px-4 gap-2.5 flex content-end justify-center text-black text-3xl font-normal leading-10  ${
                 page
-                  ? "border-solid] border-b-[3px] border-[#01BEC2] rounded-b-lg"
+                  ? "border-solid border-b-[3px] border-menu-hvr"
                   : "opacity-50 cursor-pointer"
               }`}
               onClick={() => setPage(true)}
@@ -52,9 +52,9 @@ export const Statistic = () => {
               Квоты
             </div>
             <div
-              className={`w-40 h-11 flex items-center justify-center ${
+              className={`max-w-[198px] h-10 px-4 gap-2.5 flex content-end justify-center text-black text-3xl font-normal leading-10 ${
                 !page
-                  ? "border-solid] border-b-[3px] border-[#01BEC2] rounded-b-lg"
+                  ? "border-solid border-b-[3px] border-menu-hvr"
                   : "opacity-50 cursor-pointer"
               }`}
               onClick={() => setPage(false)}
@@ -65,9 +65,15 @@ export const Statistic = () => {
         </div>
       </div>
       {page ? (
-        <QuotesTable start_date={value} end_date={value1} />
+        <QuotesTable
+          start_date={value}
+          end_date={value1}
+        />
       ) : (
-        <InvitationStatistic start_date={value} end_date={value1} />
+        <InvitationStatistic
+          start_date={value}
+          end_date={value1}
+        />
       )}
     </div>
   );
