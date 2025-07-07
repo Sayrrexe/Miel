@@ -36,7 +36,9 @@ export const Statistic = () => {
               onChange={onChange1}
               value={value1}
             />
-            <Button className="bg-[#960047] w-[94px] hover:bg-[#960046bb] rounded-xl h-[100%]">
+            <Button
+              variant="default"
+              className="w-[94px] ">
               Искать
             </Button>
           </div>
