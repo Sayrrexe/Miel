@@ -8,7 +8,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui";
-import { cn } from "@/lib/utils";
 import { useEffect, useState } from "react";
 import fetchGetEndpoint from "@/lib/candidates";
 import { Check } from "lucide-react";
@@ -33,6 +32,15 @@ export const QuotesTable = ({ start_date, end_date }: PersonalInfoProps) => {
     rejected: number;
   }
   const [quotes, setQuotes] = useState<Quotes[]>([]);
+  const [selectedRows, setSelectedRows] = useState<number[]>([]);
+
+  const toggleRowSelection = (index: number) => {
+    setSelectedRows(prev => 
+      prev.includes(index) 
+        ? prev.filter(i => i !== index)
+        : [...prev, index]
+    );
+  };
   useEffect(() => {
     console.log(token);
     (async () => {
@@ -87,9 +95,15 @@ export const QuotesTable = ({ start_date, end_date }: PersonalInfoProps) => {
         </TableHeader>
         <TableBody className="[&::-webkit-scrollbar]:w-2 [&::-webkit-scrollbar-thumb]:bg-gray-300 [&::-webkit-scrollbar-track]:bg-gray-100">
           {quotes.map((objectData, index) => (
-            <TableRow key={index}>
+            <TableRow 
+              key={index} 
+              className={selectedRows.includes(index) ? 'bg-selected-row' : ''}
+            >
               <TableCell className="gap-3 w-[56px]">
-                <Checkbox />
+                <Checkbox 
+                  checked={selectedRows.includes(index)}
+                  onCheckedChange={() => toggleRowSelection(index)}
+                />
               </TableCell>
               <TableCell className="gap-3 text-sm w-[104px] h-[56px] bg-[#EDEEEE]">
                 {objectData.month.slice(0, -5)}

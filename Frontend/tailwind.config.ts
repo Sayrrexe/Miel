@@ -56,6 +56,7 @@ const config: Config = {
         'border-primary': '#CACBCD', // цвет бордера
         'l-gray': '#B9BABD', // цвет бордера (рамка авторизации)
         'menu-active': '#8BA7C2', // цвет активной ссылки бокового меню
+        'selected-row': '#E6F9F9', // цвет фона выбранной строчки таблицы
         'menu-hvr': '#FF5E01', // цвет ссылки бокового меню при наведении
         'btn-sec-fg-hover': '#4f5052', // цвет текста (secondary/hover|press)
         'tertiary-text': '#798087', // цвет фона (tertiary)
