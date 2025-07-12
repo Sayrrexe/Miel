@@ -114,9 +114,12 @@ export const NewPlans = () => {
           Выбрать
         </Button>
       </div>
-      <p className="text-[#960047] mt-[19px] mb-[33px] ml-[19px]">
-        + Создать задачу
-      </p>
+      {/* Кнопка создать задачу */}
+      <div>
+        <Button variant="outline" className="text-btn-primary mt-[19px] mb-[33px]">
+          + Создать задачу
+        </Button>
+      </div>
       <div className="flex gap-20">
         <div className="border-[#CACBCD] border-solid border-[1px] p-5 w-[566px]">
           <div className="w-full flex justify-between text-center">
