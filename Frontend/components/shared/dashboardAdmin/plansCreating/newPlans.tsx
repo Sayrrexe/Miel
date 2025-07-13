@@ -43,7 +43,7 @@ export const NewPlans = () => {
         date
       );
 
-      if (response.success && response.data) {
+      if ('success' in response && response.success) {
         setTasks(response.data);
       } else {
         throw new Error(response.error || "Failed to fetch tasks");
@@ -62,11 +62,9 @@ export const NewPlans = () => {
       const endpointToCall = "/api/todo-stats/";
       const response = await fetchGetEndpoint<TaskStats>(endpointToCall, token);
 
-      if (response.success && response.data) {
+      if ('success' in response && response.success) {
         setNewTasks({
           total_created: response.data.total_created || 0,
-          total_completed: response.data.total_completed || 0,
-          total_deleted: response.data.total_deleted || 0,
           max_created_day: response.data.max_created_day || "",
           max_completed_day: response.data.max_completed_day || "",
         });
@@ -116,7 +114,10 @@ export const NewPlans = () => {
       </div>
       {/* Кнопка создать задачу */}
       <div>
-        <Button variant="outline" className="text-btn-primary mt-[19px] mb-[33px]">
+        <Button
+          variant="outline"
+          className="text-btn-primary mt-[19px] mb-[33px]"
+        >
           + Создать задачу
         </Button>
       </div>
