@@ -2,15 +2,11 @@
 import { useState, useCallback } from 'react';
 import axios from 'axios';
 import { Task, TaskStats, Value } from '@/types/api';
+import { TaskManagementState } from '@/types/components';
 
-interface UseTaskManagementReturn {
-  // Состояние
-  tasks: Task[];
-  stats: TaskStats | null;
-  loading: boolean;
-  error: string | null;
 
-  // Действия
+// Обновляем интерфейс возврата хука
+interface UseTaskManagementReturn extends TaskManagementState {
   fetchTasks: (date?: Value) => Promise<void>;
   fetchStats: () => Promise<void>;
   createTask: (taskText: string, dueDate: Date) => Promise<void>;
@@ -19,7 +15,9 @@ interface UseTaskManagementReturn {
   toggleTaskComplete: (taskId: number) => Promise<void>;
 }
 
+
 export const useTaskManagement = (token: string): UseTaskManagementReturn => {
+  // Обновляем типизацию состояний
   const [tasks, setTasks] = useState<Task[]>([]);
   const [stats, setStats] = useState<TaskStats | null>(null);
   const [loading, setLoading] = useState(false);
