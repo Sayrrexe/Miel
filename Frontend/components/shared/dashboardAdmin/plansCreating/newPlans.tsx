@@ -36,6 +36,13 @@ export const NewPlans = () => {
   const [creatingTask, setCreatingTask] = useState(false);
   const [createError, setCreateError] = useState<string | null>(null);
 
+  // New state for edit task modal
+  const [editingTask, setEditingTask] = useState<Task | null>(null);
+  const [editTaskText, setEditTaskText] = useState("");
+  const [editTaskDueDate, setEditTaskDueDate] = useState<Date | null>(null);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [editingTaskError, setEditingTaskError] = useState<string | null>(null);
+
   const fetchTasks = async (date?: Value) => {
     setError(null);
     try {
@@ -176,6 +183,51 @@ export const NewPlans = () => {
     }
   };
 
+  // Функция для редактирования задачи
+  const handleEdit = (task: Task) => {
+    setEditingTask(task);
+    setEditTaskText(task.task);
+    setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
+    setShowEditModal(true);
+  };
+
+  // Функция для удаления задачи (отправка в отмененные)
+  const handleDelete = async (task: Task) => {
+    try {
+      await axios.patch(
+        `https://miel.sayrrx.cfd/api/todos/${task.id}/`,
+        {
+          is_deleted: true,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Обновляем локальный список задач
+      setTasks(prevTasks =>
+        prevTasks.map(t =>
+          t.id === task.id ? { ...t, is_deleted: true } : t
+        )
+      );
+
+      // Обновляем статистику
+      await fetchStats();
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { status: number; statusText: string };
+        request?: XMLHttpRequest;
+        message?: string
+      };
+
+      console.error("Ошибка при удалении задачи:", error);
+      // Можно добавить отображение ошибки пользователю
+    }
+  };
+
   // Запрос для получения задач
   useEffect(() => {
     fetchTasks();
@@ -280,6 +332,113 @@ export const NewPlans = () => {
         </div>
       )}
 
+      {/* Edit Task Modal */}
+      {showEditModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw]">
+            <h3 className="text-lg font-semibold mb-4">Редактировать задачу</h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Описание задачи
+              </label>
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded-md resize-none"
+                rows={3}
+                value={editTaskText}
+                onChange={(e) => setEditTaskText(e.target.value)}
+                placeholder="Введите описание задачи..."
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Срок выполнения
+              </label>
+              <input
+                type="datetime-local"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                value={editTaskDueDate ? editTaskDueDate.toISOString().slice(0, 16) : ""}
+                onChange={(e) => setEditTaskDueDate(new Date(e.target.value))}
+              />
+            </div>
+
+            {editingTaskError && (
+              <p className="text-red-500 text-sm mb-4">{editingTaskError}</p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowEditModal(false);
+                  setEditTaskText("");
+                  setEditTaskDueDate(null);
+                  setEditingTaskError(null);
+                }}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="default"
+                onClick={async () => {
+                  try {
+                    await axios.patch(
+                      `https://miel.sayrrx.cfd/api/todos/${editingTask?.id}/`,
+                      {
+                        task: editTaskText.trim(),
+                        due_date: editTaskDueDate?.toISOString(),
+                      },
+                      {
+                        headers: {
+                          Authorization: `Token ${token}`,
+                          "Content-Type": "application/json",
+                        },
+                      }
+                    );
+
+                    // Обновляем локальный список задач
+                    setTasks(prevTasks =>
+                      prevTasks.map(t =>
+                        t.id === editingTask?.id
+                          ? { ...t, task: editTaskText.trim(), due_date: editTaskDueDate?.toISOString() }
+                          : t
+                      )
+                    );
+
+                    // Обновляем статистику
+                    await fetchStats();
+
+                    setShowEditModal(false);
+                    setEditTaskText("");
+                    setEditTaskDueDate(null);
+                  } catch (err: unknown) {
+                    const error = err as {
+                      response?: { status: number; statusText: string };
+                      request?: XMLHttpRequest;
+                      message?: string
+                    };
+
+                    if (error.response) {
+                      // Ошибка от сервера
+                      setEditingTaskError(`Ошибка ${error.response.status}: ${error.response.statusText}`);
+                    } else if (error.request) {
+                      // Ошибка при отправке запроса
+                      setEditingTaskError("Не удалось связаться с сервером");
+                    } else {
+                      // Другое исключение
+                      setEditingTaskError(error.message || "Произошла ошибка при редактировании задачи");
+                    }
+                  }
+                }}
+              >
+                Сохранить
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-20">
         <div className="border-[#CACBCD] border-solid border-[1px] p-5 w-[566px]">
           <div className="w-full flex justify-between text-center">
@@ -290,18 +449,24 @@ export const NewPlans = () => {
             title="Активные задачи"
             filter={(task) => !task.is_complete && !task.is_deleted}
             onToggleComplete={handleToggleComplete}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
           <TaskList
             tasks={tasks}
             title="Завершенные задачи"
             filter={(task) => task.is_complete && !task.is_deleted}
             onToggleComplete={handleToggleComplete}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
           <TaskList
             tasks={tasks}
             title="Отмененные задачи"
             filter={(task) => !task.is_complete && task.is_deleted}
             onToggleComplete={handleToggleComplete}
+            onEdit={handleEdit}
+            onDelete={handleDelete}
           />
         </div>
         <div className="flex flex-col gap-[148px]">
