@@ -139,6 +139,43 @@ export const NewPlans = () => {
     }
   };
 
+  // Функция для переключения статуса задачи в чекбоксе
+  const handleToggleComplete = async (task: Task) => {
+    try {
+      await axios.patch(
+        `https://miel.sayrrx.cfd/api/todos/${task.id}/`,
+        {
+          is_complete: !task.is_complete,
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Обновляем локальный список задач
+      setTasks(prevTasks =>
+        prevTasks.map(t =>
+          t.id === task.id ? { ...t, is_complete: !t.is_complete } : t
+        )
+      );
+
+      // Обновляем статистику
+      await fetchStats();
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { status: number; statusText: string };
+        request?: XMLHttpRequest;
+        message?: string
+      };
+
+      console.error("Ошибка при обновлении статуса задачи:", error);
+      // Можно добавить отображение ошибки пользователю
+    }
+  };
+
   // Запрос для получения задач
   useEffect(() => {
     fetchTasks();
@@ -252,16 +289,19 @@ export const NewPlans = () => {
             tasks={tasks}
             title="Активные задачи"
             filter={(task) => !task.is_complete && !task.is_deleted}
+            onToggleComplete={handleToggleComplete}
           />
           <TaskList
             tasks={tasks}
             title="Завершенные задачи"
             filter={(task) => task.is_complete && !task.is_deleted}
+            onToggleComplete={handleToggleComplete}
           />
           <TaskList
             tasks={tasks}
             title="Отмененные задачи"
             filter={(task) => !task.is_complete && task.is_deleted}
+            onToggleComplete={handleToggleComplete}
           />
         </div>
         <div className="flex flex-col gap-[148px]">
