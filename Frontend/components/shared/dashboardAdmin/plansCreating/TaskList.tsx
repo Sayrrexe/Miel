@@ -149,28 +149,22 @@ export const TaskList = memo(function TaskList({
                 {task.task}
               </span>
             </div>
-            {(onEdit || onDelete) && (
-              <div className="flex space-x-2">
-                {onEdit && (
-                  <button
-                    onClick={() => handleEditClick(task)}
-                    className="p-1 text-gray-500 hover:text-primary transition-colors"
-                    aria-label="Редактировать задачу"
-                  >
-                    <Edit className="w-4 h-4" />
-                  </button>
-                )}
-                {onDelete && (
-                  <button
-                    onClick={() => handleDeleteClick(task)}
-                    className="p-1 text-gray-500 hover:text-destructive transition-colors"
-                    aria-label="Удалить задачу"
-                  >
-                    <Trash className="w-4 h-4" />
-                  </button>
-                )}
-              </div>
-            )}
+            <div className="flex space-x-2">
+              <button
+                onClick={() => handleEditClick(task)}
+                className="p-1 text-gray-500 hover:text-primary transition-colors"
+                aria-label="Редактировать задачу"
+              >
+                <Edit className="w-4 h-4" />
+              </button>
+              <button
+                onClick={() => handleDeleteClick(task)}
+                className="p-1 text-gray-500 hover:text-destructive transition-colors"
+                aria-label="Удалить задачу"
+              >
+                <Trash className="w-4 h-4" />
+              </button>
+            </div>
           </div>
         ))}
       </div>
