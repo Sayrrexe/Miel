@@ -220,6 +220,8 @@ export const AdminPages = () => {
           width={230}
           height={240}
           alt="graph"
+          priority
+          style={{ width: "auto", height: "auto" }}
           className={`absolute bottom-0 ${css.imageBottom}`}
         />
       </div>
