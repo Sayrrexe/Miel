@@ -3,7 +3,7 @@ import { cn } from "@/lib/utils";
 
 const Dashboard_adminka = () => {
   return (
-    <div className={cn("overflow-y-auto min-h-screen pb-10    ")}>
+    <div className={cn("h-[calc(100vh-72px)] overflow-y-auto pb-10")}>
       <NewPlans />
     </div>
   );
