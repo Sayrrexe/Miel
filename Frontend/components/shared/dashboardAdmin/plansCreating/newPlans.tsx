@@ -7,7 +7,7 @@ import "../../dataPicker/DatePicker.css";
 import "../../dataPicker/Calendar.css";
 import {Button} from "@/components/ui";
 import {Ellipsis} from "lucide-react";
-import fetchGetEndpoint from "@/lib/candidates";
+import axios from "axios";
 import css from "./main.module.css";
 import {Task, TaskStats, Value} from "@/types/api";
 import {TaskList} from "./TaskList";
@@ -30,23 +30,29 @@ export const NewPlans = () => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // New state for create task modal
+  const [showCreateModal, setShowCreateModal] = useState(false);
+  const [taskText, setTaskText] = useState("");
+  const [taskDueDate, setTaskDueDate] = useState<Date | null>(null);
+  const [creatingTask, setCreatingTask] = useState(false);
+  const [createError, setCreateError] = useState<string | null>(null);
+
   const fetchTasks = async (date?: Value) => {
     setLoading(true);
     setError(null);
     try {
-      const endpointToCall = "/api/todos/";
-      const response = await fetchGetEndpoint<Task[]>(
-        endpointToCall,
-        token,
-        undefined,
-        undefined,
-        date
-      );
+      const endpointToCall = `https://miel.sayrrx.cfd/api/todos/`;
+      const response = await axios.get(endpointToCall, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+        params: date ? { date: date.toISOString() } : undefined,
+      });
 
-      if ('success' in response && response.success) {
+      if (response.status === 200) {
         setTasks(response.data);
       } else {
-        throw new Error(response.error || "Failed to fetch tasks");
+        throw new Error(response.statusText);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
@@ -59,22 +65,74 @@ export const NewPlans = () => {
     setLoading(true);
     setError(null);
     try {
-      const endpointToCall = "/api/todo-stats/";
-      const response = await fetchGetEndpoint<TaskStats>(endpointToCall, token);
+      const endpointToCall = `https://miel.sayrrx.cfd/api/todo-stats/`;
+      const response = await axios.get(endpointToCall, {
+        headers: {
+          Authorization: `Token ${token}`,
+        },
+      });
 
-      if ('success' in response && response.success) {
+      if (response.status === 200) {
         setNewTasks({
           total_created: response.data.total_created || 0,
           max_created_day: response.data.max_created_day || "",
           max_completed_day: response.data.max_completed_day || "",
         });
       } else {
-        throw new Error(response.error || "Failed to fetch stats");
+        throw new Error(response.statusText);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const createTask = async () => {
+    if (!taskText.trim() || !taskDueDate) {
+      setCreateError("Заполните все поля");
+      return;
+    }
+
+    setCreatingTask(true);
+    setCreateError(null);
+
+    try {
+      await axios.post(
+        `https://miel.sayrrx.cfd/api/todos/`,
+        {
+          task: taskText.trim(),
+          due_date: taskDueDate.toISOString(),
+        },
+        {
+          headers: {
+            Authorization: `Token ${token}`,
+            "Content-Type": "application/json",
+          },
+        }
+      );
+
+      // Reset form
+      setTaskText("");
+      setTaskDueDate(null);
+      setShowCreateModal(false);
+
+      // Refresh tasks list
+      await fetchTasks();
+      await fetchStats();
+    } catch (err: any) {
+      if (err.response) {
+        // Ошибка от сервера
+        setCreateError(`Ошибка ${err.response.status}: ${err.response.statusText}`);
+      } else if (err.request) {
+        // Ошибка при отправке запроса
+        setCreateError("Не удалось связаться с сервером");
+      } else {
+        // Другое исключение
+        setCreateError(err.message || "Произошла ошибка при создании задачи");
+      }
+    } finally {
+      setCreatingTask(false);
     }
   };
 
@@ -117,10 +175,71 @@ export const NewPlans = () => {
         <Button
           variant="outline"
           className="text-btn-primary mt-[19px] mb-[33px]"
+          onClick={() => setShowCreateModal(true)}
         >
           + Создать задачу
         </Button>
       </div>
+
+      {/* Create Task Modal */}
+      {showCreateModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw]">
+            <h3 className="text-lg font-semibold mb-4">Создать задачу</h3>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Описание задачи
+              </label>
+              <textarea
+                className="w-full p-2 border border-gray-300 rounded-md resize-none"
+                rows={3}
+                value={taskText}
+                onChange={(e) => setTaskText(e.target.value)}
+                placeholder="Введите описание задачи..."
+              />
+            </div>
+
+            <div className="mb-4">
+              <label className="block text-sm font-medium mb-2">
+                Срок выполнения
+              </label>
+              <input
+                type="datetime-local"
+                className="w-full p-2 border border-gray-300 rounded-md"
+                value={taskDueDate ? taskDueDate.toISOString().slice(0, 16) : ""}
+                onChange={(e) => setTaskDueDate(new Date(e.target.value))}
+              />
+            </div>
+
+            {createError && (
+              <p className="text-red-500 text-sm mb-4">{createError}</p>
+            )}
+
+            <div className="flex justify-end gap-2">
+              <Button
+                variant="outline"
+                onClick={() => {
+                  setShowCreateModal(false);
+                  setTaskText("");
+                  setTaskDueDate(null);
+                  setCreateError(null);
+                }}
+              >
+                Отмена
+              </Button>
+              <Button
+                variant="default"
+                onClick={createTask}
+                disabled={creatingTask}
+              >
+                {creatingTask ? "Создание..." : "Создать"}
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="flex gap-20">
         <div className="border-[#CACBCD] border-solid border-[1px] p-5 w-[566px]">
           <div className="w-full flex justify-between text-center">
