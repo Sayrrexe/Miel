@@ -27,7 +27,6 @@ export const NewPlans = () => {
   const token = localStorage.getItem("token") || "";
   const [tasks, setTasks] = useState<Tasks[]>([]);
   const [value, onChange] = useState<Value>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
   // New state for create task modal
@@ -38,7 +37,6 @@ export const NewPlans = () => {
   const [createError, setCreateError] = useState<string | null>(null);
 
   const fetchTasks = async (date?: Value) => {
-    setLoading(true);
     setError(null);
     try {
       const endpointToCall = `https://miel.sayrrx.cfd/api/todos/`;
@@ -46,7 +44,11 @@ export const NewPlans = () => {
         headers: {
           Authorization: `Token ${token}`,
         },
-        params: date ? { date: date.toISOString() } : undefined,
+        params: date
+          ? Array.isArray(date)
+            ? { date: date[0]?.toISOString() }
+            : { date: date.toISOString() }
+          : undefined,
       });
 
       if (response.status === 200) {
@@ -56,13 +58,10 @@ export const NewPlans = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
     }
   };
 
   const fetchStats = async () => {
-    setLoading(true);
     setError(null);
     try {
       const endpointToCall = `https://miel.sayrrx.cfd/api/todo-stats/`;
@@ -83,8 +82,6 @@ export const NewPlans = () => {
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : "An error occurred");
-    } finally {
-      setLoading(false);
     }
   };
 
@@ -120,16 +117,22 @@ export const NewPlans = () => {
       // Refresh tasks list
       await fetchTasks();
       await fetchStats();
-    } catch (err: any) {
-      if (err.response) {
+    } catch (err: unknown) {
+      const error = err as {
+        response?: { status: number; statusText: string };
+        request?: XMLHttpRequest;
+        message?: string
+      };
+
+      if (error.response) {
         // Ошибка от сервера
-        setCreateError(`Ошибка ${err.response.status}: ${err.response.statusText}`);
-      } else if (err.request) {
+        setCreateError(`Ошибка ${error.response.status}: ${error.response.statusText}`);
+      } else if (error.request) {
         // Ошибка при отправке запроса
         setCreateError("Не удалось связаться с сервером");
       } else {
         // Другое исключение
-        setCreateError(err.message || "Произошла ошибка при создании задачи");
+        setCreateError(error.message || "Произошла ошибка при создании задачи");
       }
     } finally {
       setCreatingTask(false);
