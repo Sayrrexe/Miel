@@ -1,4 +1,3 @@
-// newPlans.tsx
 "use client";
 import {cn} from "@/lib/utils";
 import {useEffect, useState} from "react";
@@ -7,27 +6,27 @@ import "../../dataPicker/DatePicker.css";
 import "../../dataPicker/Calendar.css";
 import {Button} from "@/components/ui";
 import {Ellipsis} from "lucide-react";
-import axios from "axios";
+import { useTaskManagement } from '@/hooks/useTaskManagement';
 import css from "./main.module.css";
-import {Task, TaskStats, Value} from "@/types/api";
+import {Task, Value} from "@/types/api";
 import {TaskList} from "./TaskList";
 
-// Используем типы из types/api.ts
-type Tasks = Task
-type NewTasks = TaskStats
-
 export const NewPlans = () => {
-  const [newTasks, setNewTasks] = useState<NewTasks>({
-    total_created: 0,
-    total_completed: 0,
-    total_deleted: 0,
-    max_created_day: "",
-    max_completed_day: "",
-  });
-  const token = localStorage.getItem("token") || "";
-  const [tasks, setTasks] = useState<Tasks[]>([]);
+  // Используем хук useTaskManagement
+  const {
+    tasks,
+    stats: newTasks,
+    // loading,
+    error,
+    fetchTasks,
+    fetchStats,
+    createTask,
+    editTask,
+    deleteTask,
+    toggleTaskComplete
+  } = useTaskManagement(localStorage.getItem("token") || "");
+
   const [value, onChange] = useState<Value>(null);
-  const [error, setError] = useState<string | null>(null);
 
   // New state for create task modal
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -43,202 +42,17 @@ export const NewPlans = () => {
   const [showEditModal, setShowEditModal] = useState(false);
   const [editingTaskError, setEditingTaskError] = useState<string | null>(null);
 
-  const fetchTasks = async (date?: Value) => {
-    setError(null);
-    try {
-      const endpointToCall = `https://miel.sayrrx.cfd/api/todos/`;
-      const response = await axios.get(endpointToCall, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-        params: date
-          ? Array.isArray(date)
-            ? { date: date[0]?.toISOString() }
-            : { date: date.toISOString() }
-          : undefined,
-      });
-
-      if (response.status === 200) {
-        setTasks(response.data);
-      } else {
-        throw new Error(response.statusText);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    }
-  };
-
-  const fetchStats = async () => {
-    setError(null);
-    try {
-      const endpointToCall = `https://miel.sayrrx.cfd/api/todo-stats/`;
-      const response = await axios.get(endpointToCall, {
-        headers: {
-          Authorization: `Token ${token}`,
-        },
-      });
-
-      if (response.status === 200) {
-        setNewTasks({
-          total_created: response.data.total_created || 0,
-          max_created_day: response.data.max_created_day || "",
-          max_completed_day: response.data.max_completed_day || "",
-        });
-      } else {
-        throw new Error(response.statusText);
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "An error occurred");
-    }
-  };
-
-  const createTask = async () => {
-    if (!taskText.trim() || !taskDueDate) {
-      setCreateError("Заполните все поля");
-      return;
-    }
-
-    setCreatingTask(true);
-    setCreateError(null);
-
-    try {
-      await axios.post(
-        `https://miel.sayrrx.cfd/api/todos/`,
-        {
-          task: taskText.trim(),
-          due_date: taskDueDate.toISOString(),
-        },
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Reset form
-      setTaskText("");
-      setTaskDueDate(null);
-      setShowCreateModal(false);
-
-      // Refresh tasks list
-      await fetchTasks();
-      await fetchStats();
-    } catch (err: unknown) {
-      const error = err as {
-        response?: { status: number; statusText: string };
-        request?: XMLHttpRequest;
-        message?: string
-      };
-
-      if (error.response) {
-        // Ошибка от сервера
-        setCreateError(`Ошибка ${error.response.status}: ${error.response.statusText}`);
-      } else if (error.request) {
-        // Ошибка при отправке запроса
-        setCreateError("Не удалось связаться с сервером");
-      } else {
-        // Другое исключение
-        setCreateError(error.message || "Произошла ошибка при создании задачи");
-      }
-    } finally {
-      setCreatingTask(false);
-    }
-  };
-
-  // Функция для переключения статуса задачи в чекбоксе
-  const handleToggleComplete = async (task: Task) => {
-    try {
-      await axios.patch(
-        `https://miel.sayrrx.cfd/api/todos/${task.id}/`,
-        {
-          is_complete: !task.is_complete,
-        },
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Обновляем локальный список задач
-      setTasks(prevTasks =>
-        prevTasks.map(t =>
-          t.id === task.id ? { ...t, is_complete: !t.is_complete } : t
-        )
-      );
-
-      // Обновляем статистику
-      await fetchStats();
-    } catch (err: unknown) {
-      const error = err as {
-        response?: { status: number; statusText: string };
-        request?: XMLHttpRequest;
-        message?: string
-      };
-
-      console.error("Ошибка при обновлении статуса задачи:", error);
-      // Можно добавить отображение ошибки пользователю
-    }
-  };
-
-  // Функция для редактирования задачи
-  const handleEdit = (task: Task) => {
-    setEditingTask(task);
-    setEditTaskText(task.task);
-    setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
-    setShowEditModal(true);
-  };
-
-  // Функция для удаления задачи (отправка в отмененные)
-  const handleDelete = async (task: Task) => {
-    try {
-      await axios.patch(
-        `https://miel.sayrrx.cfd/api/todos/${task.id}/`,
-        {
-          is_deleted: true,
-        },
-        {
-          headers: {
-            Authorization: `Token ${token}`,
-            "Content-Type": "application/json",
-          },
-        }
-      );
-
-      // Обновляем локальный список задач
-      setTasks(prevTasks =>
-        prevTasks.map(t =>
-          t.id === task.id ? { ...t, is_deleted: true } : t
-        )
-      );
-
-      // Обновляем статистику
-      await fetchStats();
-    } catch (err: unknown) {
-      const error = err as {
-        response?: { status: number; statusText: string };
-        request?: XMLHttpRequest;
-        message?: string
-      };
-
-      console.error("Ошибка при удалении задачи:", error);
-      // Можно добавить отображение ошибки пользователю
-    }
-  };
-
   // Запрос для получения задач
   useEffect(() => {
     fetchTasks();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   // Запрос для получения статистики по задачам
   useEffect(() => {
     fetchStats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, []);
 
   return (
     <div className={cn("m-[52px] overflow-x-visible")}>
@@ -322,7 +136,26 @@ export const NewPlans = () => {
               </Button>
               <Button
                 variant="default"
-                onClick={createTask}
+                onClick={async () => {
+                  if (!taskText.trim() || !taskDueDate) {
+                    setCreateError("Заполните все поля");
+                    return;
+                  }
+
+                  setCreatingTask(true);
+                  setCreateError(null);
+
+                  try {
+                    await createTask(taskText, taskDueDate);
+                    setShowCreateModal(false);
+                    setTaskText("");
+                    setTaskDueDate(null);
+                  } catch {
+                    setCreateError("Произошла ошибка при создании задачи");
+                  } finally {
+                    setCreatingTask(false);
+                  }
+                }}
                 disabled={creatingTask}
               >
                 {creatingTask ? "Создание..." : "Создать"}
@@ -333,7 +166,7 @@ export const NewPlans = () => {
       )}
 
       {/* Edit Task Modal */}
-      {showEditModal && (
+      {showEditModal && editingTask && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw]">
             <h3 className="text-lg font-semibold mb-4">Редактировать задачу</h3>
@@ -372,6 +205,7 @@ export const NewPlans = () => {
                 variant="outline"
                 onClick={() => {
                   setShowEditModal(false);
+                  setEditingTask(null);
                   setEditTaskText("");
                   setEditTaskDueDate(null);
                   setEditingTaskError(null);
@@ -382,53 +216,19 @@ export const NewPlans = () => {
               <Button
                 variant="default"
                 onClick={async () => {
+                  if (!editTaskText.trim()) {
+                    setEditingTaskError("Описание задачи обязательно");
+                    return;
+                  }
+
                   try {
-                    await axios.patch(
-                      `https://miel.sayrrx.cfd/api/todos/${editingTask?.id}/`,
-                      {
-                        task: editTaskText.trim(),
-                        due_date: editTaskDueDate?.toISOString(),
-                      },
-                      {
-                        headers: {
-                          Authorization: `Token ${token}`,
-                          "Content-Type": "application/json",
-                        },
-                      }
-                    );
-
-                    // Обновляем локальный список задач
-                    setTasks(prevTasks =>
-                      prevTasks.map(t =>
-                        t.id === editingTask?.id
-                          ? { ...t, task: editTaskText.trim(), due_date: editTaskDueDate?.toISOString() }
-                          : t
-                      )
-                    );
-
-                    // Обновляем статистику
-                    await fetchStats();
-
+                    await editTask(editingTask.id, editTaskText, editTaskDueDate);
                     setShowEditModal(false);
+                    setEditingTask(null);
                     setEditTaskText("");
                     setEditTaskDueDate(null);
-                  } catch (err: unknown) {
-                    const error = err as {
-                      response?: { status: number; statusText: string };
-                      request?: XMLHttpRequest;
-                      message?: string
-                    };
-
-                    if (error.response) {
-                      // Ошибка от сервера
-                      setEditingTaskError(`Ошибка ${error.response.status}: ${error.response.statusText}`);
-                    } else if (error.request) {
-                      // Ошибка при отправке запроса
-                      setEditingTaskError("Не удалось связаться с сервером");
-                    } else {
-                      // Другое исключение
-                      setEditingTaskError(error.message || "Произошла ошибка при редактировании задачи");
-                    }
+                  } catch {
+                    setEditingTaskError("Произошла ошибка при редактировании задачи");
                   }
                 }}
               >
@@ -448,25 +248,40 @@ export const NewPlans = () => {
             tasks={tasks}
             title="Активные задачи"
             filter={(task) => !task.is_complete && !task.is_deleted}
-            onToggleComplete={handleToggleComplete}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onToggleComplete={(task) => toggleTaskComplete(task.id)}
+            onEdit={(task) => {
+              setEditingTask(task);
+              setEditTaskText(task.task);
+              setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
+              setShowEditModal(true);
+            }}
+            onDelete={(task) => deleteTask(task.id)}
           />
           <TaskList
             tasks={tasks}
             title="Завершенные задачи"
             filter={(task) => task.is_complete && !task.is_deleted}
-            onToggleComplete={handleToggleComplete}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onToggleComplete={(task) => toggleTaskComplete(task.id)}
+            onEdit={(task) => {
+              setEditingTask(task);
+              setEditTaskText(task.task);
+              setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
+              setShowEditModal(true);
+            }}
+            onDelete={(task) => deleteTask(task.id)}
           />
           <TaskList
             tasks={tasks}
             title="Отмененные задачи"
             filter={(task) => !task.is_complete && task.is_deleted}
-            onToggleComplete={handleToggleComplete}
-            onEdit={handleEdit}
-            onDelete={handleDelete}
+            onToggleComplete={(task) => toggleTaskComplete(task.id)}
+            onEdit={(task) => {
+              setEditingTask(task);
+              setEditTaskText(task.task);
+              setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
+              setShowEditModal(true);
+            }}
+            onDelete={(task) => deleteTask(task.id)}
           />
         </div>
         <div className="flex flex-col gap-[148px]">
@@ -482,7 +297,7 @@ export const NewPlans = () => {
                 <p className="text-sm font-bold mb-[10px]">Создано</p>
                 <div className="border-[#960047] border-solid border-[1px] h-[100px] w-[100px] rounded-full items-center flex flex-col">
                   <p className="text-[#960047] text-4xl mt-4">
-                    {newTasks.total_completed}
+                    {newTasks?.total_created || 0}
                   </p>
                   <p className="text-xs font-bold">задач</p>
                 </div>
@@ -491,7 +306,7 @@ export const NewPlans = () => {
                 <p className="text-sm font-bold mb-[10px]">Завершено</p>
                 <div className="border-[#960047] border-solid border-[1px] h-[100px] w-[100px] rounded-full items-center flex flex-col">
                   <p className="text-[#960047] text-4xl mt-4">
-                    {newTasks.total_created}
+                    {newTasks?.total_completed || 0}
                   </p>
                   <p className="text-xs font-bold">задач</p>
                 </div>
@@ -500,7 +315,7 @@ export const NewPlans = () => {
                 <p className="text-sm font-bold mb-[10px]">Удалено</p>
                 <div className="border-[#960047] border-solid border-[1px] h-[100px] w-[100px] rounded-full items-center flex flex-col">
                   <p className="text-[#960047] text-4xl mt-4">
-                    {newTasks.total_deleted}
+                    {newTasks?.total_deleted || 0}
                   </p>
                   <p className="text-xs font-bold">задач</p>
                 </div>
@@ -512,10 +327,10 @@ export const NewPlans = () => {
             <p className="mt-5">
               Больше всего задач вы{" "}
               <span className="text-[#01BEC2]">создаете</span> в{" "}
-              {newTasks.max_created_day}
+              {newTasks?.max_created_day || ""}
             </p>
             <p>
-              Больше всего задач вы завершаете во {newTasks.max_completed_day}
+              Больше всего задач вы завершаете во {newTasks?.max_completed_day || ""}
             </p>
           </div>
         </div>
