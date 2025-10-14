@@ -133,17 +133,29 @@ export const TaskList = memo(function TaskList({
         {filteredTasks().map((task) => (
           <div
             key={task.id}
-            className={`flex items-center justify-between p-4 rounded-lg border ${task.is_complete ? 'bg-gray-50' : 'bg-white'} hover:shadow transition-shadow`}
+            className={`flex items-center justify-between p-4 rounded-lg border ${
+              task.is_deleted
+                ? 'bg-red-50 border-red-200'  // Светло-красный фон и граница для отмененных
+                : task.is_complete
+                  ? 'bg-gray-50'              // Серый фон для выполненных
+                  : 'bg-white'                // Белый фон для активных
+            } hover:shadow transition-shadow`}
           >
             <div className="flex items-center space-x-3 flex-1">
               <Checkbox
-                checked={task.is_complete}
+                checked={task.is_complete || task.is_deleted}
                 onCheckedChange={() => handleCheckboxChange(task)}
                 className="w-5 h-5"
                 aria-label={task.is_complete ? 'Отметить как невыполненное' : 'Отметить как выполненное'}
               />
               <span
-                className={`flex-1 cursor-pointer ${task.is_complete ? 'line-through text-gray-500' : 'text-gray-800'}`}
+                className={`flex-1 cursor-pointer ${
+                  task.is_deleted
+                    ? 'line-through text-red-600 opacity-75'  // Зачеркнутый красный текст для отмененных
+                    : task.is_complete
+                      ? 'line-through text-gray-500'           // Зачеркнутый серый текст для выполненных
+                      : 'text-gray-800'                        // Обычный текст для активных
+                }`}
                 onClick={() => handleEditClick(task)}
               >
                 {task.task}
@@ -152,7 +164,11 @@ export const TaskList = memo(function TaskList({
             <div className="flex space-x-2">
               <button
                 onClick={() => handleEditClick(task)}
-                className="p-1 text-gray-500 hover:text-primary transition-colors"
+                className={`p-1 transition-colors ${
+                  task.is_deleted
+                    ? 'text-red-400 hover:text-red-600'       // Красные кнопки для отмененных
+                    : 'text-gray-500 hover:text-primary'      // Обычные кнопки
+                }`}
                 aria-label="Редактировать задачу"
               >
                 <Edit className="w-4 h-4" />
