@@ -10,6 +10,12 @@ import { useTaskManagement } from '@/hooks/useTaskManagement';
 import css from "./main.module.css";
 import {Task, Value} from "@/types/api";
 import {TaskList} from "./TaskList";
+import {
+  CreateTaskModal
+} from "@/components/shared/dashboardAdmin/plansCreating/CreateTaskModal";
+import {
+  EditTaskModal
+} from "@/components/shared/dashboardAdmin/plansCreating/EditTaskModal";
 
 export const NewPlans = () => {
   // Используем хук useTaskManagement
@@ -30,17 +36,10 @@ export const NewPlans = () => {
 
   // New state for create task modal
   const [showCreateModal, setShowCreateModal] = useState(false);
-  const [taskText, setTaskText] = useState("");
-  const [taskDueDate, setTaskDueDate] = useState<Date | null>(null);
-  const [creatingTask, setCreatingTask] = useState(false);
-  const [createError, setCreateError] = useState<string | null>(null);
 
   // New state for edit task modal
   const [editingTask, setEditingTask] = useState<Task | null>(null);
-  const [editTaskText, setEditTaskText] = useState("");
-  const [editTaskDueDate, setEditTaskDueDate] = useState<Date | null>(null);
   const [showEditModal, setShowEditModal] = useState(false);
-  const [editingTaskError, setEditingTaskError] = useState<string | null>(null);
 
   // Запрос для получения задач
   useEffect(() => {
@@ -89,154 +88,21 @@ export const NewPlans = () => {
 
       {/* Create Task Modal */}
       {showCreateModal && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw]">
-            <h3 className="text-lg font-semibold mb-4">Создать задачу</h3>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">
-                Описание задачи
-              </label>
-              <textarea
-                className="w-full p-2 border border-gray-300 rounded-md resize-none"
-                rows={3}
-                value={taskText}
-                onChange={(e) => setTaskText(e.target.value)}
-                placeholder="Введите описание задачи..."
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">
-                Срок выполнения
-              </label>
-              <input
-                type="datetime-local"
-                className="w-full p-2 border border-gray-300 rounded-md"
-                value={taskDueDate ? taskDueDate.toISOString().slice(0, 16) : ""}
-                onChange={(e) => setTaskDueDate(new Date(e.target.value))}
-              />
-            </div>
-
-            {createError && (
-              <p className="text-red-500 text-sm mb-4">{createError}</p>
-            )}
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowCreateModal(false);
-                  setTaskText("");
-                  setTaskDueDate(null);
-                  setCreateError(null);
-                }}
-              >
-                Отмена
-              </Button>
-              <Button
-                variant="default"
-                onClick={async () => {
-                  if (!taskText.trim() || !taskDueDate) {
-                    setCreateError("Заполните все поля");
-                    return;
-                  }
-
-                  setCreatingTask(true);
-                  setCreateError(null);
-
-                  try {
-                    await createTask(taskText, taskDueDate);
-                    setShowCreateModal(false);
-                    setTaskText("");
-                    setTaskDueDate(null);
-                  } catch {
-                    setCreateError("Произошла ошибка при создании задачи");
-                  } finally {
-                    setCreatingTask(false);
-                  }
-                }}
-                disabled={creatingTask}
-              >
-                {creatingTask ? "Создание..." : "Создать"}
-              </Button>
-            </div>
-          </div>
-        </div>
+        <CreateTaskModal
+          isOpen={showCreateModal}
+          onClose={() => setShowCreateModal(false)}
+          onCreate={createTask}
+        />
       )}
 
       {/* Edit Task Modal */}
       {showEditModal && editingTask && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white p-6 rounded-lg w-96 max-w-[90vw]">
-            <h3 className="text-lg font-semibold mb-4">Редактировать задачу</h3>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">
-                Описание задачи
-              </label>
-              <textarea
-                className="w-full p-2 border border-gray-300 rounded-md resize-none"
-                rows={3}
-                value={editTaskText}
-                onChange={(e) => setEditTaskText(e.target.value)}
-                placeholder="Введите описание задачи..."
-              />
-            </div>
-
-            <div className="mb-4">
-              <label className="block text-sm font-medium mb-2">
-                Срок выполнения
-              </label>
-              <input
-                type="datetime-local"
-                className="w-full p-2 border border-gray-300 rounded-md"
-                value={editTaskDueDate ? editTaskDueDate.toISOString().slice(0, 16) : ""}
-                onChange={(e) => setEditTaskDueDate(new Date(e.target.value))}
-              />
-            </div>
-
-            {editingTaskError && (
-              <p className="text-red-500 text-sm mb-4">{editingTaskError}</p>
-            )}
-
-            <div className="flex justify-end gap-2">
-              <Button
-                variant="outline"
-                onClick={() => {
-                  setShowEditModal(false);
-                  setEditingTask(null);
-                  setEditTaskText("");
-                  setEditTaskDueDate(null);
-                  setEditingTaskError(null);
-                }}
-              >
-                Отмена
-              </Button>
-              <Button
-                variant="default"
-                onClick={async () => {
-                  if (!editTaskText.trim()) {
-                    setEditingTaskError("Описание задачи обязательно");
-                    return;
-                  }
-
-                  try {
-                    await editTask(editingTask.id, editTaskText, editTaskDueDate);
-                    setShowEditModal(false);
-                    setEditingTask(null);
-                    setEditTaskText("");
-                    setEditTaskDueDate(null);
-                  } catch {
-                    setEditingTaskError("Произошла ошибка при редактировании задачи");
-                  }
-                }}
-              >
-                Сохранить
-              </Button>
-            </div>
-          </div>
-        </div>
+        <EditTaskModal
+          isOpen={showEditModal}
+          task={editingTask}
+          onClose={() => {setShowEditModal(false); setEditingTask(null);}}
+          onEdit={editTask}
+        />
       )}
 
       <div className="flex gap-20">
@@ -251,8 +117,6 @@ export const NewPlans = () => {
             onToggleComplete={(task) => toggleTaskComplete(task.id)}
             onEdit={(task) => {
               setEditingTask(task);
-              setEditTaskText(task.task);
-              setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
               setShowEditModal(true);
             }}
             onDelete={(task) => deleteTask(task.id)}
@@ -264,8 +128,6 @@ export const NewPlans = () => {
             onToggleComplete={(task) => toggleTaskComplete(task.id)}
             onEdit={(task) => {
               setEditingTask(task);
-              setEditTaskText(task.task);
-              setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
               setShowEditModal(true);
             }}
             onDelete={(task) => deleteTask(task.id)}
@@ -277,8 +139,6 @@ export const NewPlans = () => {
             onToggleComplete={(task) => toggleTaskComplete(task.id)}
             onEdit={(task) => {
               setEditingTask(task);
-              setEditTaskText(task.task);
-              setEditTaskDueDate(task.due_date ? new Date(task.due_date) : null);
               setShowEditModal(true);
             }}
             onDelete={(task) => deleteTask(task.id)}
