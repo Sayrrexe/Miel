@@ -1,12 +1,11 @@
 "use client";
 import {cn} from "@/lib/utils";
 import {useEffect, useState} from "react";
-import DatePicker from "react-date-picker";
 import "../../dataPicker/DatePicker.css";
 import "../../dataPicker/Calendar.css";
 import {Button} from "@/components/ui";
 import { useTaskManagement } from '@/hooks/useTaskManagement';
-import {Task, Value} from "@/types/api";
+import {Task} from "@/types/api";
 import {TaskList} from "./TaskList";
 import {
   CreateTaskModal
@@ -20,6 +19,9 @@ import {
 import {
   TaskInsights
 } from "@/components/shared/dashboardAdmin/plansCreating/TaskInsights";
+import {
+  TaskFilters
+} from "@/components/shared/dashboardAdmin/plansCreating/TaskFilters";
 
 export const NewPlans = () => {
   // Используем хук useTaskManagement
@@ -35,8 +37,6 @@ export const NewPlans = () => {
     deleteTask,
     toggleTaskComplete
   } = useTaskManagement(localStorage.getItem("token") || "");
-
-  const [value, onChange] = useState<Value>(null);
 
   // New state for create task modal
   const [showCreateModal, setShowCreateModal] = useState(false);
@@ -59,26 +59,10 @@ export const NewPlans = () => {
 
   return (
     <div className={cn("m-[52px] overflow-x-visible")}>
-      <p>Выберите дату или период</p>
-      <div>
-        <DatePicker
-          className={"mt-4 h-10 w-52 text-sm"}
-          onChange={onChange}
-          value={value}
-        />
-        {error && (
-          <p className="text-red-500 text-sm mt-2">{error}</p>
-        )}
-        <Button
-          variant="default"
-          onClick={() => {
-            fetchTasks(value);
-          }}
-          className="ml-4 w-40 h-10 rounded-xl"
-        >
-          Выбрать
-        </Button>
-      </div>
+      <TaskFilters
+        onFilter={fetchTasks}
+        error={error}
+      />
       {/* Кнопка создать задачу */}
       <div>
         <Button
