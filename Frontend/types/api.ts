@@ -88,16 +88,16 @@ export type ApiResponse<T> = {
 } | {
   success: false;
   error: string;
-  details?: any;
+  details?: Record<string, string[]>;
 };
 
 // Типы для запросов
 export interface ApiRequestConfig {
   endpoint: string;
   method: 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
-  body?: any;
+  body?: Record<string, unknown> | FormData | string | null;
   token?: string;
-  params?: Record<string, any>;
+  params?: Record<string, string | number | boolean>;
 }
 
 // Типы для кандидатов
